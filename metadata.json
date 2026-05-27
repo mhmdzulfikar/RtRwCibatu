@@ -1,0 +1,6 @@
+{
+  "name": "RT 005 Community",
+  "description": "Portal warga digital RT 005 RW 02 Jatibening Baru untuk layanan pengajuan surat keterangan domisili, transparansi laporan keuangan iuran, dan info pengumuman.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
