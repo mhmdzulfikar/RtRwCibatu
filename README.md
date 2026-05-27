@@ -7,6 +7,13 @@ Panduan ini menjelaskan langkah cepat untuk menjalankan proyek ini secara lokal.
 
 View your app in AI Studio: https://ai.studio/apps/74b5e248-45bf-4671-aab4-05a02d76fa21
 
+- Node.js (v18+ direkomendasikan)
+- npm atau pnpm
+
+## Menjalankan Aplikasi (Panduan singkat)
+
+Panduan ini menjelaskan langkah cepat untuk menjalankan proyek ini secara lokal.
+
 **Persyaratan**
 - Node.js (v18+ direkomendasikan)
 - npm atau pnpm
