@@ -41,12 +41,16 @@ export interface FinancialTransaction {
   date: string;
   category: 'Iuran Bulanan' | 'Donasi' | 'Keamanan & Kebersihan' | 'Pembangunan' | 'Sosial' | 'Operasional RT' | 'Lainnya';
   recordedBy: string;
+  rt?: string;
+  rw?: string;
 }
 
 export interface CitizenDues {
   id: string;
   citizenName: string;
   houseNumber: string;
+  rt?: string;
+  rw?: string;
   paymentHistory: {
     [year: number]: {
       [month: string]: 'Lunas' | 'Belum' | 'Pending'; // 'Lunas' = Paid, 'Belum' = Unpaid, 'Pending' = Waiting Admin Approval
@@ -65,4 +69,6 @@ export interface DuesPaymentRequest {
   transferProofUrl?: string;
   dateSubmitted: string;
   status: 'pending' | 'approved' | 'rejected';
+  rt?: string;
+  rw?: string;
 }

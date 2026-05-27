@@ -397,9 +397,12 @@ export default function App() {
     
     // Also change that citizen's month history status from 'Belum' to 'Pending' so they see it in transition!
     const updatedDuesList = citizensDues.map(c => {
-      // Find the specific resident head
-      if (c.citizenName.toLowerCase().trim() === newPayReq.citizenName.toLowerCase().trim() ||
-          c.houseNumber.toLowerCase().trim() === newPayReq.houseNumber.toLowerCase().trim()) {
+      // Match by name or house number and respect optional RT/RW when provided
+      const nameMatch = c.citizenName.toLowerCase().trim() === newPayReq.citizenName.toLowerCase().trim();
+      const houseMatch = c.houseNumber.toLowerCase().trim() === newPayReq.houseNumber.toLowerCase().trim();
+      const rtMatch = newPayReq.rt ? c.rt === newPayReq.rt : true;
+      const rwMatch = newPayReq.rw ? c.rw === newPayReq.rw : true;
+      if ((nameMatch || houseMatch) && rtMatch && rwMatch) {
         const yearObj = c.paymentHistory[newPayReq.year] || {};
         return {
           ...c,
@@ -431,8 +434,11 @@ export default function App() {
 
     // 2. Turn month status inside citizensDues from 'Pending' to 'Lunas'
     const updatedDuesList = citizensDues.map(c => {
-      if (c.citizenName.toLowerCase().trim() === targetReq.citizenName.toLowerCase().trim() || 
-          c.houseNumber.toLowerCase().trim() === targetReq.houseNumber.toLowerCase().trim()) {
+      const nameMatch = c.citizenName.toLowerCase().trim() === targetReq.citizenName.toLowerCase().trim();
+      const houseMatch = c.houseNumber.toLowerCase().trim() === targetReq.houseNumber.toLowerCase().trim();
+      const rtMatch = targetReq.rt ? c.rt === targetReq.rt : true;
+      const rwMatch = targetReq.rw ? c.rw === targetReq.rw : true;
+      if ((nameMatch || houseMatch) && rtMatch && rwMatch) {
         const yearObj = c.paymentHistory[targetReq.year] || {};
         return {
           ...c,
@@ -473,8 +479,11 @@ export default function App() {
 
     // 2. Set month status inside citizensDues back to 'Belum' from 'Pending'
     const updatedDuesList = citizensDues.map(c => {
-      if (c.citizenName.toLowerCase().trim() === targetReq.citizenName.toLowerCase().trim() || 
-          c.houseNumber.toLowerCase().trim() === targetReq.houseNumber.toLowerCase().trim()) {
+      const nameMatch = c.citizenName.toLowerCase().trim() === targetReq.citizenName.toLowerCase().trim();
+      const houseMatch = c.houseNumber.toLowerCase().trim() === targetReq.houseNumber.toLowerCase().trim();
+      const rtMatch = targetReq.rt ? c.rt === targetReq.rt : true;
+      const rwMatch = targetReq.rw ? c.rw === targetReq.rw : true;
+      if ((nameMatch || houseMatch) && rtMatch && rwMatch) {
         const yearObj = c.paymentHistory[targetReq.year] || {};
         return {
           ...c,

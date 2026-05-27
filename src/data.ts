@@ -92,7 +92,9 @@ export const INITIAL_TRANSACTIONS: FinancialTransaction[] = [
     type: 'masuk',
     date: '2026-05-01',
     category: 'Lainnya',
-    recordedBy: 'Bendahara RT (Ibu Susan)'
+    recordedBy: 'Bendahara RT (Ibu Susan)',
+    rt: '005',
+    rw: '02'
   },
   {
     id: 'tx-2',
@@ -101,7 +103,9 @@ export const INITIAL_TRANSACTIONS: FinancialTransaction[] = [
     type: 'masuk',
     date: '2026-05-15',
     category: 'Iuran Bulanan',
-    recordedBy: 'Bendahara RT (Ibu Susan)'
+    recordedBy: 'Bendahara RT (Ibu Susan)',
+    rt: '005',
+    rw: '02'
   },
   {
     id: 'tx-3',
@@ -110,7 +114,9 @@ export const INITIAL_TRANSACTIONS: FinancialTransaction[] = [
     type: 'keluar',
     date: '2026-05-20',
     category: 'Keamanan & Kebersihan',
-    recordedBy: 'Bendahara RT (Ibu Susan)'
+    recordedBy: 'Bendahara RT (Ibu Susan)',
+    rt: '005',
+    rw: '02'
   },
   {
     id: 'tx-4',
@@ -119,7 +125,9 @@ export const INITIAL_TRANSACTIONS: FinancialTransaction[] = [
     type: 'keluar',
     date: '2026-05-21',
     category: 'Keamanan & Kebersihan',
-    recordedBy: 'Bendahara RT (Ibu Susan)'
+    recordedBy: 'Bendahara RT (Ibu Susan)',
+    rt: '005',
+    rw: '02'
   },
   {
     id: 'tx-5',
@@ -128,7 +136,9 @@ export const INITIAL_TRANSACTIONS: FinancialTransaction[] = [
     type: 'keluar',
     date: '2026-05-23',
     category: 'Pembangunan',
-    recordedBy: 'Bendahara RT (Ibu Susan)'
+    recordedBy: 'Bendahara RT (Ibu Susan)',
+    rt: '005',
+    rw: '02'
   },
   {
     id: 'tx-6',
@@ -137,7 +147,9 @@ export const INITIAL_TRANSACTIONS: FinancialTransaction[] = [
     type: 'masuk',
     date: '2026-05-24',
     category: 'Donasi',
-    recordedBy: 'Bendahara RT (Ibu Susan)'
+    recordedBy: 'Bendahara RT (Ibu Susan)',
+    rt: '005',
+    rw: '02'
   },
   {
     id: 'tx-7',
@@ -146,7 +158,20 @@ export const INITIAL_TRANSACTIONS: FinancialTransaction[] = [
     type: 'keluar',
     date: '2026-05-25',
     category: 'Sosial',
-    recordedBy: 'Bendahara RT (Ibu Susan)'
+    recordedBy: 'Bendahara RT (Ibu Susan)',
+    rt: '005',
+    rw: '02'
+  },
+  {
+    id: 'tx-8',
+    description: 'Penerimaan Iuran Warga Mei 2026 RT 006',
+    amount: 1800000,
+    type: 'masuk',
+    date: '2026-05-25',
+    category: 'Iuran Bulanan',
+    recordedBy: 'Bendahara RW (Ibu Susan)',
+    rt: '006',
+    rw: '02'
   }
 ];
 
@@ -155,6 +180,8 @@ export const INITIAL_CITIZENS_DUES: CitizenDues[] = [
     id: 'cz-1',
     citizenName: 'Bambang Pamungkas',
     houseNumber: 'Blok A/01',
+    rt: '005',
+    rw: '02',
     paymentHistory: {
       2026: {
         'Januari': 'Lunas',
@@ -176,6 +203,8 @@ export const INITIAL_CITIZENS_DUES: CitizenDues[] = [
     id: 'cz-2',
     citizenName: 'Siti Aminah',
     houseNumber: 'Blok A/02',
+    rt: '005',
+    rw: '02',
     paymentHistory: {
       2026: {
         'Januari': 'Lunas',
@@ -197,6 +226,8 @@ export const INITIAL_CITIZENS_DUES: CitizenDues[] = [
     id: 'cz-3',
     citizenName: 'Joko Widodo',
     houseNumber: 'Blok A/03',
+    rt: '005',
+    rw: '02',
     paymentHistory: {
       2026: {
         'Januari': 'Lunas',
@@ -218,6 +249,8 @@ export const INITIAL_CITIZENS_DUES: CitizenDues[] = [
     id: 'cz-4',
     citizenName: 'Ahmad Fauzi',
     houseNumber: 'Blok B/01',
+    rt: '005',
+    rw: '02',
     paymentHistory: {
       2026: {
         'Januari': 'Lunas',
@@ -239,6 +272,8 @@ export const INITIAL_CITIZENS_DUES: CitizenDues[] = [
     id: 'cz-5',
     citizenName: 'Diana Lestari',
     houseNumber: 'Blok B/02',
+    rt: '005',
+    rw: '02',
     paymentHistory: {
       2026: {
         'Januari': 'Lunas',
@@ -260,6 +295,8 @@ export const INITIAL_CITIZENS_DUES: CitizenDues[] = [
     id: 'cz-6',
     citizenName: 'Budi Santoso',
     houseNumber: 'Blok C/01',
+    rt: '005',
+    rw: '02',
     paymentHistory: {
       2026: {
         'Januari': 'Lunas',
@@ -281,6 +318,8 @@ export const INITIAL_CITIZENS_DUES: CitizenDues[] = [
     id: 'cz-7',
     citizenName: 'Rina Wijaya',
     houseNumber: 'Blok C/02',
+    rt: '005',
+    rw: '02',
     paymentHistory: {
       2026: {
         'Januari': 'Lunas',
@@ -288,6 +327,29 @@ export const INITIAL_CITIZENS_DUES: CitizenDues[] = [
         'Maret': 'Lunas',
         'April': 'Lunas',
         'Mei': 'Lunas',
+        'Juni': 'Belum',
+        'Juli': 'Belum',
+        'Agustus': 'Belum',
+        'September': 'Belum',
+        'Oktober': 'Belum',
+        'November': 'Belum',
+        'Desember': 'Belum'
+      }
+    }
+  },
+  {
+    id: 'cz-8',
+    citizenName: 'Eka Putri',
+    houseNumber: 'Blok D/01',
+    rt: '006',
+    rw: '02',
+    paymentHistory: {
+      2026: {
+        'Januari': 'Lunas',
+        'Februari': 'Lunas',
+        'Maret': 'Belum',
+        'April': 'Belum',
+        'Mei': 'Belum',
         'Juni': 'Belum',
         'Juli': 'Belum',
         'Agustus': 'Belum',
@@ -346,6 +408,21 @@ export const INITIAL_PAYMENT_REQUESTS: DuesPaymentRequest[] = [
     amount: 100000,
     paymentMethod: 'Transfer BCA',
     dateSubmitted: '2026-05-26',
-    status: 'pending'
+    status: 'pending',
+    rt: '005',
+    rw: '02'
+  },
+  {
+    id: 'pay-2',
+    citizenName: 'Eka Putri',
+    houseNumber: 'Blok D/01',
+    month: 'Maret',
+    year: 2026,
+    amount: 100000,
+    paymentMethod: 'Transfer BCA',
+    dateSubmitted: '2026-05-27',
+    status: 'pending',
+    rt: '006',
+    rw: '02'
   }
 ];

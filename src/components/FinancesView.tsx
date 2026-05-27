@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Wallet,
@@ -52,6 +52,8 @@ export default function FinancesView({
 
   // Citizen Dues Search State
   const [duesSearch, setDuesSearch] = useState('');
+  const [selectedRW, setSelectedRW] = useState('02');
+  const [selectedRT, setSelectedRT] = useState('005');
 
   // Add Transaction Form
   const [showAddTxForm, setShowAddTxForm] = useState(false);
@@ -101,6 +103,26 @@ export default function FinancesView({
     'Lainnya',
   ];
 
+  const availableRWs = useMemo(() => Array.from(new Set(citizensDues.map((c) => c.rw || '02'))), [citizensDues]);
+  const availableRTs = useMemo(
+    () => Array.from(new Set(citizensDues.filter((c) => c.rw === selectedRW).map((c) => c.rt || '005'))),
+    [citizensDues, selectedRW]
+  );
+
+  useEffect(() => {
+    if (availableRWs.length && !availableRWs.includes(selectedRW)) {
+      setSelectedRW(availableRWs[0]);
+    }
+  }, [availableRWs, selectedRW]);
+
+  useEffect(() => {
+    if (availableRTs.length && !availableRTs.includes(selectedRT)) {
+      setSelectedRT(availableRTs[0]);
+    }
+  }, [availableRTs, selectedRT]);
+
+  const matchesScope = (item: { rt?: string; rw?: string }) => item.rt === selectedRT && item.rw === selectedRW;
+
   const months = [
     'Januari',
     'Februari',
@@ -117,20 +139,24 @@ export default function FinancesView({
   ];
 
   // Filtering transactions
-  const filteredTransactions = transactions.filter((t) => {
-    const matchesSearch = t.description.toLowerCase().includes(txSearch.toLowerCase()) || 
-                          t.category.toLowerCase().includes(txSearch.toLowerCase());
-    const matchesType = txTypeFilter === 'semua' || t.type === txTypeFilter;
-    const matchesCategory = txCategoryFilter === 'Semua' || t.category === txCategoryFilter;
-    return matchesSearch && matchesType && matchesCategory;
-  }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const filteredTransactions = transactions
+    .filter((t) => {
+      const matchesSearch = t.description.toLowerCase().includes(txSearch.toLowerCase()) ||
+        t.category.toLowerCase().includes(txSearch.toLowerCase());
+      const matchesType = txTypeFilter === 'semua' || t.type === txTypeFilter;
+      const matchesCategory = txCategoryFilter === 'Semua' || t.category === txCategoryFilter;
+      const matchesRT = t.rt && t.rw ? matchesScope(t) : true;
+      return matchesSearch && matchesType && matchesCategory && matchesRT;
+    })
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   // Filtering Citizens Dues
   const filteredCitizensDues = citizensDues.filter((c) => {
-    return (
+    const matchesSearch =
       c.citizenName.toLowerCase().includes(duesSearch.toLowerCase()) ||
-      c.houseNumber.toLowerCase().includes(duesSearch.toLowerCase())
-    );
+      c.houseNumber.toLowerCase().includes(duesSearch.toLowerCase());
+    const matchesRT = c.rt && c.rw ? matchesScope(c) : true;
+    return matchesSearch && matchesRT;
   });
 
   const handleAddTransactionSubmit = (e: React.FormEvent) => {
@@ -147,6 +173,8 @@ export default function FinancesView({
       type: txType,
       date: txDate,
       category: txCategory,
+      rt: selectedRT,
+      rw: selectedRW,
     });
 
     // Reset Form
@@ -160,7 +188,7 @@ export default function FinancesView({
   const handleFileSimulate = () => {
     // Generate a simulated upload token/string
     const rand = Math.floor(Math.random() * 90000) + 10000;
-    setSimulatedFile(`bukti_transfer_rt005_tx${rand}.jpg`);
+    setSimulatedFile(`bukti_transfer_rt${selectedRT}_tx${rand}.jpg`);
   };
 
   const handlePayDuesSubmit = (e: React.FormEvent) => {
@@ -179,6 +207,8 @@ export default function FinancesView({
       amount: parseFloat(payAmount),
       paymentMethod: payMethod,
       transferProofUrl: simulatedFile,
+      rt: selectedCitizen.rt,
+      rw: selectedCitizen.rw,
     });
 
     setSimulatedFile(null);
