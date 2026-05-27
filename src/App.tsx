@@ -541,6 +541,13 @@ export default function App() {
 
   const totalBalance = calculateTotalBalance();
 
+  const currentDateLabel = (() => {
+    const date = new Date();
+    const weekdays = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    return `${weekdays[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+  })();
+
   return (
     <div className="min-h-screen bg-linear-to-b from-gray-50 to-gray-100 flex flex-col justify-between">
       
@@ -646,7 +653,7 @@ export default function App() {
             {/* Side Call-to-action */}
             <div className="hidden md:flex items-center gap-2 font-mono text-[11px] text-slate-500 font-medium">
               <Calendar className="h-3.5 w-3.5 text-blue-600" />
-              <span>Selasa, 26 Mei 2026</span>
+              <span>{currentDateLabel}</span>
             </div>
 
             {/* Mobile Hamburger menu */}
