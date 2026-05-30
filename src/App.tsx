@@ -1,4 +1,4 @@
-import { useState, useEffect, type FormEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Home,
@@ -7,9 +7,7 @@ import {
   Megaphone,
   Shield,
   Lock,
-  LogIn,
   LogOut,
-  KeyRound,
   UserRound,
   Menu,
   X,
@@ -17,13 +15,7 @@ import {
   Calendar
 } from 'lucide-react';
 
-import {
-  Announcement,
-  LetterRequest,
-  FinancialTransaction,
-  CitizenDues,
-  DuesPaymentRequest
-} from './types';
+import { AuthenticatedUser, Announcement, FinancialTransaction, CitizenDues, LetterRequest, DuesPaymentRequest } from './types';
 
 import {
   INITIAL_ANNOUNCEMENTS,
@@ -33,196 +25,14 @@ import {
   INITIAL_PAYMENT_REQUESTS,
   hydrateAnnouncementPhotos
 } from './data';
-import { ADMIN_SESSION_MAX_AGE_MS, createSessionToken } from './security';
+import { ADMIN_SESSION_MAX_AGE_MS, AUTH_STORAGE_KEY, readStoredSession } from './security';
 
 import Dashboard from './components/Dashboard';
 import AnnouncementsView from './components/AnnouncementsView';
 import FinancesView from './components/FinancesView';
 import LetterRequestsView from './components/LetterRequestsView';
+import AdminLoginModal from './components/AdminLoginModal';
 
-interface AuthenticatedUser {
-  username: string;
-  displayName: string;
-  role: 'admin';
-  loginTime: string;
-  sessionToken: string;
-}
-
-const AUTH_STORAGE_KEY = 'rt005_auth_session';
-
-const ADMIN_CREDENTIALS = {
-  username: import.meta.env.VITE_ADMIN_USERNAME || '',
-  password: import.meta.env.VITE_ADMIN_PASSWORD || '',
-  displayName: 'Pengurus RT 005'
-};
-
-const isAdminAuthConfigured =
-  ADMIN_CREDENTIALS.username.trim().length >= 6 &&
-  ADMIN_CREDENTIALS.password.length >= 12 &&
-  !ADMIN_CREDENTIALS.username.toLowerCase().includes('change-this') &&
-  !ADMIN_CREDENTIALS.password.toUpperCase().includes('CHANGE_ME');
-
-const buildAdminSession = (username: string): AuthenticatedUser => ({
-  username,
-  displayName: ADMIN_CREDENTIALS.displayName,
-  role: 'admin',
-  loginTime: new Date().toISOString(),
-  sessionToken: createSessionToken()
-});
-
-const readStoredSession = (): AuthenticatedUser | null => {
-  try {
-    localStorage.removeItem(AUTH_STORAGE_KEY);
-    const stored = sessionStorage.getItem(AUTH_STORAGE_KEY);
-    if (!stored) return null;
-
-    const parsed = JSON.parse(stored) as Partial<AuthenticatedUser>;
-    const loginTime = parsed.loginTime ? new Date(parsed.loginTime).getTime() : 0;
-    const isExpired = !loginTime || Date.now() - loginTime > ADMIN_SESSION_MAX_AGE_MS;
-
-    if (!isAdminAuthConfigured || isExpired) {
-      sessionStorage.removeItem(AUTH_STORAGE_KEY);
-      return null;
-    }
-
-    if (parsed.role !== 'admin') return null;
-    if (!parsed.username || parsed.username !== ADMIN_CREDENTIALS.username) return null;
-    if (!parsed.sessionToken || parsed.sessionToken.length < 64) return null;
-
-    return {
-      username: parsed.username,
-      displayName: ADMIN_CREDENTIALS.displayName,
-      role: 'admin',
-      loginTime: parsed.loginTime || new Date().toISOString(),
-      sessionToken: parsed.sessionToken
-    };
-  } catch (error) {
-    sessionStorage.removeItem(AUTH_STORAGE_KEY);
-    return null;
-  }
-};
-
-function AdminLoginModal({
-  onClose,
-  onLogin
-}: {
-  onClose: () => void;
-  onLogin: (user: AuthenticatedUser) => void;
-}) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [loginError, setLoginError] = useState('');
-
-  const handleLogin = (event: FormEvent) => {
-    event.preventDefault();
-
-    if (!isAdminAuthConfigured) {
-      setLoginError('Login admin belum dikonfigurasi aman. Atur username dan password kuat di environment sebelum dipakai.');
-      return;
-    }
-
-    if (username.trim() !== ADMIN_CREDENTIALS.username || password !== ADMIN_CREDENTIALS.password) {
-      setLoginError('Username atau password admin tidak sesuai.');
-      return;
-    }
-
-    onLogin(buildAdminSession(ADMIN_CREDENTIALS.username));
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 bg-slate-950/55 backdrop-blur-md flex items-center justify-center px-4 py-6">
-      <motion.div
-        initial={{ opacity: 0, y: 16, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 10, scale: 0.98 }}
-        className="w-full max-w-md glass-panel rounded-[2rem] p-6 md:p-7 shadow-2xl border border-white/70 relative"
-      >
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute right-5 top-5 p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-white/40 transition-colors cursor-pointer"
-        >
-          <X className="h-5 w-5" />
-        </button>
-
-        <div className="space-y-6">
-          <div className="pr-8">
-            <div className="h-11 w-11 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-lg shadow-slate-300/40">
-              <Shield className="h-5 w-5" />
-            </div>
-            <p className="text-xs font-mono font-extrabold text-blue-700 uppercase tracking-wider mt-5">
-              Login Pengurus
-            </p>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight mt-1">
-              Area admin RT 005
-            </h2>
-            <p className="text-xs text-slate-500 leading-relaxed mt-2">
-              Warga dapat memakai portal tanpa login. Kredensial ini khusus pengurus untuk mengelola data dan verifikasi.
-            </p>
-            {!isAdminAuthConfigured && (
-              <p className="text-xs text-rose-700 bg-rose-500/10 border border-rose-200/60 rounded-xl px-3 py-2 mt-3 font-bold">
-                Login admin dinonaktifkan sampai password kuat dikonfigurasi.
-              </p>
-            )}
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700">Username Admin</label>
-              <div className="relative">
-                <UserRound className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-white/50 border border-white/70 focus:bg-white/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                  autoComplete="username"
-                  disabled={!isAdminAuthConfigured}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700">Password</label>
-              <div className="relative">
-                <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-white/50 border border-white/70 focus:bg-white/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                  autoComplete="current-password"
-                  disabled={!isAdminAuthConfigured}
-                  required
-                />
-              </div>
-            </div>
-
-            {loginError && (
-              <div className="rounded-xl bg-rose-500/10 border border-rose-200/60 px-4 py-3 text-xs font-bold text-rose-700 flex items-center gap-2">
-                <Lock className="h-4 w-4" />
-                {loginError}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={!isAdminAuthConfigured}
-              className={`w-full px-5 py-3.5 rounded-xl font-extrabold text-sm shadow-md transition-all inline-flex items-center justify-center gap-2 ${
-                isAdminAuthConfigured
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/10 cursor-pointer'
-                  : 'bg-slate-300 text-slate-500 cursor-not-allowed'
-              }`}
-            >
-              <LogIn className="h-4 w-4" /> Masuk Sebagai Admin
-            </button>
-          </form>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
 
 export default function App() {
   // Navigation State
@@ -394,7 +204,7 @@ export default function App() {
     const updated = [fresh, ...paymentRequests];
     setPaymentRequests(updated);
     saveStateToStorage('rt005_payment_requests', updated);
-    
+
     // Also change that citizen's month history status from 'Belum' to 'Pending' so they see it in transition!
     const updatedDuesList = citizensDues.map(c => {
       // Match by name or house number and respect optional RT/RW when provided
@@ -559,7 +369,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-linear-to-b from-gray-50 to-gray-100 flex flex-col justify-between">
-      
+
       {/* AUTHENTICATED SESSION BAR */}
       <div className="bg-slate-900 text-white relative py-1.5 px-4 z-40 shadow-md">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2.5">
@@ -569,14 +379,13 @@ export default function App() {
               PORTAL RT 005 AKTIF • JATIBENING BARU, BEKASI
             </span>
           </div>
-          
+
           <div className="flex flex-wrap items-center justify-center gap-2.5">
             <span
-              className={`px-3 py-1 rounded-full text-xs font-black tracking-tight inline-flex items-center gap-1.5 ${
-                isAdmin
+              className={`px-3 py-1 rounded-full text-xs font-black tracking-tight inline-flex items-center gap-1.5 ${isAdmin
                   ? 'bg-amber-400 text-slate-950'
                   : 'bg-slate-800 text-slate-200 border border-slate-700'
-              }`}
+                }`}
             >
               {isAdmin ? <Shield className="h-3 w-3" /> : <UserRound className="h-3 w-3" />}
               {isAdmin ? currentUser?.displayName || 'Pengurus RT 005' : 'Mode Warga'}
@@ -614,7 +423,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             {/* Logo and Brand */}
-            <div 
+            <div
               onClick={() => setActiveTab('beranda')}
               className="flex items-center gap-3 cursor-pointer group"
             >
@@ -646,11 +455,10 @@ export default function App() {
                       setActiveTab(tab.id);
                       setMobileMenuOpen(false);
                     }}
-                    className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer inline-flex items-center gap-1.5 ${
-                      isSelected
+                    className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer inline-flex items-center gap-1.5 ${isSelected
                         ? 'bg-white/60 text-primary shadow-xs border border-white/80'
                         : 'text-slate-600 hover:text-gray-950 hover:bg-white/20'
-                    }`}
+                      }`}
                   >
                     <Icon className="h-3.5 w-3.5" />
                     {tab.label}
@@ -667,8 +475,8 @@ export default function App() {
 
             {/* Mobile Hamburger menu */}
             <button
-               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-               className="md:hidden p-2 rounded-xl border border-white/40 bg-white/20 backdrop-blur-md hover:bg-white/30 text-gray-700"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-xl border border-white/40 bg-white/20 backdrop-blur-md hover:bg-white/30 text-gray-700"
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -699,11 +507,10 @@ export default function App() {
                       setActiveTab(tab.id);
                       setMobileMenuOpen(false);
                     }}
-                    className={`w-full text-left px-4 py-2.5 text-xs font-bold rounded-xl transition-all inline-flex items-center gap-2.5 cursor-pointer ${
-                      isSelected 
-                        ? 'bg-white/70 text-primary border border-white/80 shadow-xs' 
+                    className={`w-full text-left px-4 py-2.5 text-xs font-bold rounded-xl transition-all inline-flex items-center gap-2.5 cursor-pointer ${isSelected
+                        ? 'bg-white/70 text-primary border border-white/80 shadow-xs'
                         : 'text-slate-600 hover:bg-white/20'
-                    }`}
+                      }`}
                   >
                     <Icon className="h-4 w-4" />
                     {tab.label}
@@ -726,10 +533,10 @@ export default function App() {
             transition={{ duration: 0.2 }}
           >
             {activeTab === 'beranda' && (
-              <Dashboard 
-                onNavigate={(t) => setActiveTab(t)} 
-                announcements={announcements} 
-                totalBalance={totalBalance} 
+              <Dashboard
+                onNavigate={(t) => setActiveTab(t)}
+                announcements={announcements}
+                totalBalance={totalBalance}
               />
             )}
 

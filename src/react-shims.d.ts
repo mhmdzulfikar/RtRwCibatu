@@ -1,8 +1,2 @@
-declare module 'react';
-declare module 'react/jsx-runtime';
+// Overrides removed to allow full TypeScript typings for React
 
-declare namespace JSX {
-  interface IntrinsicElements {
-    [elemName: string]: any;
-  }
-}

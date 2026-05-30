@@ -72,3 +72,12 @@ export interface DuesPaymentRequest {
   rt?: string;
   rw?: string;
 }
+
+export interface AuthenticatedUser {
+  username: string;
+  displayName: string;
+  role: 'admin';
+  loginTime: string;
+  sessionToken: string;
+}
+
