@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
 import { XCircle, CheckCircle2, Upload } from 'lucide-react';
 import { CitizenDues, DuesPaymentRequest } from '../../types';
+import { usePayDuesModal } from './hooks/usePayDuesModal';
 
 interface PayDuesModalProps {
   selectedCitizen: CitizenDues;
@@ -14,50 +15,18 @@ export default function PayDuesModal({
   onClose,
   onSubmitPaymentRequest,
 }: PayDuesModalProps) {
-  const [payMonth, setPayMonth] = useState('Mei');
-  const [payAmount] = useState('100000');
-  const [payMethod, setPayMethod] = useState('Transfer BCA (VA RT 005)');
-  const [simulatedFile, setSimulatedFile] = useState<string | null>(null);
-
-  const months = [
-    'Januari',
-    'Februari',
-    'Maret',
-    'April',
-    'Mei',
-    'Juni',
-    'Juli',
-    'Agustus',
-    'September',
-    'Oktober',
-    'November',
-    'Desember',
-  ];
-
-  const handleFileSimulate = () => {
-    const rand = Math.floor(Math.random() * 90000) + 10000;
-    setSimulatedFile(`bukti_transfer_rt${selectedCitizen.rt || '005'}_tx${rand}.jpg`);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!simulatedFile) {
-      alert('Harap unggah / simulasikan bukti transfer terlebih dahulu.');
-      return;
-    }
-
-    onSubmitPaymentRequest({
-      citizenName: selectedCitizen.citizenName,
-      houseNumber: selectedCitizen.houseNumber,
-      month: payMonth,
-      year: 2026,
-      amount: parseFloat(payAmount),
-      paymentMethod: payMethod,
-      transferProofUrl: simulatedFile,
-      rt: selectedCitizen.rt,
-      rw: selectedCitizen.rw,
-    });
-  };
+  const {
+    payMonth,
+    setPayMonth,
+    payAmount,
+    payMethod,
+    setPayMethod,
+    simulatedFile,
+    setSimulatedFile,
+    months,
+    handleFileSimulate,
+    handleSubmit,
+  } = usePayDuesModal({ selectedCitizen, onSubmitPaymentRequest });
 
   return (
     <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 z-50">
