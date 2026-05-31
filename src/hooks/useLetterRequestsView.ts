@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { LetterRequest } from '../../types';
-import { maskSensitiveNumber } from '../../security';
+import { LetterRequest } from '../types';
+import { maskSensitiveNumber } from '../security';
 
 export interface UseLetterRequestsViewProps {
   isAdmin: boolean;

@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Megaphone, Search, Plus, Trash2, Pin, Calendar, User, ChevronRight, X, AlertCircle } from 'lucide-react';
 import { Announcement } from '../types';
-import { useAnnouncementsView } from './hooks/useAnnouncementsView';
+import { useAnnouncementsView } from '../hooks/useAnnouncementsView';
 
 interface AnnouncementsViewProps {
   announcements: Announcement[];

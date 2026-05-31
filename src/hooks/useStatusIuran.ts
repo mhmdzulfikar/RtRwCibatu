@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CitizenDues } from '../../../types';
+import { CitizenDues } from '../types';
 
 export interface UseStatusIuranProps {
   citizensDues: CitizenDues[];

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CitizenDues, DuesPaymentRequest } from '../../types';
+import { CitizenDues, DuesPaymentRequest } from '../types';
 
 export interface UseFinancesViewProps {
   isAdmin: boolean;

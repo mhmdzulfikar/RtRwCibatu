@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { XCircle, CheckCircle2, Upload } from 'lucide-react';
 import { CitizenDues, DuesPaymentRequest } from '../../types';
-import { usePayDuesModal } from './hooks/usePayDuesModal';
+import { usePayDuesModal } from '../../hooks/usePayDuesModal';
 
 interface PayDuesModalProps {
   selectedCitizen: CitizenDues;

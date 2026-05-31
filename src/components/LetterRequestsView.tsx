@@ -9,7 +9,7 @@ import {
   Info
 } from 'lucide-react';
 import { LetterRequest } from '../types';
-import { useLetterRequestsView } from './hooks/useLetterRequestsView';
+import { useLetterRequestsView } from '../hooks/useLetterRequestsView';
 
 import ApplyLetterForm from './letters/ApplyLetterForm';
 import LetterPreviewModal from './letters/LetterPreviewModal';

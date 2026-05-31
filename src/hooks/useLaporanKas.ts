@@ -1,5 +1,5 @@
 import { useState, FormEvent } from 'react';
-import { FinancialTransaction } from '../../../types';
+import { FinancialTransaction } from '../types';
 
 export interface UseLaporanKasProps {
   transactions: FinancialTransaction[];

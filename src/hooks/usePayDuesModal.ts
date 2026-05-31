@@ -1,5 +1,5 @@
 import { useState, FormEvent } from 'react';
-import { CitizenDues, DuesPaymentRequest } from '../../../types';
+import { CitizenDues, DuesPaymentRequest } from '../types';
 
 export interface UsePayDuesModalProps {
   selectedCitizen: CitizenDues;

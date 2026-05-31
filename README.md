@@ -24,6 +24,15 @@ RtRwCibatu/
     ├── data.ts           # Database awal (Mockup data warga, keuangan, & pengumuman)
     ├── index.css         # Styling visual utama aplikasi
     ├── react-shims.d.ts  # File konfigurasi tipe data tambahan untuk React
+    ├── hooks/            # Folder wadah custom hooks untuk logika utama aplikasi
+    │   ├── useAuth.ts               # Logika login admin dan manajemen sesi
+    │   ├── useAppData.ts            # Logika database state utama (CRUD)
+    │   ├── useAnnouncementsView.ts  # Logika komponen Pengumuman
+    │   ├── useFinancesView.ts       # Logika navigasi halaman Keuangan
+    │   ├── useLetterRequestsView.ts # Logika persetujuan Surat Domisili
+    │   ├── useLaporanKas.ts         # Logika perhitungan pembukuan kas
+    │   ├── useStatusIuran.ts        # Logika filter blok rumah status iuran
+    │   └── usePayDuesModal.ts       # Logika form simulasi pembayaran iuran
     └── components/       # Folder wadah komponen-komponen UI
         ├── Dashboard.tsx          # Tampilan Beranda (statistik warga, jalan pintas navigasi)
         ├── AnnouncementsView.tsx  # Tampilan Pengumuman (kegiatan RT, darurat, dll)

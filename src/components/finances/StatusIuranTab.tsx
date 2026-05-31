@@ -1,7 +1,7 @@
 import React from 'react';
 import { Search, Info } from 'lucide-react';
 import { CitizenDues } from '../../types';
-import { useStatusIuran } from './hooks/useStatusIuran';
+import { useStatusIuran } from '../../hooks/useStatusIuran';
 
 interface StatusIuranTabProps {
   citizensDues: CitizenDues[];

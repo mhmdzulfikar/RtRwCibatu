@@ -1,6 +1,6 @@
 import { useState, FormEvent } from 'react';
-import { Announcement } from '../../types';
-import { isSafeHttpUrl } from '../../security';
+import { Announcement } from '../types';
+import { isSafeHttpUrl } from '../security';
 
 export interface UseAnnouncementsViewProps {
   announcements: Announcement[];
