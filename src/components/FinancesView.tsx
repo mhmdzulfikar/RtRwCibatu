@@ -2,7 +2,7 @@ import React from 'react';
 import { AnimatePresence } from 'motion/react';
 import { CheckCircle2 } from 'lucide-react';
 import { FinancialTransaction, CitizenDues, DuesPaymentRequest } from '../types';
-import { useFinancesView } from './hooks/useFinancesView';
+import { useFinancesView } from '../hooks/useFinancesView';
 
 import LaporanKasTab from './finances/LaporanKasTab';
 import StatusIuranTab from './finances/StatusIuranTab';

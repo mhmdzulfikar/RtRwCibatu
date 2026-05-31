@@ -10,7 +10,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { FinancialTransaction } from '../../types';
-import { useLaporanKas } from './hooks/useLaporanKas';
+import { useLaporanKas } from '../../hooks/useLaporanKas';
 
 interface LaporanKasTabProps {
   transactions: FinancialTransaction[];

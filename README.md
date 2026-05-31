@@ -29,7 +29,10 @@ RtRwCibatu/
     │   ├── useAppData.ts            # Logika database state utama (CRUD)
     │   ├── useAnnouncementsView.ts  # Logika komponen Pengumuman
     │   ├── useFinancesView.ts       # Logika navigasi halaman Keuangan
-    │   └── useLetterRequestsView.ts # Logika persetujuan Surat Domisili
+    │   ├── useLetterRequestsView.ts # Logika persetujuan Surat Domisili
+    │   ├── useLaporanKas.ts         # Logika perhitungan pembukuan kas
+    │   ├── useStatusIuran.ts        # Logika filter blok rumah status iuran
+    │   └── usePayDuesModal.ts       # Logika form simulasi pembayaran iuran
     └── components/       # Folder wadah komponen-komponen UI
         ├── Dashboard.tsx          # Tampilan Beranda (statistik warga, jalan pintas navigasi)
         ├── AnnouncementsView.tsx  # Tampilan Pengumuman (kegiatan RT, darurat, dll)
@@ -40,11 +43,7 @@ RtRwCibatu/
         │   ├── LaporanKasTab.tsx  # Pembukuan kas masuk/keluar & grafik rasio anggaran
         │   ├── StatusIuranTab.tsx # Matriks status iuran per blok rumah (Semester 1)
         │   ├── PersetujuanTab.tsx # Antrean verifikasi admin terhadap setoran warga
-        │   ├── PayDuesModal.tsx   # Formulir bayar & simulasi bukti upload bagi warga
-        │   └── hooks/             # Subfolder logika khusus komponen Keuangan
-        │       ├── useLaporanKas.ts   # Logika perhitungan pembukuan kas
-        │       ├── useStatusIuran.ts  # Logika filter blok rumah status iuran
-        │       └── usePayDuesModal.ts # Logika form simulasi pembayaran iuran
+        │   └── PayDuesModal.tsx   # Formulir bayar & simulasi bukti upload bagi warga
         └── letters/               # Subfolder modular khusus fitur Pengajuan Surat
             ├── ApplyLetterForm.tsx  # Formulir input permohonan surat pengantar baru
             └── LetterPreviewModal.tsx # Pratinjau surat resmi digital siap cetak ke kertas/PDF
