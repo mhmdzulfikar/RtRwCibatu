@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { AnimatePresence } from 'motion/react';
 import { CheckCircle2 } from 'lucide-react';
 import { FinancialTransaction, CitizenDues, DuesPaymentRequest } from '../types';
+import { useFinancesView } from './hooks/useFinancesView';
 
 import LaporanKasTab from './finances/LaporanKasTab';
 import StatusIuranTab from './finances/StatusIuranTab';
@@ -29,40 +30,21 @@ export default function FinancesView({
   onRejectPaymentRequest,
   onSubmitPaymentRequest,
 }: FinancesViewProps) {
-  // Navigation inside Finances Tab
-  const [activeSubTab, setActiveSubTab] = useState<'laporan' | 'status-iuran' | 'persetujuan'>('laporan');
-
-  // RW & RT defaults for scoping
-  const [selectedRW] = useState('02');
-  const [selectedRT] = useState('005');
-
-  // Bayar Iuran Modal & Success Tip States
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [selectedCitizen, setSelectedCitizen] = useState<CitizenDues | null>(null);
-  const [isSuccessTip, setIsSuccessTip] = useState(false);
-
-  useEffect(() => {
-    if (!isAdmin && activeSubTab === 'persetujuan') {
-      setActiveSubTab('laporan');
-    }
-  }, [activeSubTab, isAdmin]);
-
-  const handlePayDuesClick = (citizen: CitizenDues) => {
-    setSelectedCitizen(citizen);
-    setShowPaymentModal(true);
-  };
-
-  const handlePaymentSubmit = (request: Omit<DuesPaymentRequest, 'id' | 'status' | 'dateSubmitted'>) => {
-    onSubmitPaymentRequest(request);
-    setShowPaymentModal(false);
-    setSelectedCitizen(null);
-    setIsSuccessTip(true);
-    setTimeout(() => {
-      setIsSuccessTip(false);
-    }, 5000);
-  };
-
-  const pendingRequests = paymentRequests.filter((p) => p.status === 'pending');
+  const {
+    activeSubTab,
+    setActiveSubTab,
+    selectedRW,
+    selectedRT,
+    showPaymentModal,
+    setShowPaymentModal,
+    selectedCitizen,
+    setSelectedCitizen,
+    isSuccessTip,
+    setIsSuccessTip,
+    handlePayDuesClick,
+    handlePaymentSubmit,
+    pendingRequests,
+  } = useFinancesView({ isAdmin, paymentRequests, onSubmitPaymentRequest });
 
   return (
     <div className="space-y-8">
