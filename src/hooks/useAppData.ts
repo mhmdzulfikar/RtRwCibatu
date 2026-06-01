@@ -7,287 +7,198 @@ import {
   DuesPaymentRequest
 } from '../types';
 
-import {
-  INITIAL_ANNOUNCEMENTS,
-  INITIAL_TRANSACTIONS,
-  INITIAL_CITIZENS_DUES,
-  INITIAL_LETTER_REQUESTS,
-  INITIAL_PAYMENT_REQUESTS,
-  hydrateAnnouncementPhotos
-} from '../data';
+import { hydrateAnnouncementPhotos } from '../data';
 
-// Helper helper to write states easily
-const saveStateToStorage = (key: string, data: any) => {
-  try {
-    localStorage.setItem(key, JSON.stringify(data));
-  } catch (error) {
-    console.error('Failed to write key to local storage', error);
-  }
-};
+const API_BASE = 'http://localhost:3001/api';
 
 export function useAppData(requireAdminAccess: () => boolean) {
-  // Central Database States (Backed up by localStorage for persistent testing)
+  // Central Database States (Sekarang akan diambil dari Backend!)
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [transactions, setTransactions] = useState<FinancialTransaction[]>([]);
   const [citizensDues, setCitizensDues] = useState<CitizenDues[]>([]);
   const [letterRequests, setLetterRequests] = useState<LetterRequest[]>([]);
   const [paymentRequests, setPaymentRequests] = useState<DuesPaymentRequest[]>([]);
 
-  // Hydrate central states from localStorage on startup
-  useEffect(() => {
+  // Fetch semua data dari backend saat pertama kali aplikasi dimuat
+  const fetchAllData = async () => {
     try {
-      const storedAnn = localStorage.getItem('rt005_announcements');
-      if (storedAnn) {
-        const parsedAnnouncements = JSON.parse(storedAnn) as Announcement[];
-        const announcementsWithPhotos = hydrateAnnouncementPhotos(parsedAnnouncements);
-        setAnnouncements(announcementsWithPhotos);
-        if (JSON.stringify(parsedAnnouncements) !== JSON.stringify(announcementsWithPhotos)) {
-          localStorage.setItem('rt005_announcements', JSON.stringify(announcementsWithPhotos));
-        }
-      }
-      else {
-        const announcementsWithPhotos = hydrateAnnouncementPhotos(INITIAL_ANNOUNCEMENTS);
-        setAnnouncements(announcementsWithPhotos);
-        localStorage.setItem('rt005_announcements', JSON.stringify(announcementsWithPhotos));
-      }
+      const [resAnn, resTx, resDues, resPayReq, resLetReq] = await Promise.all([
+        fetch(`${API_BASE}/announcements`),
+        fetch(`${API_BASE}/transactions`),
+        fetch(`${API_BASE}/citizens-dues`),
+        fetch(`${API_BASE}/payment-requests`),
+        fetch(`${API_BASE}/letters`),
+      ]);
 
-      const storedTx = localStorage.getItem('rt005_transactions');
-      if (storedTx) setTransactions(JSON.parse(storedTx));
-      else {
-        setTransactions(INITIAL_TRANSACTIONS);
-        localStorage.setItem('rt005_transactions', JSON.stringify(INITIAL_TRANSACTIONS));
-      }
+      const dataAnn = await resAnn.json();
+      setAnnouncements(hydrateAnnouncementPhotos(dataAnn)); // Tetap pasang foto dummy
 
-      const storedDues = localStorage.getItem('rt005_citizens_dues');
-      if (storedDues) setCitizensDues(JSON.parse(storedDues));
-      else {
-        setCitizensDues(INITIAL_CITIZENS_DUES);
-        localStorage.setItem('rt005_citizens_dues', JSON.stringify(INITIAL_CITIZENS_DUES));
-      }
-
-      const storedLetters = localStorage.getItem('rt005_letter_requests');
-      if (storedLetters) setLetterRequests(JSON.parse(storedLetters));
-      else {
-        setLetterRequests(INITIAL_LETTER_REQUESTS);
-        localStorage.setItem('rt005_letter_requests', JSON.stringify(INITIAL_LETTER_REQUESTS));
-      }
-
-      const storedPayments = localStorage.getItem('rt005_payment_requests');
-      if (storedPayments) setPaymentRequests(JSON.parse(storedPayments));
-      else {
-        setPaymentRequests(INITIAL_PAYMENT_REQUESTS);
-        localStorage.setItem('rt005_payment_requests', JSON.stringify(INITIAL_PAYMENT_REQUESTS));
-      }
-    } catch (e) {
-      console.error('Failed to load local storage database. Falling back to memory.', e);
-      setAnnouncements(INITIAL_ANNOUNCEMENTS);
-      setTransactions(INITIAL_TRANSACTIONS);
-      setCitizensDues(INITIAL_CITIZENS_DUES);
-      setLetterRequests(INITIAL_LETTER_REQUESTS);
-      setPaymentRequests(INITIAL_PAYMENT_REQUESTS);
+      setTransactions(await resTx.json());
+      setCitizensDues(await resDues.json());
+      setPaymentRequests(await resPayReq.json());
+      setLetterRequests(await resLetReq.json());
+    } catch (error) {
+      console.error('Gagal mengambil data dari backend. Pastikan server backend berjalan.', error);
     }
+  };
+
+  useEffect(() => {
+    fetchAllData();
   }, []);
 
   // ----------------------------------------------------
   // ANNOUNCEMENTS ACTION DISPATCHERS
   // ----------------------------------------------------
-  const handleAddAnnouncement = (newAnn: Omit<Announcement, 'id' | 'date'>) => {
+  const handleAddAnnouncement = async (newAnn: Omit<Announcement, 'id' | 'date'>) => {
     if (!requireAdminAccess()) return;
-
-    const fresh: Announcement = {
+    
+    const fresh = {
       ...newAnn,
       id: `ann-${Date.now()}`,
       date: new Date().toISOString().substring(0, 10)
     };
-    const updated = [fresh, ...announcements];
-    setAnnouncements(updated);
-    saveStateToStorage('rt005_announcements', updated);
+
+    try {
+      const res = await fetch(`${API_BASE}/announcements`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fresh)
+      });
+      if (res.ok) fetchAllData(); // Refresh data
+    } catch (e) {
+      console.error('Gagal menambah pengumuman', e);
+    }
   };
 
-  const handleDeleteAnnouncement = (id: string) => {
+  const handleDeleteAnnouncement = async (id: string) => {
     if (!requireAdminAccess()) return;
-
-    const updated = announcements.filter(a => a.id !== id);
-    setAnnouncements(updated);
-    saveStateToStorage('rt005_announcements', updated);
+    try {
+      const res = await fetch(`${API_BASE}/announcements/${id}`, { method: 'DELETE' });
+      if (res.ok) fetchAllData();
+    } catch (e) {
+      console.error('Gagal menghapus pengumuman', e);
+    }
   };
 
   // ----------------------------------------------------
   // TRANSACTIONS ACTION DISPATCHERS
   // ----------------------------------------------------
-  const handleAddTransaction = (newTx: Omit<FinancialTransaction, 'id' | 'recordedBy'>) => {
+  const handleAddTransaction = async (newTx: Omit<FinancialTransaction, 'id' | 'recordedBy'>) => {
     if (!requireAdminAccess()) return;
-
-    const fresh: FinancialTransaction = {
+    const fresh = {
       ...newTx,
       id: `tx-${Date.now()}`,
       recordedBy: 'Admin RT / Bendahara'
     };
-    const updated = [fresh, ...transactions];
-    setTransactions(updated);
-    saveStateToStorage('rt005_transactions', updated);
+
+    try {
+      const res = await fetch(`${API_BASE}/transactions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fresh)
+      });
+      if (res.ok) fetchAllData();
+    } catch (e) {
+      console.error('Gagal menambah transaksi', e);
+    }
   };
 
   // ----------------------------------------------------
-  // DUES / PAYMENT SUBMISSION AND VERIFICATION DISPATCHERS
+  // DUES / PAYMENT DISPATCHERS
   // ----------------------------------------------------
-  const handleSubmitPaymentRequest = (newPayReq: Omit<DuesPaymentRequest, 'id' | 'status' | 'dateSubmitted'>) => {
-    const fresh: DuesPaymentRequest = {
+  const handleSubmitPaymentRequest = async (newPayReq: Omit<DuesPaymentRequest, 'id' | 'status' | 'dateSubmitted'>) => {
+    const fresh = {
       ...newPayReq,
       id: `pay-${Date.now()}`,
       status: 'pending',
       dateSubmitted: new Date().toISOString().substring(0, 10)
     };
-    const updated = [fresh, ...paymentRequests];
-    setPaymentRequests(updated);
-    saveStateToStorage('rt005_payment_requests', updated);
-
-    // Also change that citizen's month history status from 'Belum' to 'Pending' so they see it in transition!
-    const updatedDuesList = citizensDues.map(c => {
-      // Match by name or house number and respect optional RT/RW when provided
-      const nameMatch = c.citizenName.toLowerCase().trim() === newPayReq.citizenName.toLowerCase().trim();
-      const houseMatch = c.houseNumber.toLowerCase().trim() === newPayReq.houseNumber.toLowerCase().trim();
-      const rtMatch = newPayReq.rt ? c.rt === newPayReq.rt : true;
-      const rwMatch = newPayReq.rw ? c.rw === newPayReq.rw : true;
-      if ((nameMatch || houseMatch) && rtMatch && rwMatch) {
-        const yearObj = c.paymentHistory[newPayReq.year] || {};
-        return {
-          ...c,
-          paymentHistory: {
-            ...c.paymentHistory,
-            [newPayReq.year]: {
-              ...yearObj,
-              [newPayReq.month]: 'Pending' as const
-            }
-          }
-        };
+    try {
+      const res = await fetch(`${API_BASE}/payment-requests`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fresh)
+      });
+      
+      if (res.ok) {
+        // Optimistic UI update (atau bisa fetchAllData() saja)
+        fetchAllData(); 
       }
-      return c;
-    });
-    setCitizensDues(updatedDuesList);
-    saveStateToStorage('rt005_citizens_dues', updatedDuesList);
+    } catch (e) {
+      console.error('Gagal membuat request', e);
+    }
   };
 
-  const handleApprovePaymentRequest = (id: string) => {
+  const handleApprovePaymentRequest = async (id: string) => {
     if (!requireAdminAccess()) return;
-
-    const targetReq = paymentRequests.find(p => p.id === id);
-    if (!targetReq) return;
-
-    // 1. Mark status as approved
-    const updatedRequests = paymentRequests.map(r => r.id === id ? { ...r, status: 'approved' as const } : r);
-    setPaymentRequests(updatedRequests);
-    saveStateToStorage('rt005_payment_requests', updatedRequests);
-
-    // 2. Turn month status inside citizensDues from 'Pending' to 'Lunas'
-    const updatedDuesList = citizensDues.map(c => {
-      const nameMatch = c.citizenName.toLowerCase().trim() === targetReq.citizenName.toLowerCase().trim();
-      const houseMatch = c.houseNumber.toLowerCase().trim() === targetReq.houseNumber.toLowerCase().trim();
-      const rtMatch = targetReq.rt ? c.rt === targetReq.rt : true;
-      const rwMatch = targetReq.rw ? c.rw === targetReq.rw : true;
-      if ((nameMatch || houseMatch) && rtMatch && rwMatch) {
-        const yearObj = c.paymentHistory[targetReq.year] || {};
-        return {
-          ...c,
-          paymentHistory: {
-            ...c.paymentHistory,
-            [targetReq.year]: {
-              ...yearObj,
-              [targetReq.month]: 'Lunas' as const
-            }
-          }
-        };
-      }
-      return c;
-    });
-    setCitizensDues(updatedDuesList);
-    saveStateToStorage('rt005_citizens_dues', updatedDuesList);
-
-    // 3. Automatically append an income financial transaction into transactions logbook!
-    handleAddTransaction({
-      description: `Iuran Bulanan ${targetReq.month} 2026 - ${targetReq.citizenName} (${targetReq.houseNumber})`,
-      amount: targetReq.amount,
-      type: 'masuk',
-      date: new Date().toISOString().substring(0, 10),
-      category: 'Iuran Bulanan'
-    });
+    try {
+      await fetch(`${API_BASE}/payment-requests/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'approved' })
+      });
+      fetchAllData();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  const handleRejectPaymentRequest = (id: string) => {
+  const handleRejectPaymentRequest = async (id: string) => {
     if (!requireAdminAccess()) return;
-
-    const targetReq = paymentRequests.find(p => p.id === id);
-    if (!targetReq) return;
-
-    // 1. Mark status as rejected
-    const updatedRequests = paymentRequests.map(r => r.id === id ? { ...r, status: 'rejected' as const } : r);
-    setPaymentRequests(updatedRequests);
-    saveStateToStorage('rt005_payment_requests', updatedRequests);
-
-    // 2. Set month status inside citizensDues back to 'Belum' from 'Pending'
-    const updatedDuesList = citizensDues.map(c => {
-      const nameMatch = c.citizenName.toLowerCase().trim() === targetReq.citizenName.toLowerCase().trim();
-      const houseMatch = c.houseNumber.toLowerCase().trim() === targetReq.houseNumber.toLowerCase().trim();
-      const rtMatch = targetReq.rt ? c.rt === targetReq.rt : true;
-      const rwMatch = targetReq.rw ? c.rw === targetReq.rw : true;
-      if ((nameMatch || houseMatch) && rtMatch && rwMatch) {
-        const yearObj = c.paymentHistory[targetReq.year] || {};
-        return {
-          ...c,
-          paymentHistory: {
-            ...c.paymentHistory,
-            [targetReq.year]: {
-              ...yearObj,
-              [targetReq.month]: 'Belum' as const
-            }
-          }
-        };
-      }
-      return c;
-    });
-    setCitizensDues(updatedDuesList);
-    saveStateToStorage('rt005_citizens_dues', updatedDuesList);
+    try {
+      await fetch(`${API_BASE}/payment-requests/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'rejected' })
+      });
+      fetchAllData();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   // ----------------------------------------------------
   // LETTERS (SURAT DOMISILI) DISPATCHERS
   // ----------------------------------------------------
-  const handleSubmitLetterRequest = (newLetter: Omit<LetterRequest, 'id' | 'status' | 'dateRequested'>) => {
-    const fresh: LetterRequest = {
+  const handleSubmitLetterRequest = async (newLetter: Omit<LetterRequest, 'id' | 'status' | 'dateRequested'>) => {
+    const fresh = {
       ...newLetter,
-      id: `req-${Date.now().toString().substring(10)}`, // short layout
+      id: `req-${Date.now().toString().substring(10)}`,
       status: 'submitted',
       dateRequested: new Date().toISOString().substring(0, 10)
     };
-    const updated = [fresh, ...letterRequests];
-    setLetterRequests(updated);
-    saveStateToStorage('rt005_letter_requests', updated);
+    try {
+      await fetch(`${API_BASE}/letters`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fresh)
+      });
+      fetchAllData();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  const handleUpdateLetterStatus = (
+  const handleUpdateLetterStatus = async (
     id: string,
     status: LetterRequest['status'],
     updateData?: { referenceNo?: string; rejectedReason?: string }
   ) => {
     if (!requireAdminAccess()) return;
-
-    const updated = letterRequests.map(r => {
-      if (r.id === id) {
-        return {
-          ...r,
-          status,
-          ...(updateData?.referenceNo ? { referenceNo: updateData.referenceNo } : {}),
-          ...(updateData?.rejectedReason ? { rejectedReason: updateData.rejectedReason } : {})
-        };
-      }
-      return r;
-    });
-    setLetterRequests(updated);
-    saveStateToStorage('rt005_letter_requests', updated);
+    try {
+      await fetch(`${API_BASE}/letters/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status, ...updateData })
+      });
+      fetchAllData();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   // ----------------------------------------------------
-  // MATHEMATICS CALCULATIONS FOR TREASURY
+  // CALCULATIONS
   // ----------------------------------------------------
   const calculateTotalBalance = () => {
     const sumIn = transactions.filter(t => t.type === 'masuk').reduce((s, t) => s + t.amount, 0);

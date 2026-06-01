@@ -6,47 +6,34 @@ Portal warga terintegrasi untuk pengelolaan administrasi, transparansi keuangan,
 
 ## Struktur Direktori Proyek
 
-Agar kode tetap modular, efisien, dan mudah dipahami, arsitektur proyek ini dipecah dari monolit menjadi struktur komponen sebagai berikut:
+Aplikasi ini sekarang menggunakan arsitektur **Full-Stack (React Frontend + Node.js/Express Backend + SQLite)**. Arsitektur proyek dibagi menjadi dua bagian utama:
 
 ```text
 RtRwCibatu/
-├── .env                  # File kredensial default admin (lokal & aman)
-├── .env.example          # Contoh berkas konfigurasi env
-├── index.html            # Entry point HTML utama aplikasi
-├── package.json          # Pengelola dependency npm & script (Vite, React, TS)
-├── tsconfig.json         # Aturan kompilasi TypeScript
-├── vite.config.ts        # Konfigurasi bundler Vite (plugin React & Tailwind)
-└── src/                  # Folder kode sumber utama (Source Code)
-    ├── main.tsx          # Entry point React untuk memasang komponen ke DOM HTML
-    ├── App.tsx           # Komponen induk utama (navigasi & state database)
-    ├── types.ts          # Wadah definisi tipe data TypeScript (Interface)
-    ├── security.ts       # Utilitas sesi login admin & sensor data sensitif
-    ├── data.ts           # Database awal (Mockup data warga, keuangan, & pengumuman)
-    ├── index.css         # Styling visual utama aplikasi
-    ├── react-shims.d.ts  # File konfigurasi tipe data tambahan untuk React
-    ├── hooks/            # Folder wadah custom hooks untuk logika utama aplikasi
-    │   ├── useAuth.ts               # Logika login admin dan manajemen sesi
-    │   ├── useAppData.ts            # Logika database state utama (CRUD)
-    │   ├── useAnnouncementsView.ts  # Logika komponen Pengumuman
-    │   ├── useFinancesView.ts       # Logika navigasi halaman Keuangan
-    │   ├── useLetterRequestsView.ts # Logika persetujuan Surat Domisili
-    │   ├── useLaporanKas.ts         # Logika perhitungan pembukuan kas
-    │   ├── useStatusIuran.ts        # Logika filter blok rumah status iuran
-    │   └── usePayDuesModal.ts       # Logika form simulasi pembayaran iuran
-    └── components/       # Folder wadah komponen-komponen UI
-        ├── Dashboard.tsx          # Tampilan Beranda (statistik warga, jalan pintas navigasi)
-        ├── AnnouncementsView.tsx  # Tampilan Pengumuman (kegiatan RT, darurat, dll)
-        ├── AdminLoginModal.tsx    # Modal khusus form masuk pengurus/admin RT
-        ├── FinancesView.tsx       # Koordinator halaman Keuangan & Iuran
-        ├── LetterRequestsView.tsx # Koordinator halaman Pengajuan Surat
-        ├── finances/              # Subfolder modular khusus fitur Keuangan
-        │   ├── LaporanKasTab.tsx  # Pembukuan kas masuk/keluar & grafik rasio anggaran
-        │   ├── StatusIuranTab.tsx # Matriks status iuran per blok rumah (Semester 1)
-        │   ├── PersetujuanTab.tsx # Antrean verifikasi admin terhadap setoran warga
-        │   └── PayDuesModal.tsx   # Formulir bayar & simulasi bukti upload bagi warga
-        └── letters/               # Subfolder modular khusus fitur Pengajuan Surat
-            ├── ApplyLetterForm.tsx  # Formulir input permohonan surat pengantar baru
-            └── LetterPreviewModal.tsx # Pratinjau surat resmi digital siap cetak ke kertas/PDF
+├── backend/                  # 🚀 SERVER BACKEND (Node.js + Express)
+│   ├── prisma/               # Konfigurasi Database ORM
+│   │   ├── schema.prisma     # Skema tabel database SQLite
+│   │   └── dev.db            # File Database SQLite asli
+│   ├── src/                  # Logika API dengan pola MVC (Model-View-Controller)
+│   │   ├── config/           # Koneksi ke PrismaClient
+│   │   ├── controllers/      # Otak utama (Logika pengolahan data)
+│   │   └── routes/           # Daftar jalan tol endpoint (misal: /api/announcements)
+│   ├── index.ts              # Entry point utama Server Express (berjalan di port 3001)
+│   └── package.json          # Dependency backend (express, cors, prisma, dll)
+│
+├── src/                      # 🖥️ FRONTEND UI (React + TypeScript + Vite)
+│   ├── hooks/                # Custom hooks (useAppData.ts sekarang me-fetch dari API Backend)
+│   ├── components/           # Komponen-komponen UI modular (Dashboard, Modals, Tabs)
+│   │   ├── finances/         # Subfolder modular khusus fitur Keuangan
+│   │   └── letters/          # Subfolder modular khusus fitur Pengajuan Surat
+│   ├── data.ts               # Data mockup awal (sebelum terkoneksi ke backend)
+│   ├── types.ts              # Wadah definisi tipe data TypeScript (Interface)
+│   ├── security.ts           # Logika sesi admin
+│   └── App.tsx               # Komponen Induk Aplikasi
+│
+├── .env.example              # Contoh konfigurasi kredensial admin Frontend
+├── package.json              # Dependency frontend
+└── vite.config.ts            # Bundler Vite
 ```
 
 ---
@@ -57,51 +44,43 @@ RtRwCibatu/
 - Node.js (v18+ sangat direkomendasikan)
 - npm atau pnpm
 
-**Instalasi & Pengaturan**
-1. Instal dependensi:
-   ```bash
-   npm install
-   ```
+### 1. Menjalankan Backend Server (Terminal 1)
+Buka terminal, masuk ke folder `backend/`, instal dependensi, lalu jalankan server:
+```bash
+cd backend
+npm install
+npx prisma generate
+npm run dev
+```
+Server backend akan menyala di `http://localhost:3001`. Semua data sekarang akan disimpan ke dalam database SQLite secara permanen!
 
-2. Konfigurasi kredensial admin:
-   Salin isi file `.env.example` ke dalam file `.env` baru (atau gunakan file `.env` default yang telah disiapkan secara otomatis):
-   ```env
-   VITE_ADMIN_USERNAME="adminrt005"
-   VITE_ADMIN_PASSWORD="rahasiart005aman"
-   ```
+### 2. Menjalankan Frontend React (Terminal 2)
+Buka tab terminal baru, tetap di folder utama (root), instal dependensi, lalu jalankan UI:
+```bash
+npm install
+npm run dev
+```
+Aplikasi warga (UI) akan berjalan di `http://localhost:3000`.
 
-3. Jalankan server lokal (development):
-   ```bash
-   npm run dev
-   ```
-   Server development default akan berjalan di `http://localhost:3000`.
-
-4. Uji tipe data TypeScript (linting):
-   ```bash
-   npm run lint
-   ```
-
-5. Bangun bundle siap produksi (production):
-   ```bash
-   npm run build
-   npm run preview
-   ```
+### Konfigurasi Admin
+Salin isi file `.env.example` ke dalam file `.env` baru (atau gunakan file `.env` default yang telah disiapkan secara otomatis):
+```env
+VITE_ADMIN_USERNAME="adminrt005"
+VITE_ADMIN_PASSWORD="rahasiart005aman"
+```
 
 ---
 
 ## Fitur Utama
 
-- **Dashboard Statistik Warga**: Menyajikan data informatif mengenai Kepala Keluarga, total warga aktif, dan shortcut fitur cepat.
+- **Database SQLite Dinamis**: Data warga, kas, dan surat kini tersimpan ke database fisik di backend, bukan lagi di memori peramban sementara (*localStorage*).
 - **Pengumuman Resmi**: Feed dinamis dari pengurus RT dengan penandaan pin untuk informasi darurat atau penting.
 - **Laporan Kas & Iuran Transparan**:
-  - Saldo riil kas yang diperbarui otomatis saat transaksi disetujui.
+  - Saldo riil kas yang diperbarui otomatis dari tabel database.
   - Matriks iuran bulanan warga per blok rumah dengan status pembayaran (Belum, Pending, Lunas).
   - Simulasi pembayaran mandiri bagi warga dengan upload bukti transfer bank virtual.
   - Antrean persetujuan bendahara RT untuk memverifikasi bukti setoran warga.
 - **Pengajuan Surat Pengantar Domisili**:
-  - Formulir pendaftaran terstruktur dengan validasi angka NIK & KK.
-  - Tanda tangan digital resmi pengurus RT.
-  - Tampilan pratinjau surat dinas resmi standar nasional Indonesia yang siap dicetak ke kertas atau disimpan sebagai PDF.
-- **Otentikasi Aman Pengurus**:
-  - Mode admin dilindungi oleh kredensial variabel lingkungan (env) yang aman.
-  - Sistem sesi admin otomatis kedaluwarsa jika tidak ada aktivitas dalam 30 menit demi keamanan data warga.
+  - Tanda tangan digital resmi pengurus RT dan pratinjau surat siap cetak (PDF).
+- **Arsitektur MVC yang Rapi**:
+  - Backend dipisahkan menjadi *Controllers* dan *Routes* untuk kemudahan *maintenance* oleh developer di masa depan.
