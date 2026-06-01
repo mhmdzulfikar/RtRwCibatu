@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Announcement {
+  id         String   @id
+  title      String
+  content    String
+  date       String
+  category   String
+  author     String
+  isPinned   Boolean  @default(false)
+  imageUrl   String?
+  imageAlt   String?
+}
+
+model LetterRequest {
+  id             String   @id
+  applicantName  String
+  nik            String
+  kk             String
+  birthPlace     String
+  birthDate      String
+  gender         String
+  phone          String
+  religion       String
+  profession     String
+  address        String
+  purpose        String
+  status         String
+  dateRequested  String
+  referenceNo    String?
+  rejectedReason String?
+}
+
+model FinancialTransaction {
+  id          String   @id
+  description String
+  amount      Float
+  type        String
+  date        String
+  category    String
+  recordedBy  String
+  rt          String?
+  rw          String?
+}
+
+model CitizenDues {
+  id             String   @id
+  citizenName    String
+  houseNumber    String
+  rt             String?
+  rw             String?
+  paymentHistory String   // We store the nested JSON as a string for simplicity in SQLite
+}
+
+model DuesPaymentRequest {
+  id               String   @id
+  citizenName      String
+  houseNumber      String
+  month            String
+  year             Int
+  amount           Float
+  paymentMethod    String
+  transferProofUrl String?
+  dateSubmitted    String
+  status           String
+  rt               String?
+  rw               String?
+}

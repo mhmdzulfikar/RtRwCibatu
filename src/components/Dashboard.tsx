@@ -15,6 +15,8 @@ export default function Dashboard({ onNavigate, announcements, totalBalance }: D
     .concat(announcements.filter(a => !a.isPinned))
     .slice(0, 3);
 
+
+  // Dummy Data Keluarga
   const stats = [
     { label: 'Kepala Keluarga', value: '450+', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
     { label: 'Total Warga', value: '1.600+', icon: Home, color: 'text-amber-600', bg: 'bg-amber-50' },
@@ -55,7 +57,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance }: D
       <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-blue-600/95 via-indigo-600/90 to-blue-700/95 text-white shadow-2xl shadow-indigo-200/50 border border-white/20">
         <div className="absolute top-0 right-0 -m-10 h-72 w-72 rounded-full bg-blue-400/20 blur-2xl" />
         <div className="absolute bottom-0 left-0 -m-10 h-72 w-72 rounded-full bg-teal-400/20 blur-2xl" />
-        
+
         <div className="relative px-6 py-12 md:p-16 lg:px-20 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-7 space-y-6">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-xs font-semibold uppercase tracking-wider text-blue-100">
@@ -68,7 +70,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance }: D
               Selamat datang di Portal Digital RT 005. Di sini Anda dapat mengurus surat pengantar domisili, memantau laporan keuangan kas iuran secara transparan, serta mengakses pengumuman resmi dari kenyamanan rumah Anda.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-2">
-              <button 
+              <button
                 onClick={() => onNavigate('surat')}
                 className="inline-flex justify-center items-center gap-2 px-6 py-3.5 bg-white text-blue-600 hover:bg-slate-50 rounded-full font-bold shadow-md transition-all active:scale-95 text-sm cursor-pointer"
               >
@@ -86,7 +88,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance }: D
           <div className="lg:col-span-5">
             <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 p-6 space-y-4">
               <h3 className="font-bold text-lg text-white">Ikhtisar Cepat</h3>
-              
+
               <div className="bg-white/10 rounded-xl p-4 flex items-center gap-4 border border-white/5">
                 <div className="p-2.5 rounded-lg bg-white/20 text-white">
                   <Megaphone className="h-5 w-5" />
@@ -188,7 +190,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance }: D
         <div className="lg:col-span-7 space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-extrabold text-slate-800">Pengumuman Terkini</h2>
-            <button 
+            <button
               onClick={() => onNavigate('pengumuman')}
               className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
             >
@@ -198,8 +200,8 @@ export default function Dashboard({ onNavigate, announcements, totalBalance }: D
 
           <div className="space-y-4">
             {featuredAnnouncements.map((ann) => (
-              <div 
-                key={ann.id} 
+              <div
+                key={ann.id}
                 onClick={() => onNavigate('pengumuman')}
                 className="glass-panel glass-panel-hover p-5 rounded-2xl cursor-pointer flex flex-col sm:flex-row gap-4 items-start"
               >
@@ -214,23 +216,21 @@ export default function Dashboard({ onNavigate, announcements, totalBalance }: D
                     />
                   </div>
                 ) : (
-                  <div className={`p-2.5 rounded-xl hidden md:block border border-white ${
-                    ann.category === 'Darurat' ? 'bg-red-100/50 text-red-600' :
-                    ann.category === 'Kegiatan' ? 'bg-blue-100/50 text-blue-600' :
-                    ann.category === 'Keamanan' ? 'bg-emerald-100/50 text-emerald-600' :
-                    'bg-slate-100/50 text-slate-600'
-                  }`}>
+                  <div className={`p-2.5 rounded-xl hidden md:block border border-white ${ann.category === 'Darurat' ? 'bg-red-100/50 text-red-600' :
+                      ann.category === 'Kegiatan' ? 'bg-blue-100/50 text-blue-600' :
+                        ann.category === 'Keamanan' ? 'bg-emerald-100/50 text-emerald-600' :
+                          'bg-slate-100/50 text-slate-600'
+                    }`}>
                     <Megaphone className="h-5 w-5" />
                   </div>
                 )}
                 <div className="flex-1 min-w-0 space-y-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className={`text-[10px] uppercase font-mono font-extrabold px-2 py-0.5 rounded-md border border-white/30 ${
-                      ann.category === 'Darurat' ? 'bg-red-100/50 text-red-800' :
-                      ann.category === 'Kegiatan' ? 'bg-blue-100/50 text-blue-800' :
-                      ann.category === 'Keamanan' ? 'bg-emerald-100/50 text-emerald-800' :
-                      'bg-slate-100/55 text-slate-800'
-                    }`}>
+                    <span className={`text-[10px] uppercase font-mono font-extrabold px-2 py-0.5 rounded-md border border-white/30 ${ann.category === 'Darurat' ? 'bg-red-100/50 text-red-800' :
+                        ann.category === 'Kegiatan' ? 'bg-blue-100/50 text-blue-800' :
+                          ann.category === 'Keamanan' ? 'bg-emerald-100/50 text-emerald-800' :
+                            'bg-slate-100/55 text-slate-800'
+                      }`}>
                       {ann.category}
                     </span>
                     {ann.isPinned && (
@@ -255,7 +255,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance }: D
         {/* Structural Info Box & FAQ */}
         <div className="lg:col-span-5 space-y-6">
           <h2 className="text-xl font-extrabold text-slate-800">Kepengurusan RT 005</h2>
-          
+
           <div className="glass-panel p-6 rounded-[2rem] space-y-6">
             {/* Header of management board */}
             <div className="flex items-center gap-3 pb-4 border-b border-white/40">
@@ -277,7 +277,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance }: D
                 </div>
                 <span className="text-xs text-emerald-700 bg-emerald-100/50 border border-white/40 px-2.5 py-1 rounded-full font-bold">Aktif</span>
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-slate-400 uppercase font-mono tracking-wider">Sekretaris RT</p>

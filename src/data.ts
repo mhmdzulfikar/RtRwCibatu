@@ -51,7 +51,7 @@ export const INITIAL_ANNOUNCEMENTS: Announcement[] = [
     date: '2026-05-28',
     category: 'Kegiatan',
     author: 'Ketua RT (Bp. Hendra)',
-    isPinned: true,
+    isPinned: false,
     ...ANNOUNCEMENT_PHOTOS['ann-1']
   },
   {
@@ -70,7 +70,7 @@ export const INITIAL_ANNOUNCEMENTS: Announcement[] = [
     date: '2026-05-22',
     category: 'Kegiatan',
     author: 'PKK RT 005',
-    isPinned: false,
+    isPinned: true,
     ...ANNOUNCEMENT_PHOTOS['ann-3']
   },
   {
