@@ -23,8 +23,12 @@ RtRwCibatu/
 │
 ├── src/                      # 🖥️ FRONTEND UI (React + TypeScript + Vite)
 │   ├── hooks/                # Custom hooks (useAppData.ts sekarang me-fetch dari API Backend)
-│   ├── components/           # Komponen-komponen antar muka UI
+│   ├── components/           # Komponen-komponen UI modular (Dashboard, Modals, Tabs)
+│   │   ├── finances/         # Subfolder modular khusus fitur Keuangan
+│   │   └── letters/          # Subfolder modular khusus fitur Pengajuan Surat
 │   ├── data.ts               # Data mockup awal (sebelum terkoneksi ke backend)
+│   ├── types.ts              # Wadah definisi tipe data TypeScript (Interface)
+│   ├── security.ts           # Logika sesi admin
 │   └── App.tsx               # Komponen Induk Aplikasi
 │
 ├── .env.example              # Contoh konfigurasi kredensial admin Frontend
