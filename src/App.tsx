@@ -234,6 +234,7 @@ export default function App() {
                 onNavigate={(t) => setActiveTab(t)}
                 announcements={announcements}
                 totalBalance={totalBalance}
+                isAdmin={isAdmin}
               />
             )}
 
