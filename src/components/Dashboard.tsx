@@ -1,14 +1,43 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Home, FileText, Wallet, Megaphone, Users, Shield, ArrowRight, Star, HeartHandshake } from 'lucide-react';
+import { Home, FileText, Wallet, Megaphone, Users, Shield, ArrowRight, Star, HeartHandshake, Edit3, X, Save } from 'lucide-react';
 import { Announcement } from '../types';
 
 interface DashboardProps {
   onNavigate: (tab: string) => void;
   announcements: Announcement[];
   totalBalance: number;
+  isAdmin?: boolean;
 }
 
-export default function Dashboard({ onNavigate, announcements, totalBalance }: DashboardProps) {
+export default function Dashboard({ onNavigate, announcements, totalBalance, isAdmin }: DashboardProps) {
+  // Pengurus RT State
+  const [management, setManagement] = useState({
+    ketua: 'Bp. Hendra Kurniawan',
+    sekretaris: 'Bp. Tarman Sugandi',
+    bendahara: 'Ibu Susan Natalia',
+  });
+  const [isEditingManagement, setIsEditingManagement] = useState(false);
+  const [editForm, setEditForm] = useState(management);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('rt005_management');
+    if (saved) {
+      try {
+        setManagement(JSON.parse(saved));
+        setEditForm(JSON.parse(saved));
+      } catch (e) {
+        console.error('Failed to parse management data', e);
+      }
+    }
+  }, []);
+
+  const handleSaveManagement = () => {
+    setManagement(editForm);
+    localStorage.setItem('rt005_management', JSON.stringify(editForm));
+    setIsEditingManagement(false);
+  };
+
   // Get pinned or latest announcements
   const featuredAnnouncements = announcements
     .filter(a => a.isPinned)
@@ -254,7 +283,17 @@ export default function Dashboard({ onNavigate, announcements, totalBalance }: D
 
         {/* Structural Info Box & FAQ */}
         <div className="lg:col-span-5 space-y-6">
-          <h2 className="text-xl font-extrabold text-slate-800">Kepengurusan RT 005</h2>
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-extrabold text-slate-800">Kepengurusan RT 005</h2>
+            {isAdmin && (
+              <button
+                onClick={() => setIsEditingManagement(true)}
+                className="text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer flex items-center gap-1 bg-blue-50 px-3 py-1.5 rounded-full hover:bg-blue-100 transition-colors"
+              >
+                <Edit3 className="h-3.5 w-3.5" /> Edit
+              </button>
+            )}
+          </div>
 
           <div className="glass-panel p-6 rounded-[2rem] space-y-6">
             {/* Header of management board */}
@@ -273,7 +312,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance }: D
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-slate-400 uppercase font-mono tracking-wider">Ketua RT</p>
-                  <p className="font-bold text-slate-800 text-sm">Bp. Hendra Kurniawan</p>
+                  <p className="font-bold text-slate-800 text-sm">{management.ketua}</p>
                 </div>
                 <span className="text-xs text-emerald-700 bg-emerald-100/50 border border-white/40 px-2.5 py-1 rounded-full font-bold">Aktif</span>
               </div>
@@ -281,7 +320,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance }: D
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-slate-400 uppercase font-mono tracking-wider">Sekretaris RT</p>
-                  <p className="font-bold text-slate-800 text-sm">Bp. Tarman Sugandi</p>
+                  <p className="font-bold text-slate-800 text-sm">{management.sekretaris}</p>
                 </div>
                 <span className="text-xs text-slate-500 bg-white/50 border border-white/40 px-2.5 py-1 rounded-full font-medium">Aktif</span>
               </div>
@@ -289,7 +328,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance }: D
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-slate-400 uppercase font-mono tracking-wider">Bendahara RT</p>
-                  <p className="font-bold text-slate-800 text-sm">Ibu Susan Natalia</p>
+                  <p className="font-bold text-slate-800 text-sm">{management.bendahara}</p>
                 </div>
                 <span className="text-xs text-slate-500 bg-white/50 border border-white/40 px-2.5 py-1 rounded-full font-medium">Aktif</span>
               </div>
@@ -305,6 +344,75 @@ export default function Dashboard({ onNavigate, announcements, totalBalance }: D
           </div>
         </div>
       </div>
+
+      {/* Edit Management Modal */}
+      {isEditingManagement && (
+        <div className="fixed inset-0 z-50 bg-slate-950/55 backdrop-blur-md flex items-center justify-center px-4 py-6">
+          <motion.div
+            initial={{ opacity: 0, y: 16, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            className="w-full max-w-md glass-panel rounded-[2rem] p-6 md:p-7 shadow-2xl border border-white/70 relative"
+          >
+            <button
+              type="button"
+              onClick={() => setIsEditingManagement(false)}
+              className="absolute right-5 top-5 p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-white/40 transition-colors cursor-pointer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-xl font-black text-slate-900 tracking-tight mt-1">
+                  Edit Pengurus RT
+                </h2>
+                <p className="text-xs text-slate-500 leading-relaxed mt-2">
+                  Ubah nama kepengurusan RT yang sedang menjabat.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">Nama Ketua RT</label>
+                  <input
+                    type="text"
+                    value={editForm.ketua}
+                    onChange={(e) => setEditForm({ ...editForm, ketua: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/50 border border-white/70 focus:bg-white/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">Nama Sekretaris RT</label>
+                  <input
+                    type="text"
+                    value={editForm.sekretaris}
+                    onChange={(e) => setEditForm({ ...editForm, sekretaris: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/50 border border-white/70 focus:bg-white/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">Nama Bendahara RT</label>
+                  <input
+                    type="text"
+                    value={editForm.bendahara}
+                    onChange={(e) => setEditForm({ ...editForm, bendahara: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/50 border border-white/70 focus:bg-white/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                </div>
+
+                <button
+                  onClick={handleSaveManagement}
+                  className="w-full px-5 py-3.5 rounded-xl font-extrabold text-sm shadow-md transition-all inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/10 cursor-pointer"
+                >
+                  <Save className="h-4 w-4" /> Simpan Perubahan
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
