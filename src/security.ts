@@ -48,13 +48,16 @@ export const readStoredSession = (): AuthenticatedUser | null => {
     if (!parsed.username || parsed.username !== ADMIN_CREDENTIALS.username) return null;
     if (!parsed.sessionToken || parsed.sessionToken.length < 64) return null;
 
-    return {
+    const activeSession: AuthenticatedUser = {
       username: parsed.username,
       displayName: ADMIN_CREDENTIALS.displayName,
       role: 'admin',
-      loginTime: parsed.loginTime || new Date().toISOString(),
+      loginTime: new Date().toISOString(),
       sessionToken: parsed.sessionToken
     };
+
+    return activeSession;
+
   } catch (error) {
     sessionStorage.removeItem(AUTH_STORAGE_KEY);
     return null;
