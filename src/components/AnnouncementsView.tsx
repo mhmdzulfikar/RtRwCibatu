@@ -18,28 +18,14 @@ export default function AnnouncementsView({
   onDeleteAnnouncement,
 }: AnnouncementsViewProps) {
   const {
-    searchTerm,
-    setSearchTerm,
-    selectedCategory,
-    setSelectedCategory,
-    selectedYear,
-    setSelectedYear,
+    filters,
+    updateFilter,
+    form,
+    updateForm,
     showAddForm,
     setShowAddForm,
     selectedAnnouncement,
     setSelectedAnnouncement,
-    newTitle,
-    setNewTitle,
-    newContent,
-    setNewContent,
-    newCategory,
-    setNewCategory,
-    newIsPinned,
-    setNewIsPinned,
-    newAuthor,
-    setNewAuthor,
-    newImageUrl,
-    setNewImageUrl,
     categories,
     years,
     filteredAnnouncements,
@@ -93,8 +79,8 @@ export default function AnnouncementsView({
                 <input
                   type="text"
                   required
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
+                  value={form.title}
+                  onChange={(e) => updateForm('title', e.target.value)}
                   placeholder="Contoh: Kerja Bakti Bulanan RT..."
                   className="w-full px-4 py-2 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-sans"
                 />
@@ -103,8 +89,8 @@ export default function AnnouncementsView({
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-600">Kategori</label>
                 <select
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value as Announcement['category'])}
+                  value={form.category}
+                  onChange={(e) => updateForm('category', e.target.value as Announcement['category'])}
                   className="w-full px-4 py-2 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all bg-white"
                 >
                   <option value="Umum">Umum</option>
@@ -122,8 +108,8 @@ export default function AnnouncementsView({
                 <input
                   type="text"
                   required
-                  value={newAuthor}
-                  onChange={(e) => setNewAuthor(e.target.value)}
+                  value={form.author}
+                  onChange={(e) => updateForm('author', e.target.value)}
                   className="w-full px-4 py-2 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-sans"
                 />
               </div>
@@ -132,8 +118,8 @@ export default function AnnouncementsView({
                 <label className="flex items-center gap-2 cursor-pointer select-none">
                   <input
                     type="checkbox"
-                    checked={newIsPinned}
-                    onChange={(e) => setNewIsPinned(e.target.checked)}
+                    checked={form.isPinned}
+                    onChange={(e) => updateForm('isPinned', e.target.checked)}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-white/60 rounded-xs"
                   />
                   <span className="text-sm font-bold text-slate-700 flex items-center gap-1">
@@ -147,8 +133,8 @@ export default function AnnouncementsView({
               <label className="text-xs font-bold text-slate-600">URL Foto Kegiatan (Opsional)</label>
               <input
                 type="url"
-                value={newImageUrl}
-                onChange={(e) => setNewImageUrl(e.target.value)}
+                value={form.imageUrl}
+                onChange={(e) => updateForm('imageUrl', e.target.value)}
                 placeholder="https://..."
                 className="w-full px-4 py-2 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-sans"
               />
@@ -159,8 +145,8 @@ export default function AnnouncementsView({
               <textarea
                 required
                 rows={4}
-                value={newContent}
-                onChange={(e) => setNewContent(e.target.value)}
+                value={form.content}
+                onChange={(e) => updateForm('content', e.target.value)}
                 placeholder="Tuliskan detail pengumuman secara lengkap di sini (jadwal, tempat, instruksi, kontak penanggung jawab, dll)..."
                 className="w-full px-4 py-2.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-sans"
               />
@@ -192,8 +178,8 @@ export default function AnnouncementsView({
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input
             type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={filters.search}
+            onChange={(e) => updateFilter('search', e.target.value)}
             placeholder="Cari pengumuman..."
             className="w-full pl-11 pr-4 py-2.5 bg-white/40 border border-white/60 backdrop-blur-md rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs transition-all font-sans"
           />
@@ -203,8 +189,8 @@ export default function AnnouncementsView({
         <div className="relative lg:w-44">
           <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <select
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(e.target.value)}
+            value={filters.year}
+            onChange={(e) => updateFilter('year', e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-white/40 border border-white/60 backdrop-blur-md rounded-xl text-sm font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs transition-all"
           >
             <option value="Semua">Semua Tahun</option>
@@ -221,9 +207,9 @@ export default function AnnouncementsView({
           {categories.map((cat) => (
             <button
               key={cat}
-              onClick={() => setSelectedCategory(cat)}
+              onClick={() => updateFilter('category', cat)}
               className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                selectedCategory === cat
+                filters.category === cat
                   ? 'bg-blue-600 text-white shadow-xs'
                   : 'bg-white/40 text-slate-600 border border-white/60 hover:bg-white/60'
               }`}
