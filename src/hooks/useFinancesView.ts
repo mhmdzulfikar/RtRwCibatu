@@ -11,14 +11,22 @@ export function useFinancesView({ isAdmin, paymentRequests, onSubmitPaymentReque
   // Navigation inside Finances Tab
   const [activeSubTab, setActiveSubTab] = useState<'laporan' | 'status-iuran' | 'persetujuan'>('laporan');
 
-  // RW & RT defaults for scoping
-  const [selectedRW] = useState('02');
-  const [selectedRT] = useState('005');
+  // RW & RT defaults for scoping (Grouped)
+  const [scope] = useState({
+    rw: '02',
+    rt: '005',
+  });
 
-  // Bayar Iuran Modal & Success Tip States
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [selectedCitizen, setSelectedCitizen] = useState<CitizenDues | null>(null);
-  const [isSuccessTip, setIsSuccessTip] = useState(false);
+  // Bayar Iuran Modal & Success Tip States (Grouped)
+  const [paymentModal, setPaymentModal] = useState({
+    isOpen: false,
+    selectedCitizen: null as CitizenDues | null,
+    showSuccessTip: false,
+  });
+
+  const updatePaymentModal = (updates: Partial<typeof paymentModal>) => {
+    setPaymentModal((prev) => ({ ...prev, ...updates }));
+  };
 
   useEffect(() => {
     if (!isAdmin && activeSubTab === 'persetujuan') {
@@ -27,17 +35,15 @@ export function useFinancesView({ isAdmin, paymentRequests, onSubmitPaymentReque
   }, [activeSubTab, isAdmin]);
 
   const handlePayDuesClick = (citizen: CitizenDues) => {
-    setSelectedCitizen(citizen);
-    setShowPaymentModal(true);
+    updatePaymentModal({ selectedCitizen: citizen, isOpen: true });
   };
 
   const handlePaymentSubmit = (request: Omit<DuesPaymentRequest, 'id' | 'status' | 'dateSubmitted'>) => {
     onSubmitPaymentRequest(request);
-    setShowPaymentModal(false);
-    setSelectedCitizen(null);
-    setIsSuccessTip(true);
+    updatePaymentModal({ isOpen: false, selectedCitizen: null, showSuccessTip: true });
+    
     setTimeout(() => {
-      setIsSuccessTip(false);
+      updatePaymentModal({ showSuccessTip: false });
     }, 5000);
   };
 
@@ -46,14 +52,9 @@ export function useFinancesView({ isAdmin, paymentRequests, onSubmitPaymentReque
   return {
     activeSubTab,
     setActiveSubTab,
-    selectedRW,
-    selectedRT,
-    showPaymentModal,
-    setShowPaymentModal,
-    selectedCitizen,
-    setSelectedCitizen,
-    isSuccessTip,
-    setIsSuccessTip,
+    scope,
+    paymentModal,
+    updatePaymentModal,
     handlePayDuesClick,
     handlePaymentSubmit,
     pendingRequests,
