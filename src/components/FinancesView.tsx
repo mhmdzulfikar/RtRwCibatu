@@ -33,14 +33,9 @@ export default function FinancesView({
   const {
     activeSubTab,
     setActiveSubTab,
-    selectedRW,
-    selectedRT,
-    showPaymentModal,
-    setShowPaymentModal,
-    selectedCitizen,
-    setSelectedCitizen,
-    isSuccessTip,
-    setIsSuccessTip,
+    scope,
+    paymentModal,
+    updatePaymentModal,
     handlePayDuesClick,
     handlePaymentSubmit,
     pendingRequests,
@@ -103,7 +98,7 @@ export default function FinancesView({
 
       {/* SUCCESS POPUP FOR PAYMENT SUBMIT */}
       <AnimatePresence>
-        {isSuccessTip && (
+        {paymentModal.showSuccessTip && (
           <div className="bg-emerald-500/90 border border-emerald-400/50 backdrop-blur-md text-white p-4.5 rounded-[1.5rem] flex items-center justify-between shadow-lg">
             <div className="flex items-center gap-3">
               <CheckCircle2 className="h-6 w-6 shrink-0 text-white" />
@@ -115,7 +110,7 @@ export default function FinancesView({
               </div>
             </div>
             <button
-              onClick={() => setIsSuccessTip(false)}
+              onClick={() => updatePaymentModal({ showSuccessTip: false })}
               className="text-emerald-100 hover:text-white font-bold text-xs px-3.5 py-1.5 bg-emerald-600/60 rounded-xl transition-colors shrink-0 cursor-pointer"
             >
               OK
@@ -129,8 +124,8 @@ export default function FinancesView({
         <LaporanKasTab
           transactions={transactions}
           isAdmin={isAdmin}
-          selectedRT={selectedRT}
-          selectedRW={selectedRW}
+          selectedRT={scope.rt}
+          selectedRW={scope.rw}
           onAddTransaction={onAddTransaction}
         />
       )}
@@ -140,8 +135,8 @@ export default function FinancesView({
         <StatusIuranTab
           citizensDues={citizensDues}
           onPayDuesClick={handlePayDuesClick}
-          selectedRT={selectedRT}
-          selectedRW={selectedRW}
+          selectedRT={scope.rt}
+          selectedRW={scope.rw}
         />
       )}
 
@@ -155,13 +150,10 @@ export default function FinancesView({
       )}
 
       {/* MODAL PAY DUES (CITIZEN INTERACTION SIMULATOR) */}
-      {showPaymentModal && selectedCitizen && (
+      {paymentModal.isOpen && paymentModal.selectedCitizen && (
         <PayDuesModal
-          selectedCitizen={selectedCitizen}
-          onClose={() => {
-            setShowPaymentModal(false);
-            setSelectedCitizen(null);
-          }}
+          selectedCitizen={paymentModal.selectedCitizen}
+          onClose={() => updatePaymentModal({ isOpen: false, selectedCitizen: null })}
           onSubmitPaymentRequest={handlePaymentSubmit}
         />
       )}

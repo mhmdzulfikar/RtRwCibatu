@@ -28,24 +28,10 @@ export default function LaporanKasTab({
   onAddTransaction,
 }: LaporanKasTabProps) {
   const {
-    txSearch,
-    setTxSearch,
-    txTypeFilter,
-    setTxTypeFilter,
-    txCategoryFilter,
-    setTxCategoryFilter,
-    showAddTxForm,
-    setShowAddTxForm,
-    txDesc,
-    setTxDesc,
-    txAmount,
-    setTxAmount,
-    txType,
-    setTxType,
-    txCategory,
-    setTxCategory,
-    txDate,
-    setTxDate,
+    filters,
+    updateFilter,
+    form,
+    updateForm,
     totalIncome,
     totalExpense,
     netBalance,
@@ -135,16 +121,16 @@ export default function LaporanKasTab({
       </div>
 
       {/* ADD TRANSACTION FORM BLOCK (ADMIN) */}
-      {isAdmin && !showAddTxForm && (
+      {isAdmin && !form.isOpen && (
         <button
-          onClick={() => setShowAddTxForm(true)}
+          onClick={() => updateForm({ isOpen: true })}
           className="w-full py-4 border-2 border-dashed border-blue-200 hover:border-blue-400 bg-white/20 text-blue-700 hover:bg-white/40 rounded-[2rem] font-bold text-sm tracking-tight flex items-center justify-center gap-2 transition-all cursor-pointer"
         >
           <Plus className="h-4 w-4" /> Tambah Transaksi Kas Baru
         </button>
       )}
 
-      {isAdmin && showAddTxForm && (
+      {isAdmin && form.isOpen && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -154,7 +140,7 @@ export default function LaporanKasTab({
             <h3 className="font-extrabold text-slate-800 text-base">Registrasi Transaksi Baru (Admin)</h3>
             <button
               type="button"
-              onClick={() => setShowAddTxForm(false)}
+              onClick={() => updateForm({ isOpen: false })}
               className="p-1.5 rounded-full text-slate-400 hover:bg-white/40 hover:text-slate-600 transition-colors cursor-pointer"
             >
               <XCircle className="h-5 w-5" />
@@ -167,8 +153,8 @@ export default function LaporanKasTab({
               <input
                 type="text"
                 required
-                value={txDesc}
-                onChange={(e) => setTxDesc(e.target.value)}
+                value={form.desc}
+                onChange={(e) => updateForm({ desc: e.target.value })}
                 placeholder="Contoh: Pembelian Sapu Selokan"
                 className="w-full px-4 py-2.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans transition-all"
               />
@@ -179,8 +165,8 @@ export default function LaporanKasTab({
               <input
                 type="number"
                 required
-                value={txAmount}
-                onChange={(e) => setTxAmount(e.target.value)}
+                value={form.amount}
+                onChange={(e) => updateForm({ amount: e.target.value })}
                 placeholder="Contoh: 150000"
                 className="w-full px-4 py-2.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono transition-all"
               />
@@ -191,23 +177,21 @@ export default function LaporanKasTab({
               <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={() => setTxType('masuk')}
-                  className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
-                    txType === 'masuk'
+                  onClick={() => updateForm({ type: 'masuk' })}
+                  className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${form.type === 'masuk'
                       ? 'bg-emerald-500 text-white shadow-xs'
                       : 'bg-white/40 border border-white/60 text-slate-600 hover:bg-white/60'
-                  }`}
+                    }`}
                 >
                   Pemasukan
                 </button>
                 <button
                   type="button"
-                  onClick={() => setTxType('keluar')}
-                  className={`flex-1 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
-                    txType === 'keluar'
+                  onClick={() => updateForm({ type: 'keluar' })}
+                  className={`flex-1 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${form.type === 'keluar'
                       ? 'bg-rose-500 text-white shadow-xs'
                       : 'bg-white/40 border border-white/60 text-slate-600 hover:bg-white/60'
-                  }`}
+                    }`}
                 >
                   Pengeluaran
                 </button>
@@ -217,8 +201,8 @@ export default function LaporanKasTab({
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-600">Kategori</label>
               <select
-                value={txCategory}
-                onChange={(e) => setTxCategory(e.target.value as FinancialTransaction['category'])}
+                value={form.category}
+                onChange={(e) => updateForm({ category: e.target.value as FinancialTransaction['category'] })}
                 className="w-full px-4 py-2.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all bg-white"
               >
                 {categories.map((c) => (
@@ -234,8 +218,8 @@ export default function LaporanKasTab({
               <input
                 type="date"
                 required
-                value={txDate}
-                onChange={(e) => setTxDate(e.target.value)}
+                value={form.date}
+                onChange={(e) => updateForm({ date: e.target.value })}
                 className="w-full px-4 py-2.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
               />
             </div>
@@ -243,7 +227,7 @@ export default function LaporanKasTab({
             <div className="flex items-end gap-2">
               <button
                 type="button"
-                onClick={() => setShowAddTxForm(false)}
+                onClick={() => updateForm({ isOpen: false })}
                 className="px-4 py-2.5 border border-white/60 bg-white/20 hover:bg-white/40 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-800 transition-colors min-w-[70px] cursor-pointer"
               >
                 Batal
@@ -268,8 +252,8 @@ export default function LaporanKasTab({
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
               type="text"
-              value={txSearch}
-              onChange={(e) => setTxSearch(e.target.value)}
+              value={filters.search}
+              onChange={(e) => updateFilter({ search: e.target.value })}
               placeholder="Cari transaksi..."
               className="w-full pl-9 pr-3 py-2 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all font-sans"
             />
@@ -278,26 +262,23 @@ export default function LaporanKasTab({
           {/* In/Out Filters */}
           <div className="flex border border-white/60 p-0.5 rounded-xl text-xs font-bold bg-white/30 backdrop-blur-md">
             <button
-              onClick={() => setTxTypeFilter('semua')}
-              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                txTypeFilter === 'semua' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-500 hover:text-slate-900'
-              }`}
+              onClick={() => updateFilter({ type: 'semua' })}
+              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${filters.type === 'semua' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-500 hover:text-slate-900'
+                }`}
             >
               Semua
             </button>
             <button
-              onClick={() => setTxTypeFilter('masuk')}
-              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                txTypeFilter === 'masuk' ? 'bg-emerald-500 text-white shadow-xs' : 'text-slate-500 hover:text-slate-900'
-              }`}
+              onClick={() => updateFilter({ type: 'masuk' })}
+              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${filters.type === 'masuk' ? 'bg-emerald-500 text-white shadow-xs' : 'text-slate-500 hover:text-slate-900'
+                }`}
             >
               Pemasukan
             </button>
             <button
-              onClick={() => setTxTypeFilter('keluar')}
-              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                txTypeFilter === 'keluar' ? 'bg-rose-500 text-white shadow-xs' : 'text-slate-500 hover:text-slate-900'
-              }`}
+              onClick={() => updateFilter({ type: 'keluar' })}
+              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${filters.type === 'keluar' ? 'bg-rose-500 text-white shadow-xs' : 'text-slate-500 hover:text-slate-900'
+                }`}
             >
               Pengeluaran
             </button>
@@ -305,8 +286,8 @@ export default function LaporanKasTab({
 
           {/* Category Picker */}
           <select
-            value={txCategoryFilter}
-            onChange={(e) => setTxCategoryFilter(e.target.value)}
+            value={filters.category}
+            onChange={(e) => updateFilter({ category: e.target.value })}
             className="px-3 py-2 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-sans transition-all"
           >
             <option value="Semua" className="bg-white">Semua Kategori</option>
@@ -351,9 +332,8 @@ export default function LaporanKasTab({
                     </td>
                     <td className="py-3 text-right whitespace-nowrap">
                       <span
-                        className={`font-mono font-bold ${
-                          tx.type === 'masuk' ? 'text-emerald-600' : 'text-rose-600'
-                        }`}
+                        className={`font-mono font-bold ${tx.type === 'masuk' ? 'text-emerald-600' : 'text-rose-600'
+                          }`}
                       >
                         {tx.type === 'masuk' ? '+' : '-'} Rp {tx.amount.toLocaleString('id-ID')}
                       </span>

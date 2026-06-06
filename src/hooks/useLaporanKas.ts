@@ -9,18 +9,24 @@ export interface UseLaporanKasProps {
 }
 
 export function useLaporanKas({ transactions, selectedRT, selectedRW, onAddTransaction }: UseLaporanKasProps) {
-  // Search & Filter State
-  const [txSearch, setTxSearch] = useState('');
-  const [txTypeFilter, setTxTypeFilter] = useState<'semua' | 'masuk' | 'keluar'>('semua');
-  const [txCategoryFilter, setTxCategoryFilter] = useState<string>('Semua');
+  // Search & Filter State (Grouped)
+  const [filters, setFilters] = useState({
+    search: '',
+    type: 'semua' as 'semua' | 'masuk' | 'keluar',
+    category: 'Semua',
+  });
+  const updateFilter = (updates: Partial<typeof filters>) => setFilters((p) => ({ ...p, ...updates }));
 
-  // Add Transaction Form
-  const [showAddTxForm, setShowAddTxForm] = useState(false);
-  const [txDesc, setTxDesc] = useState('');
-  const [txAmount, setTxAmount] = useState('');
-  const [txType, setTxType] = useState<'masuk' | 'keluar'>('masuk');
-  const [txCategory, setTxCategory] = useState<FinancialTransaction['category']>('Iuran Bulanan');
-  const [txDate, setTxDate] = useState(new Date().toISOString().substring(0, 10));
+  // Add Transaction Form (Grouped)
+  const [form, setForm] = useState({
+    isOpen: false,
+    desc: '',
+    amount: '',
+    type: 'masuk' as 'masuk' | 'keluar',
+    category: 'Iuran Bulanan' as FinancialTransaction['category'],
+    date: new Date().toISOString().substring(0, 10),
+  });
+  const updateForm = (updates: Partial<typeof form>) => setForm((p) => ({ ...p, ...updates }));
 
   const matchesScope = (item: { rt?: string; rw?: string }) =>
     item.rt === selectedRT && item.rw === selectedRW;
@@ -50,10 +56,10 @@ export function useLaporanKas({ transactions, selectedRT, selectedRW, onAddTrans
   const filteredTransactions = transactions
     .filter((t) => {
       const matchesSearch =
-        t.description.toLowerCase().includes(txSearch.toLowerCase()) ||
-        t.category.toLowerCase().includes(txSearch.toLowerCase());
-      const matchesType = txTypeFilter === 'semua' || t.type === txTypeFilter;
-      const matchesCategory = txCategoryFilter === 'Semua' || t.category === txCategoryFilter;
+        t.description.toLowerCase().includes(filters.search.toLowerCase()) ||
+        t.category.toLowerCase().includes(filters.search.toLowerCase());
+      const matchesType = filters.type === 'semua' || t.type === filters.type;
+      const matchesCategory = filters.category === 'Semua' || t.category === filters.category;
       const matchesRT = t.rt && t.rw ? matchesScope(t) : true;
       return matchesSearch && matchesType && matchesCategory && matchesRT;
     })
@@ -61,49 +67,37 @@ export function useLaporanKas({ transactions, selectedRT, selectedRW, onAddTrans
 
   const handleAddTransactionSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const nominal = parseFloat(txAmount);
-    if (!txDesc.trim() || isNaN(nominal) || nominal <= 0) {
+    const nominal = parseFloat(form.amount);
+    if (!form.desc.trim() || isNaN(nominal) || nominal <= 0) {
       alert('Tolong berikan deskripsi dan jumlah nominal transaksi yang valid.');
       return;
     }
 
     onAddTransaction({
-      description: txDesc,
+      description: form.desc,
       amount: nominal,
-      type: txType,
-      date: txDate,
-      category: txCategory,
+      type: form.type,
+      date: form.date,
+      category: form.category,
       rt: selectedRT,
       rw: selectedRW,
     });
 
     // Reset Form
-    setTxDesc('');
-    setTxAmount('');
-    setTxType('masuk');
-    setTxCategory('Iuran Bulanan');
-    setShowAddTxForm(false);
+    updateForm({
+      desc: '',
+      amount: '',
+      type: 'masuk',
+      category: 'Iuran Bulanan',
+      isOpen: false,
+    });
   };
 
   return {
-    txSearch,
-    setTxSearch,
-    txTypeFilter,
-    setTxTypeFilter,
-    txCategoryFilter,
-    setTxCategoryFilter,
-    showAddTxForm,
-    setShowAddTxForm,
-    txDesc,
-    setTxDesc,
-    txAmount,
-    setTxAmount,
-    txType,
-    setTxType,
-    txCategory,
-    setTxCategory,
-    txDate,
-    setTxDate,
+    filters,
+    updateFilter,
+    form,
+    updateForm,
     totalIncome,
     totalExpense,
     netBalance,
