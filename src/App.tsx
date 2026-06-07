@@ -26,19 +26,28 @@ import { useAppData } from './hooks/useAppData';
 
 export default function App() {
   // Navigation State
-  const [activeTab, setActiveTab] = useState<string>('beranda');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+  const [appState, setAppState] = useState({
+    activeTab: 'beranda',
+    mobileMenuOpen: false,
+  });
+  
+  const updateAppState = (updates: Partial<typeof appState>) => setAppState((p) => ({ ...p, ...updates }));
+  const { activeTab, mobileMenuOpen } = appState;
+
+  const setActiveTab = (tab: string) => updateAppState({ activeTab: tab });
+  const setMobileMenuOpen = (open: boolean) => updateAppState({ mobileMenuOpen: open });
 
   // Custom Hooks for Logic
   const {
-    currentUser,
-    showAdminLogin,
-    setShowAdminLogin,
+    authState,
+    updateAuthState,
     isAdmin,
     handleAdminLogin,
     handleLogout,
     requireAdminAccess,
   } = useAuth(setActiveTab);
+  const { currentUser, showAdminLogin } = authState;
+  const setShowAdminLogin = (v: boolean) => updateAuthState({ showAdminLogin: v });
 
   const {
     announcements,

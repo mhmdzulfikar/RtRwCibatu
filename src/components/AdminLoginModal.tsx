@@ -20,20 +20,26 @@ export default function AdminLoginModal({
   onClose,
   onLogin
 }: AdminLoginModalProps) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [loginError, setLoginError] = useState('');
+  const [form, setForm] = useState({
+    username: '',
+    password: '',
+    loginError: '',
+  });
+
+  const updateForm = (updates: Partial<typeof form>) => setForm((p) => ({ ...p, ...updates }));
+
+  const { username, password, loginError } = form;
 
   const handleLogin = (event: FormEvent) => {
     event.preventDefault();
 
     if (!isAdminAuthConfigured) {
-      setLoginError('Login admin belum dikonfigurasi aman. Atur username dan password kuat di environment sebelum dipakai.');
+      updateForm({ loginError: 'Login admin belum dikonfigurasi aman. Atur username dan password kuat di environment sebelum dipakai.' });
       return;
     }
 
     if (username.trim() !== ADMIN_CREDENTIALS.username || password !== ADMIN_CREDENTIALS.password) {
-      setLoginError('Username atau password admin tidak sesuai.');
+      updateForm({ loginError: 'Username atau password admin tidak sesuai.' });
       return;
     }
 
@@ -85,7 +91,7 @@ export default function AdminLoginModal({
                 <input
                   type="text"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => updateForm({ username: e.target.value })}
                   className="w-full pl-10 pr-4 py-3 bg-white/50 border border-white/70 focus:bg-white/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                   autoComplete="username"
                   disabled={!isAdminAuthConfigured}
@@ -101,7 +107,7 @@ export default function AdminLoginModal({
                 <input
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => updateForm({ password: e.target.value })}
                   className="w-full pl-10 pr-4 py-3 bg-white/50 border border-white/70 focus:bg-white/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                   autoComplete="current-password"
                   disabled={!isAdminAuthConfigured}
