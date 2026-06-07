@@ -28,18 +28,14 @@ export default function LetterRequestsView({
   onUpdateStatus,
 }: LetterRequestsViewProps) {
   const {
-    showApplyForm,
-    setShowApplyForm,
-    selectedLetter,
-    setSelectedLetter,
-    rejectingId,
-    setRejectingId,
-    rejectionReasonText,
-    setRejectionReasonText,
+    viewState,
+    updateViewState,
     triggerRejectSubmit,
     triggerApproveSign,
     getSafeNik,
   } = useLetterRequestsView({ isAdmin, onUpdateStatus });
+  
+  const { showApplyForm, selectedLetter, rejectingId, rejectionReasonText } = viewState;
 
   return (
     <div className="space-y-8">
@@ -56,7 +52,7 @@ export default function LetterRequestsView({
 
         {!showApplyForm && (
           <button
-            onClick={() => setShowApplyForm(true)}
+            onClick={() => updateViewState({ showApplyForm: true })}
             className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-md shadow-blue-500/10 text-sm cursor-pointer active:scale-95"
           >
             <Plus className="h-4 w-4" /> Buat Pengajuan Baru
@@ -67,7 +63,7 @@ export default function LetterRequestsView({
       {/* DETAILED FORM FOR REGISTRATION / REQUEST */}
       {showApplyForm && (
         <ApplyLetterForm
-          onClose={() => setShowApplyForm(false)}
+          onClose={() => updateViewState({ showApplyForm: false })}
           onSubmitRequest={onSubmitRequest}
         />
       )}
@@ -83,15 +79,14 @@ export default function LetterRequestsView({
             <textarea
               rows={3}
               value={rejectionReasonText}
-              onChange={(e) => setRejectionReasonText(e.target.value)}
+              onChange={(e) => updateViewState({ rejectionReasonText: e.target.value })}
               placeholder="Contoh: NIK pemohon salah / mohon perbaiki NIK sesuai KK asli Anda."
               className="w-full px-3.5 py-2.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-xs sm:text-sm focus:outline-none transition-all"
             />
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => {
-                  setRejectingId(null);
-                  setRejectionReasonText('');
+                  updateViewState({ rejectingId: null, rejectionReasonText: '' });
                 }}
                 className="px-4 py-2 border border-white/60 bg-white/20 hover:bg-white/40 rounded-xl text-xs font-bold text-slate-600 transition-colors cursor-pointer"
               >
@@ -190,7 +185,7 @@ export default function LetterRequestsView({
                   {/* CITIZEN: View Printable Letter */}
                   {req.status === 'ready' && (
                     <button
-                      onClick={() => setSelectedLetter(req)}
+                      onClick={() => updateViewState({ selectedLetter: req })}
                       className="px-4 py-2 text-emerald-700 bg-emerald-500/15 hover:bg-emerald-600 hover:text-white border border-emerald-250/30 rounded-xl font-bold text-xs inline-flex items-center gap-1.5 justify-center cursor-pointer w-full md:w-auto transition-all"
                     >
                       <Eye className="h-3.5 w-3.5" /> Lihat & Cetak Surat
@@ -220,7 +215,7 @@ export default function LetterRequestsView({
 
                       {(req.status === 'submitted' || req.status === 'processing') && (
                         <button
-                          onClick={() => setRejectingId(req.id)}
+                          onClick={() => updateViewState({ rejectingId: req.id })}
                           className="px-3.5 py-2 bg-rose-500/15 border border-rose-200 hover:bg-rose-500 hover:text-white text-rose-600 rounded-xl font-bold text-xs cursor-pointer transition-all"
                           title="Tolak Pengajuan"
                         >
@@ -241,7 +236,7 @@ export default function LetterRequestsView({
         {selectedLetter && (
           <LetterPreviewModal
             selectedLetter={selectedLetter}
-            onClose={() => setSelectedLetter(null)}
+            onClose={() => updateViewState({ selectedLetter: null })}
             isAdmin={isAdmin}
           />
         )}

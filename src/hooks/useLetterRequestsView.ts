@@ -8,21 +8,24 @@ export interface UseLetterRequestsViewProps {
 }
 
 export function useLetterRequestsView({ isAdmin, onUpdateStatus }: UseLetterRequestsViewProps) {
-  const [showApplyForm, setShowApplyForm] = useState(false);
-  const [selectedLetter, setSelectedLetter] = useState<LetterRequest | null>(null);
+  const [viewState, setViewState] = useState({
+    showApplyForm: false,
+    selectedLetter: null as LetterRequest | null,
+    rejectingId: null as string | null,
+    rejectionReasonText: '',
+  });
 
-  // Admin reject modal state
-  const [rejectingId, setRejectingId] = useState<string | null>(null);
-  const [rejectionReasonText, setRejectionReasonText] = useState('');
+  const updateViewState = (updates: Partial<typeof viewState>) => setViewState((p) => ({ ...p, ...updates }));
+
+  const { showApplyForm, selectedLetter, rejectingId, rejectionReasonText } = viewState;
 
   const triggerRejectSubmit = (id: string) => {
-    if (!rejectionReasonText.trim()) {
+    if (!viewState.rejectionReasonText.trim()) {
       alert('Harap berikan alasan penolakan.');
       return;
     }
-    onUpdateStatus(id, 'rejected', { rejectedReason: rejectionReasonText });
-    setRejectingId(null);
-    setRejectionReasonText('');
+    onUpdateStatus(id, 'rejected', { rejectedReason: viewState.rejectionReasonText });
+    updateViewState({ rejectingId: null, rejectionReasonText: '' });
   };
 
   const triggerApproveSign = (req: LetterRequest) => {
@@ -37,14 +40,8 @@ export function useLetterRequestsView({ isAdmin, onUpdateStatus }: UseLetterRequ
   const getSafeNik = (value: string) => (isAdmin ? value : maskSensitiveNumber(value));
 
   return {
-    showApplyForm,
-    setShowApplyForm,
-    selectedLetter,
-    setSelectedLetter,
-    rejectingId,
-    setRejectingId,
-    rejectionReasonText,
-    setRejectionReasonText,
+    viewState,
+    updateViewState,
     triggerRejectSubmit,
     triggerApproveSign,
     getSafeNik,

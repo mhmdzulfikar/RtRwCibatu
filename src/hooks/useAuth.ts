@@ -3,22 +3,28 @@ import { AuthenticatedUser } from '../types';
 import { ADMIN_SESSION_MAX_AGE_MS, AUTH_STORAGE_KEY, readStoredSession } from '../security';
 
 export function useAuth(setActiveTab: (tab: string) => void) {
-  const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(() => readStoredSession());
-  const [showAdminLogin, setShowAdminLogin] = useState<boolean>(false);
+  const [authState, setAuthState] = useState(() => ({
+    currentUser: readStoredSession(),
+    showAdminLogin: false,
+  }));
+
+  const updateAuthState = (updates: Partial<typeof authState>) => setAuthState((p) => ({ ...p, ...updates }));
+
+  const { currentUser, showAdminLogin } = authState;
   const isAdmin = currentUser?.role === 'admin';
 
   const handleAdminLogin = (user: AuthenticatedUser) => {
-    setCurrentUser(user);
+    updateAuthState({ currentUser: user });
     sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
-    setShowAdminLogin(false);
+    updateAuthState({ showAdminLogin: false });
     setActiveTab('beranda');
   };
 
   const handleLogout = () => {
     sessionStorage.removeItem(AUTH_STORAGE_KEY);
     localStorage.removeItem(AUTH_STORAGE_KEY);
-    setCurrentUser(null);
-    setShowAdminLogin(false);
+    updateAuthState({ currentUser: null });
+    updateAuthState({ showAdminLogin: false });
     setActiveTab('beranda');
   };
 
@@ -67,9 +73,8 @@ export function useAuth(setActiveTab: (tab: string) => void) {
   };
 
   return {
-    currentUser,
-    showAdminLogin,
-    setShowAdminLogin,
+    authState,
+    updateAuthState,
     isAdmin,
     handleAdminLogin,
     handleLogout,
