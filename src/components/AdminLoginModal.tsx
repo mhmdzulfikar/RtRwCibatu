@@ -9,7 +9,7 @@ import {
   LogIn
 } from 'lucide-react';
 import { AuthenticatedUser } from '../types';
-import { ADMIN_CREDENTIALS, isAdminAuthConfigured, buildAdminSession } from '../security';
+import { setStoredSession } from '../security';
 
 interface AdminLoginModalProps {
   onClose: () => void;
@@ -30,20 +30,43 @@ export default function AdminLoginModal({
 
   const { username, password, loginError } = form;
 
-  const handleLogin = (event: FormEvent) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleLogin = async (event: FormEvent) => {
     event.preventDefault();
+    setIsLoading(true);
+    updateForm({ loginError: '' });
 
-    if (!isAdminAuthConfigured) {
-      updateForm({ loginError: 'Login admin belum dikonfigurasi aman. Atur username dan password kuat di environment sebelum dipakai.' });
-      return;
+    try {
+      const response = await fetch('http://localhost:3001/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        updateForm({ loginError: data.error || 'Gagal login. Periksa username dan password.' });
+        return;
+      }
+
+      const activeSession: AuthenticatedUser = {
+        username: data.user.username,
+        displayName: data.user.displayName,
+        role: data.user.role,
+        loginTime: new Date().toISOString(),
+        sessionToken: data.token
+      };
+
+      setStoredSession(activeSession);
+      onLogin(activeSession);
+      
+    } catch (error) {
+      updateForm({ loginError: 'Gagal terhubung ke server. Pastikan backend berjalan.' });
+    } finally {
+      setIsLoading(false);
     }
-
-    if (username.trim() !== ADMIN_CREDENTIALS.username || password !== ADMIN_CREDENTIALS.password) {
-      updateForm({ loginError: 'Username atau password admin tidak sesuai.' });
-      return;
-    }
-
-    onLogin(buildAdminSession(ADMIN_CREDENTIALS.username));
   };
 
   return (
@@ -76,11 +99,6 @@ export default function AdminLoginModal({
             <p className="text-xs text-slate-500 leading-relaxed mt-2">
               Warga dapat memakai portal tanpa login. Kredensial ini khusus pengurus untuk mengelola data dan verifikasi.
             </p>
-            {!isAdminAuthConfigured && (
-              <p className="text-xs text-rose-700 bg-rose-500/10 border border-rose-200/60 rounded-xl px-3 py-2 mt-3 font-bold">
-                Login admin dinonaktifkan sampai password kuat dikonfigurasi.
-              </p>
-            )}
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
@@ -92,9 +110,9 @@ export default function AdminLoginModal({
                   type="text"
                   value={username}
                   onChange={(e) => updateForm({ username: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 bg-white/50 border border-white/70 focus:bg-white/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  className="w-full pl-10 pr-4 py-3 bg-white/50 border border-white/70 focus:bg-white/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all disabled:opacity-50"
                   autoComplete="username"
-                  disabled={!isAdminAuthConfigured}
+                  disabled={isLoading}
                   required
                 />
               </div>
@@ -108,9 +126,9 @@ export default function AdminLoginModal({
                   type="password"
                   value={password}
                   onChange={(e) => updateForm({ password: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 bg-white/50 border border-white/70 focus:bg-white/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  className="w-full pl-10 pr-4 py-3 bg-white/50 border border-white/70 focus:bg-white/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all disabled:opacity-50"
                   autoComplete="current-password"
-                  disabled={!isAdminAuthConfigured}
+                  disabled={isLoading}
                   required
                 />
               </div>
@@ -125,14 +143,14 @@ export default function AdminLoginModal({
 
             <button
               type="submit"
-              disabled={!isAdminAuthConfigured}
+              disabled={isLoading}
               className={`w-full px-5 py-3.5 rounded-xl font-extrabold text-sm shadow-md transition-all inline-flex items-center justify-center gap-2 ${
-                isAdminAuthConfigured
+                !isLoading
                   ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/10 cursor-pointer'
                   : 'bg-slate-300 text-slate-500 cursor-not-allowed'
               }`}
             >
-              <LogIn className="h-4 w-4" /> Masuk Sebagai Admin
+              <LogIn className="h-4 w-4" /> {isLoading ? 'Memeriksa...' : 'Masuk Sebagai Admin'}
             </button>
           </form>
         </div>
