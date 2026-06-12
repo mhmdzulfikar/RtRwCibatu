@@ -8,6 +8,7 @@ import {
 } from '../types';
 
 import { hydrateAnnouncementPhotos } from '../data';
+import { getAuthToken } from '../security';
 
 const API_BASE = 'http://localhost:3001/api';
 
@@ -61,7 +62,10 @@ export function useAppData(requireAdminAccess: () => boolean) {
     try {
       const res = await fetch(`${API_BASE}/announcements`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getAuthToken()}`
+        },
         body: JSON.stringify(fresh)
       });
       if (res.ok) fetchAllData(); // Refresh data
@@ -73,7 +77,10 @@ export function useAppData(requireAdminAccess: () => boolean) {
   const handleDeleteAnnouncement = async (id: string) => {
     if (!requireAdminAccess()) return;
     try {
-      const res = await fetch(`${API_BASE}/announcements/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE}/announcements/${id}`, { 
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${getAuthToken()}` }
+      });
       if (res.ok) fetchAllData();
     } catch (e) {
       console.error('Gagal menghapus pengumuman', e);
@@ -94,7 +101,10 @@ export function useAppData(requireAdminAccess: () => boolean) {
     try {
       const res = await fetch(`${API_BASE}/transactions`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getAuthToken()}`
+        },
         body: JSON.stringify(fresh)
       });
       if (res.ok) fetchAllData();
@@ -134,7 +144,10 @@ export function useAppData(requireAdminAccess: () => boolean) {
     try {
       await fetch(`${API_BASE}/payment-requests/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getAuthToken()}`
+        },
         body: JSON.stringify({ status: 'approved' })
       });
       fetchAllData();
@@ -148,7 +161,10 @@ export function useAppData(requireAdminAccess: () => boolean) {
     try {
       await fetch(`${API_BASE}/payment-requests/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getAuthToken()}`
+        },
         body: JSON.stringify({ status: 'rejected' })
       });
       fetchAllData();
@@ -188,7 +204,10 @@ export function useAppData(requireAdminAccess: () => boolean) {
     try {
       await fetch(`${API_BASE}/letters/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getAuthToken()}`
+        },
         body: JSON.stringify({ status, ...updateData })
       });
       fetchAllData();
