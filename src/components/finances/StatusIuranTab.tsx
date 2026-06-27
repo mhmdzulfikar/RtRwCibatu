@@ -8,6 +8,8 @@ interface StatusIuranTabProps {
   onPayDuesClick: (citizen: CitizenDues) => void;
   selectedRT: string;
   selectedRW: string;
+  isWarga?: boolean;
+  isAdmin?: boolean;
 }
 
 export default function StatusIuranTab({
@@ -15,6 +17,8 @@ export default function StatusIuranTab({
   onPayDuesClick,
   selectedRT,
   selectedRW,
+  isWarga,
+  isAdmin,
 }: StatusIuranTabProps) {
   const {
     duesSearch,
@@ -65,7 +69,7 @@ export default function StatusIuranTab({
                 {months.slice(0, 6).map((m) => (
                   <th key={m} className="py-2.5 font-bold text-center uppercase">{m.substring(0, 3)}</th>
                 ))}
-                <th className="py-2.5 font-bold text-center">TINDAKAN</th>
+                {(isAdmin || isWarga) && <th className="py-2.5 font-bold text-center">TINDAKAN</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-white/10 text-xs text-slate-700 font-sans">
@@ -104,14 +108,16 @@ export default function StatusIuranTab({
                           </td>
                         );
                       })}
-                      <td className="py-3 text-center">
-                        <button
-                          onClick={() => onPayDuesClick(citizen)}
-                          className="px-3 py-1.5 bg-blue-50/70 text-blue-700 hover:bg-blue-600 hover:text-white rounded-lg font-bold text-[11px] transition-all cursor-pointer shadow-2xs"
-                        >
-                          Bayar Iuran
-                        </button>
-                      </td>
+                      {(isAdmin || isWarga) && (
+                        <td className="py-3 text-center">
+                          <button
+                            onClick={() => onPayDuesClick(citizen)}
+                            className="px-3 py-1.5 bg-blue-50/70 text-blue-700 hover:bg-blue-600 hover:text-white rounded-lg font-bold text-[11px] transition-all cursor-pointer shadow-2xs"
+                          >
+                            Bayar Iuran
+                          </button>
+                        </td>
+                      )}
                     </tr>
                   );
                 })

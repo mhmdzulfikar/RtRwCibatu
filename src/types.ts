@@ -76,7 +76,7 @@ export interface DuesPaymentRequest {
 export interface AuthenticatedUser {
   username: string;
   displayName: string;
-  role: 'admin';
+  role: 'admin' | 'warga';
   loginTime: string;
   sessionToken: string;
 }

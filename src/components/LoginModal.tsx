@@ -6,20 +6,23 @@ import {
   UserRound,
   KeyRound,
   Lock,
-  LogIn
+  LogIn,
+  Home
 } from 'lucide-react';
 import { AuthenticatedUser } from '../types';
 import { setStoredSession } from '../security';
 
-interface AdminLoginModalProps {
+interface LoginModalProps {
   onClose: () => void;
   onLogin: (user: AuthenticatedUser) => void;
 }
 
-export default function AdminLoginModal({
+export default function LoginModal({
   onClose,
   onLogin
-}: AdminLoginModalProps) {
+}: LoginModalProps) {
+  const [activeTab, setActiveTab] = useState<'warga' | 'admin'>('warga');
+  
   const [form, setForm] = useState({
     username: '',
     password: '',
@@ -48,6 +51,11 @@ export default function AdminLoginModal({
 
       if (!response.ok) {
         updateForm({ loginError: data.error || 'Gagal login. Periksa username dan password.' });
+        return;
+      }
+      
+      if (data.user.role !== activeTab) {
+        updateForm({ loginError: `Role akun tidak sesuai. Anda mencoba masuk ke tab ${activeTab} menggunakan kredensial ${data.user.role}.`});
         return;
       }
 
@@ -87,23 +95,50 @@ export default function AdminLoginModal({
 
         <div className="space-y-6">
           <div className="pr-8">
-            <div className="h-11 w-11 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-lg shadow-slate-300/40">
-              <Shield className="h-5 w-5" />
+            <div className={`h-11 w-11 rounded-2xl text-white flex items-center justify-center shadow-lg ${activeTab === 'warga' ? 'bg-blue-600 shadow-blue-300/40' : 'bg-slate-900 shadow-slate-300/40'}`}>
+              {activeTab === 'warga' ? <Home className="h-5 w-5" /> : <Shield className="h-5 w-5" />}
             </div>
-            <p className="text-xs font-mono font-extrabold text-blue-700 uppercase tracking-wider mt-5">
-              Login Pengurus
+            <p className={`text-xs font-mono font-extrabold uppercase tracking-wider mt-5 ${activeTab === 'warga' ? 'text-blue-700' : 'text-slate-700'}`}>
+              {activeTab === 'warga' ? 'Login Warga' : 'Login Pengurus'}
             </p>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight mt-1">
-              Area admin RT 005
+              Portal RT 005
             </h2>
             <p className="text-xs text-slate-500 leading-relaxed mt-2">
-              Warga dapat memakai portal tanpa login. Kredensial ini khusus pengurus untuk mengelola data dan verifikasi.
+              {activeTab === 'warga' 
+                ? 'Masuk sebagai warga untuk mengakses layanan surat dan iuran. (Gunakan: warga / warga123)' 
+                : 'Kredensial ini khusus pengurus untuk mengelola data dan verifikasi.'}
             </p>
+          </div>
+
+          <div className="flex p-1 bg-slate-100 rounded-xl space-x-1">
+            <button
+              type="button"
+              onClick={() => { setActiveTab('warga'); updateForm({ loginError: '', password: '', username: '' }); }}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+                activeTab === 'warga'
+                  ? 'bg-white text-blue-700 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              Warga
+            </button>
+            <button
+              type="button"
+              onClick={() => { setActiveTab('admin'); updateForm({ loginError: '', password: '', username: '' }); }}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+                activeTab === 'admin'
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              Pengurus RT
+            </button>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700">Username Admin</label>
+              <label className="text-xs font-bold text-slate-700">Username</label>
               <div className="relative">
                 <UserRound className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
@@ -150,7 +185,7 @@ export default function AdminLoginModal({
                   : 'bg-slate-300 text-slate-500 cursor-not-allowed'
               }`}
             >
-              <LogIn className="h-4 w-4" /> {isLoading ? 'Memeriksa...' : 'Masuk Sebagai Admin'}
+              <LogIn className="h-4 w-4" /> {isLoading ? 'Memeriksa...' : `Masuk Sebagai ${activeTab === 'warga' ? 'Warga' : 'Admin'}`}
             </button>
           </form>
         </div>

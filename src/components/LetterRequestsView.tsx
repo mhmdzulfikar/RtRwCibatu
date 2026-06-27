@@ -17,6 +17,7 @@ import LetterPreviewModal from './letters/LetterPreviewModal';
 interface LetterRequestsViewProps {
   requests: LetterRequest[];
   isAdmin: boolean;
+  isWarga?: boolean;
   onSubmitRequest: (req: Omit<LetterRequest, 'id' | 'status' | 'dateRequested'>) => void;
   onUpdateStatus: (id: string, status: LetterRequest['status'], updateData?: { referenceNo?: string; rejectedReason?: string }) => void;
 }
@@ -24,6 +25,7 @@ interface LetterRequestsViewProps {
 export default function LetterRequestsView({
   requests,
   isAdmin,
+  isWarga,
   onSubmitRequest,
   onUpdateStatus,
 }: LetterRequestsViewProps) {
@@ -50,7 +52,7 @@ export default function LetterRequestsView({
           </p>
         </div>
 
-        {!showApplyForm && (
+        {(!showApplyForm && (isAdmin || isWarga)) && (
           <button
             onClick={() => updateViewState({ showApplyForm: true })}
             className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-md shadow-blue-500/10 text-sm cursor-pointer active:scale-95"
@@ -114,7 +116,7 @@ export default function LetterRequestsView({
             <FileSearch className="h-10 w-10 text-slate-300 mx-auto" />
             <h4 className="font-extrabold text-slate-800 text-sm">Belum ada pengajuan terdaftar</h4>
             <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-              Silakan buat pengajuan pertama Anda dengan mengklik "Buat Pengajuan Baru" di sisi atas.
+              {(isAdmin || isWarga) ? 'Silakan buat pengajuan pertama Anda dengan mengklik "Buat Pengajuan Baru" di sisi atas.' : 'Hanya warga RT 005 yang sudah login yang dapat mengajukan surat pengantar domisili.'}
             </p>
           </div>
         ) : (
