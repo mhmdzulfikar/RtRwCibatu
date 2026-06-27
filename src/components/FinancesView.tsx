@@ -14,6 +14,7 @@ interface FinancesViewProps {
   citizensDues: CitizenDues[];
   paymentRequests: DuesPaymentRequest[];
   isAdmin: boolean;
+  isWarga?: boolean;
   onAddTransaction: (tx: Omit<FinancialTransaction, 'id' | 'recordedBy'>) => void;
   onApprovePaymentRequest: (id: string) => void;
   onRejectPaymentRequest: (id: string) => void;
@@ -25,6 +26,7 @@ export default function FinancesView({
   citizensDues,
   paymentRequests,
   isAdmin,
+  isWarga,
   onAddTransaction,
   onApprovePaymentRequest,
   onRejectPaymentRequest,
@@ -137,6 +139,8 @@ export default function FinancesView({
           onPayDuesClick={handlePayDuesClick}
           selectedRT={scope.rt}
           selectedRW={scope.rw}
+          isWarga={isWarga}
+          isAdmin={isAdmin}
         />
       )}
 

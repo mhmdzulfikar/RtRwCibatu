@@ -1,6 +1,7 @@
 import { AuthenticatedUser } from './types';
 
 export const AUTH_STORAGE_KEY = 'rt005_auth_session';
+export const ADMIN_SESSION_MAX_AGE_MS = 30 * 60 * 1000;
 
 export const getAuthToken = (): string | null => {
   const session = readStoredSession();
@@ -24,14 +25,14 @@ export const readStoredSession = (): AuthenticatedUser | null => {
 
     const parsed = JSON.parse(stored) as Partial<AuthenticatedUser>;
 
-    if (parsed.role !== 'admin') return null;
+    if (parsed.role !== 'admin' && parsed.role !== 'warga') return null;
     if (!parsed.username) return null;
     if (!parsed.sessionToken) return null;
 
     const activeSession: AuthenticatedUser = {
       username: parsed.username,
-      displayName: parsed.displayName || 'Pengurus RT',
-      role: 'admin',
+      displayName: parsed.displayName || (parsed.role === 'admin' ? 'Pengurus RT' : 'Warga'),
+      role: parsed.role,
       loginTime: parsed.loginTime || new Date().toISOString(),
       sessionToken: parsed.sessionToken
     };

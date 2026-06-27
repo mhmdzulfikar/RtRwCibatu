@@ -1,22 +1,23 @@
 import { useState, useEffect } from 'react';
 import { AuthenticatedUser } from '../types';
-import { ADMIN_SESSION_MAX_AGE_MS, AUTH_STORAGE_KEY, readStoredSession } from '../security';
+import { AUTH_STORAGE_KEY, readStoredSession, ADMIN_SESSION_MAX_AGE_MS } from '../security';
 
 export function useAuth(setActiveTab: (tab: string) => void) {
   const [authState, setAuthState] = useState(() => ({
     currentUser: readStoredSession(),
-    showAdminLogin: false,
+    showLoginModal: false,
   }));
 
   const updateAuthState = (updates: Partial<typeof authState>) => setAuthState((p) => ({ ...p, ...updates }));
 
-  const { currentUser, showAdminLogin } = authState;
+  const { currentUser, showLoginModal } = authState;
   const isAdmin = currentUser?.role === 'admin';
+  const isWarga = currentUser?.role === 'warga';
 
-  const handleAdminLogin = (user: AuthenticatedUser) => {
+  const handleLogin = (user: AuthenticatedUser) => {
     updateAuthState({ currentUser: user });
     sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
-    updateAuthState({ showAdminLogin: false });
+    updateAuthState({ showLoginModal: false });
     setActiveTab('beranda');
   };
 
@@ -24,7 +25,7 @@ export function useAuth(setActiveTab: (tab: string) => void) {
     sessionStorage.removeItem(AUTH_STORAGE_KEY);
     localStorage.removeItem(AUTH_STORAGE_KEY);
     updateAuthState({ currentUser: null });
-    updateAuthState({ showAdminLogin: false });
+    updateAuthState({ showLoginModal: false });
     setActiveTab('beranda');
   };
 
@@ -33,14 +34,12 @@ export function useAuth(setActiveTab: (tab: string) => void) {
 
     let lastActivityTime = Date.now();
 
-    // Fungsi untuk me-reset timer aktivitas saat admin bergerak/ngetik
+    // Fungsi untuk me-reset timer aktivitas saat user bergerak/ngetik
     const updateActivity = () => {
       lastActivityTime = Date.now();
-      // Opsi: kita juga bisa update data di sessionStorage agar tersinkron di tab lain
-      // tapi untuk single tab, variabel lastActivityTime sudah cukup.
     };
 
-    // Daftarkan event listener untuk mendeteksi pergerakan admin
+    // Daftarkan event listener untuk mendeteksi pergerakan
     window.addEventListener('mousemove', updateActivity);
     window.addEventListener('keydown', updateActivity);
     window.addEventListener('click', updateActivity);
@@ -50,7 +49,7 @@ export function useAuth(setActiveTab: (tab: string) => void) {
       // Cek apakah waktu sekarang dikurangi aktivitas terakhir melebihi 30 menit
       if (Date.now() - lastActivityTime > ADMIN_SESSION_MAX_AGE_MS) {
         handleLogout();
-        alert('Sesi admin telah berakhir karena tidak ada aktivitas (idle). Silakan login kembali.');
+        alert('Sesi telah berakhir karena tidak ada aktivitas (idle). Silakan login kembali.');
       }
     };
 
@@ -72,12 +71,20 @@ export function useAuth(setActiveTab: (tab: string) => void) {
     return false;
   };
 
+  const requireWargaAccess = () => {
+    if (isAdmin || isWarga) return true;
+    alert('Akses ditolak. Silakan login sebagai Warga atau Pengurus RT.');
+    return false;
+  };
+
   return {
     authState,
     updateAuthState,
     isAdmin,
-    handleAdminLogin,
+    isWarga,
+    handleLogin,
     handleLogout,
-    requireAdminAccess
+    requireAdminAccess,
+    requireWargaAccess
   };
 }

@@ -4,15 +4,27 @@ import jwt from 'jsonwebtoken';
 export const login = (req: Request, res: Response): any => {
   const { username, password } = req.body;
 
-  const validUsername = process.env.ADMIN_USERNAME || '';
-  const validPassword = process.env.ADMIN_PASSWORD || '';
+  const validAdminUsername = process.env.ADMIN_USERNAME || '';
+  const validAdminPassword = process.env.ADMIN_PASSWORD || '';
+  const validWargaUsername = process.env.WARGA_USERNAME || '';
+  const validWargaPassword = process.env.WARGA_PASSWORD || '';
+  
   const jwtSecret = process.env.JWT_SECRET;
 
   if (!username || !password) {
     return res.status(400).json({ error: 'Username and password are required' });
   }
 
-  if (username !== validUsername || password !== validPassword) {
+  let role = '';
+  let displayName = '';
+
+  if (username === validAdminUsername && password === validAdminPassword) {
+    role = 'admin';
+    displayName = 'Pengurus RT 005';
+  } else if (username === validWargaUsername && password === validWargaPassword) {
+    role = 'warga';
+    displayName = 'Warga RT 005';
+  } else {
     return res.status(401).json({ error: 'Invalid username or password' });
   }
 
@@ -23,7 +35,7 @@ export const login = (req: Request, res: Response): any => {
 
   // Generate JWT token (expires in 12 hours)
   const token = jwt.sign(
-    { username, role: 'admin' },
+    { username, role },
     jwtSecret,
     { expiresIn: '12h' }
   );
@@ -33,8 +45,8 @@ export const login = (req: Request, res: Response): any => {
     token,
     user: {
       username,
-      role: 'admin',
-      displayName: 'Pengurus RT 005'
+      role,
+      displayName
     }
   });
 };

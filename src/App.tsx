@@ -19,7 +19,7 @@ import Dashboard from './components/Dashboard';
 import AnnouncementsView from './components/AnnouncementsView';
 import FinancesView from './components/FinancesView';
 import LetterRequestsView from './components/LetterRequestsView';
-import AdminLoginModal from './components/AdminLoginModal';
+import LoginModal from './components/LoginModal';
 
 import { useAuth } from './hooks/useAuth';
 import { useAppData } from './hooks/useAppData';
@@ -42,12 +42,14 @@ export default function App() {
     authState,
     updateAuthState,
     isAdmin,
-    handleAdminLogin,
+    isWarga,
+    handleLogin,
     handleLogout,
     requireAdminAccess,
+    requireWargaAccess,
   } = useAuth(setActiveTab);
-  const { currentUser, showAdminLogin } = authState;
-  const setShowAdminLogin = (v: boolean) => updateAuthState({ showAdminLogin: v });
+  const { currentUser, showLoginModal } = authState;
+  const setShowLoginModal = (v: boolean) => updateAuthState({ showLoginModal: v });
 
   const {
     announcements,
@@ -90,25 +92,27 @@ export default function App() {
             <span
               className={`px-3 py-1 rounded-full text-xs font-black tracking-tight inline-flex items-center gap-1.5 ${isAdmin
                   ? 'bg-amber-400 text-slate-950'
-                  : 'bg-slate-800 text-slate-200 border border-slate-700'
+                  : isWarga 
+                    ? 'bg-blue-200 text-blue-900 border border-blue-300'
+                    : 'bg-slate-800 text-slate-200 border border-slate-700'
                 }`}
             >
               {isAdmin ? <Shield className="h-3 w-3" /> : <UserRound className="h-3 w-3" />}
-              {isAdmin ? currentUser?.displayName || 'Pengurus RT 005' : 'Mode Warga'}
+              {isAdmin ? currentUser?.displayName || 'Pengurus RT 005' : (isWarga ? currentUser?.displayName || 'Warga RT 005' : 'Mode Pengunjung')}
             </span>
-            {isAdmin ? (
+            {isAdmin || isWarga ? (
               <button
                 onClick={handleLogout}
                 className="px-3 py-1 rounded-full text-xs font-black tracking-tight inline-flex items-center gap-1.5 bg-slate-800 text-slate-300 border border-slate-700 hover:text-white hover:bg-slate-700 transition-all cursor-pointer"
               >
-                <LogOut className="h-3 w-3" /> Keluar Admin
+                <LogOut className="h-3 w-3" /> Keluar
               </button>
             ) : (
               <button
-                onClick={() => setShowAdminLogin(true)}
+                onClick={() => setShowLoginModal(true)}
                 className="px-3 py-1 rounded-full text-xs font-black tracking-tight inline-flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700 transition-all cursor-pointer"
               >
-                <Lock className="h-3 w-3" /> Login Admin
+                <Lock className="h-3 w-3" /> Login Portal
               </button>
             )}
           </div>
@@ -116,10 +120,10 @@ export default function App() {
       </div>
 
       <AnimatePresence>
-        {showAdminLogin && !isAdmin && (
-          <AdminLoginModal
-            onClose={() => setShowAdminLogin(false)}
-            onLogin={handleAdminLogin}
+        {showLoginModal && !isAdmin && !isWarga && (
+          <LoginModal
+            onClose={() => setShowLoginModal(false)}
+            onLogin={handleLogin}
           />
         )}
       </AnimatePresence>
@@ -262,6 +266,7 @@ export default function App() {
                 citizensDues={citizensDues}
                 paymentRequests={paymentRequests}
                 isAdmin={isAdmin}
+                isWarga={isWarga}
                 onAddTransaction={handleAddTransaction}
                 onApprovePaymentRequest={handleApprovePaymentRequest}
                 onRejectPaymentRequest={handleRejectPaymentRequest}
@@ -273,6 +278,7 @@ export default function App() {
               <LetterRequestsView
                 requests={letterRequests}
                 isAdmin={isAdmin}
+                isWarga={isWarga}
                 onSubmitRequest={handleSubmitLetterRequest}
                 onUpdateStatus={handleUpdateLetterStatus}
               />
