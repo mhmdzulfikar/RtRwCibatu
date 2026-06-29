@@ -29,6 +29,67 @@ export function useAuth(setActiveTab: (tab: string) => void) {
     setActiveTab('beranda');
   };
 
+  const handleUpdateProfile = async (data: any) => {
+    if (!currentUser || !currentUser.sessionToken) return { success: false, error: 'Belum login' };
+    try {
+      const response = await fetch('http://localhost:3001/api/auth/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentUser.sessionToken}`
+        },
+        body: JSON.stringify(data)
+      });
+      const result = await response.json();
+      if (response.ok) {
+        // Update local session data
+        const updatedUser = { ...currentUser, displayName: result.user.displayName };
+        handleLogin(updatedUser);
+        return { success: true };
+      } else {
+        return { success: false, error: result.error || 'Gagal mengubah profil' };
+      }
+    } catch (e) {
+      return { success: false, error: 'Gagal koneksi ke server' };
+    }
+  };
+
+  const handleResetWargaPassword = async (newPassword: string) => {
+    if (!isAdmin || !currentUser?.sessionToken) return { success: false, error: 'Akses ditolak' };
+    try {
+      const response = await fetch('http://localhost:3001/api/auth/admin/reset-warga', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentUser.sessionToken}`
+        },
+        body: JSON.stringify({ newPassword })
+      });
+      const result = await response.json();
+      if (response.ok) return { success: true };
+      return { success: false, error: result.error || 'Gagal mereset password' };
+    } catch (e) {
+      return { success: false, error: 'Gagal koneksi ke server' };
+    }
+  };
+
+  const handleRecoverAdminPassword = async (recoveryKey: string, newPassword: string) => {
+    try {
+      const response = await fetch('http://localhost:3001/api/auth/admin/recover', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ recoveryKey, newPassword })
+      });
+      const result = await response.json();
+      if (response.ok) return { success: true, message: result.message };
+      return { success: false, error: result.error || 'Gagal memulihkan password' };
+    } catch (e) {
+      return { success: false, error: 'Gagal koneksi ke server' };
+    }
+  };
+
   useEffect(() => {
     if (!currentUser) return;
 
@@ -84,6 +145,9 @@ export function useAuth(setActiveTab: (tab: string) => void) {
     isWarga,
     handleLogin,
     handleLogout,
+    handleUpdateProfile,
+    handleResetWargaPassword,
+    handleRecoverAdminPassword,
     requireAdminAccess,
     requireWargaAccess
   };
