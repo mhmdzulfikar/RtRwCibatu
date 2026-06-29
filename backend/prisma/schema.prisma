@@ -76,3 +76,12 @@ model DuesPaymentRequest {
   rt               String?
   rw               String?
 }
+
+model User {
+  id          String   @id @default(uuid())
+  username    String   @unique
+  password    String
+  role        String
+  displayName String
+  createdAt   DateTime @default(now())
+}

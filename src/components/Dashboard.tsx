@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Home, FileText, Wallet, Megaphone, Users, Shield, ArrowRight, Star, HeartHandshake, Edit3, X, Save } from 'lucide-react';
+import { Home, FileText, Wallet, Megaphone, Users, Shield, ArrowRight, Star, HeartHandshake, Edit3, X, Save, Lock, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Announcement } from '../types';
 
 interface DashboardProps {
@@ -8,9 +8,10 @@ interface DashboardProps {
   announcements: Announcement[];
   totalBalance: number;
   isAdmin?: boolean;
+  onResetWargaPassword?: (newPassword: string) => Promise<{ success: boolean; error?: string }>;
 }
 
-export default function Dashboard({ onNavigate, announcements, totalBalance, isAdmin }: DashboardProps) {
+export default function Dashboard({ onNavigate, announcements, totalBalance, isAdmin, onResetWargaPassword }: DashboardProps) {
   // Pengurus RT State
   const [management, setManagement] = useState({
     ketua: 'Bp. Hendra Kurniawan',
@@ -19,6 +20,33 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
   });
   const [isEditingManagement, setIsEditingManagement] = useState(false);
   const [editForm, setEditForm] = useState(management);
+
+  // Admin Reset Warga Password State
+  const [newWargaPassword, setNewWargaPassword] = useState('');
+  const [resetWargaLoading, setResetWargaLoading] = useState(false);
+  const [resetWargaMessage, setResetWargaMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleResetWargaSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!onResetWargaPassword || !newWargaPassword) return;
+    
+    setResetWargaLoading(true);
+    setResetWargaMessage(null);
+    try {
+      const res = await onResetWargaPassword(newWargaPassword);
+      if (res.success) {
+        setResetWargaMessage({ type: 'success', text: 'Password warga berhasil direset!' });
+        setNewWargaPassword('');
+      } else {
+        setResetWargaMessage({ type: 'error', text: res.error || 'Gagal mereset password' });
+      }
+    } catch (error) {
+      setResetWargaMessage({ type: 'error', text: 'Terjadi kesalahan' });
+    } finally {
+      setResetWargaLoading(false);
+    }
+  };
+
 
   useEffect(() => {
     const saved = localStorage.getItem('rt005_management');
@@ -342,6 +370,52 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
               </p>
             </div>
           </div>
+
+          {/* Fitur Spesial Admin: Reset Password Warga */}
+          {isAdmin && (
+            <div className="glass-panel p-6 rounded-[2rem] space-y-4 border-2 border-red-100 bg-red-50/30">
+              <div className="flex items-center gap-3 pb-3 border-b border-red-200">
+                <div className="p-2.5 bg-red-100 text-red-600 rounded-xl">
+                  <Shield className="h-5 w-5" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-red-900 text-sm">Manajemen Akun Warga</h4>
+                  <p className="text-xs text-red-700/80">Ubah password akun bersama warga</p>
+                </div>
+              </div>
+              
+              <form onSubmit={handleResetWargaSubmit} className="space-y-3 pt-2">
+                {resetWargaMessage && (
+                  <div className={`p-3 rounded-lg text-sm flex items-center gap-2 ${resetWargaMessage.type === 'success' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
+                    {resetWargaMessage.type === 'success' ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+                    {resetWargaMessage.text}
+                  </div>
+                )}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-red-900">Password Baru Warga</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-400" />
+                    <input
+                      type="password"
+                      required
+                      value={newWargaPassword}
+                      onChange={(e) => setNewWargaPassword(e.target.value)}
+                      className="w-full pl-9 pr-4 py-2 border border-red-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white"
+                      placeholder="Masukkan password baru..."
+                    />
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  disabled={resetWargaLoading}
+                  className="w-full px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-sm transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
+                >
+                  {resetWargaLoading && <div className="h-4 w-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />}
+                  Simpan Password Warga
+                </button>
+              </form>
+            </div>
+          )}
         </div>
       </div>
 

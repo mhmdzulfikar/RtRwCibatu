@@ -20,6 +20,7 @@ import AnnouncementsView from './components/AnnouncementsView';
 import FinancesView from './components/FinancesView';
 import LetterRequestsView from './components/LetterRequestsView';
 import LoginModal from './components/LoginModal';
+import ProfileSettingsModal from './components/ProfileSettingsModal';
 
 import { useAuth } from './hooks/useAuth';
 import { useAppData } from './hooks/useAppData';
@@ -29,13 +30,17 @@ export default function App() {
   const [appState, setAppState] = useState({
     activeTab: 'beranda',
     mobileMenuOpen: false,
+    showProfileSettings: false,
   });
+
   
   const updateAppState = (updates: Partial<typeof appState>) => setAppState((p) => ({ ...p, ...updates }));
-  const { activeTab, mobileMenuOpen } = appState;
+  const { activeTab, mobileMenuOpen, showProfileSettings } = appState;
 
   const setActiveTab = (tab: string) => updateAppState({ activeTab: tab });
   const setMobileMenuOpen = (open: boolean) => updateAppState({ mobileMenuOpen: open });
+  const setShowProfileSettings = (open: boolean) => updateAppState({ showProfileSettings: open });
+
 
   // Custom Hooks for Logic
   const {
@@ -45,6 +50,8 @@ export default function App() {
     isWarga,
     handleLogin,
     handleLogout,
+    handleUpdateProfile,
+    handleResetWargaPassword,
     requireAdminAccess,
     requireWargaAccess,
   } = useAuth(setActiveTab);
@@ -101,12 +108,22 @@ export default function App() {
               {isAdmin ? currentUser?.displayName || 'Pengurus RT 005' : (isWarga ? currentUser?.displayName || 'Warga RT 005' : 'Mode Pengunjung')}
             </span>
             {isAdmin || isWarga ? (
-              <button
-                onClick={handleLogout}
-                className="px-3 py-1 rounded-full text-xs font-black tracking-tight inline-flex items-center gap-1.5 bg-slate-800 text-slate-300 border border-slate-700 hover:text-white hover:bg-slate-700 transition-all cursor-pointer"
-              >
-                <LogOut className="h-3 w-3" /> Keluar
-              </button>
+              <div className="flex items-center gap-2">
+                {isAdmin && (
+                  <button
+                    onClick={() => setShowProfileSettings(true)}
+                    className="px-3 py-1 rounded-full text-xs font-black tracking-tight inline-flex items-center gap-1.5 bg-slate-800 text-slate-300 border border-slate-700 hover:text-white hover:bg-slate-700 transition-all cursor-pointer"
+                  >
+                    Pengaturan Profil
+                  </button>
+                )}
+                <button
+                  onClick={handleLogout}
+                  className="px-3 py-1 rounded-full text-xs font-black tracking-tight inline-flex items-center gap-1.5 bg-red-900/40 text-red-300 border border-red-900/50 hover:text-white hover:bg-red-900/60 transition-all cursor-pointer"
+                >
+                  <LogOut className="h-3 w-3" /> Keluar
+                </button>
+              </div>
             ) : (
               <button
                 onClick={() => setShowLoginModal(true)}
@@ -124,9 +141,19 @@ export default function App() {
           <LoginModal
             onClose={() => setShowLoginModal(false)}
             onLogin={handleLogin}
+            onRecoverAdminPassword={handleRecoverAdminPassword}
+          />
+        )}
+        
+        {showProfileSettings && currentUser && (
+          <ProfileSettingsModal
+            onClose={() => setShowProfileSettings(false)}
+            onUpdate={handleUpdateProfile}
+            currentUser={currentUser as any}
           />
         )}
       </AnimatePresence>
+
 
       {/* HEADER NAVBAR CONTAINER */}
       <header className="sticky top-0 z-30 bg-white/30 backdrop-blur-md border-b border-white/40 shadow-xs">
@@ -248,6 +275,7 @@ export default function App() {
                 announcements={announcements}
                 totalBalance={totalBalance}
                 isAdmin={isAdmin}
+                onResetWargaPassword={handleResetWargaPassword}
               />
             )}
 
