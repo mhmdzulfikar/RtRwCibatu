@@ -256,7 +256,7 @@ export default function ApplyLetterForm({
               required
               value={address}
               onChange={(e) => updateForm({ address: e.target.value })}
-              placeholder="Contoh: Perumahan Cemara Blok B/02, Jatibening Baru"
+              placeholder="Contoh: Perumahan Harper Blok B/02, Cibatu"
               className="w-full px-4 py-2.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             />
           </div>

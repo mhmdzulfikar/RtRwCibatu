@@ -118,7 +118,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
         <div className="relative px-6 py-12 md:p-16 lg:px-20 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-7 space-y-6">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-xs font-semibold uppercase tracking-wider text-blue-100">
-              <Star className="h-3 w-3 fill-amber-300 text-amber-300" /> RT 005 / RW 02 • Jatibening Baru
+              <Star className="h-3 w-3 fill-amber-300 text-amber-300" /> RT 005 / RW 02 • Perumahan Harper Cibatu
             </span>
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
               Lingkungan Modern <br className="hidden md:inline" />Dimulai dari Warga Terhubung.
@@ -366,7 +366,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
             <div className="p-4 bg-white/25 rounded-xl space-y-1 border border-white/30">
               <p className="text-xs font-extrabold text-slate-400 uppercase font-mono">Sekretariat Utama</p>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Kavling Melati Indah Blok A/01, Jalan Melati Raya, RT 005 / RW 02, Kelurahan Jatibening Baru, Kecamatan Pondok Gede, Kota Bekasi, Jawa Barat.
+                Perumahan Harper Blok A/01, RT 005 / RW 02, Kelurahan Cibatu.
               </p>
             </div>
           </div>

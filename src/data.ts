@@ -374,7 +374,7 @@ export const INITIAL_LETTER_REQUESTS: LetterRequest[] = [
     phone: '081234567890',
     religion: 'Islam',
     profession: 'Karyawan Swasta',
-    address: 'Jl. Melati Raya No. 1, RT 005 RW 02, Jatibening Baru',
+    address: 'Perumahan Harper, Jl. Melati Raya No. 1, RT 005 RW 02, Cibatu',
     purpose: 'Persyaratan KPR Bank / Kredit Perumahan Syariah',
     status: 'ready',
     dateRequested: '2026-05-24',
@@ -391,7 +391,7 @@ export const INITIAL_LETTER_REQUESTS: LetterRequest[] = [
     phone: '087788990011',
     religion: 'Islam',
     profession: 'Ibu Rumah Tangga',
-    address: 'Perumahan Cemara Blok B/02, RT 005 RW 02, Jatibening Baru',
+    address: 'Perumahan Harper Blok B/02, RT 005 RW 02, Cibatu',
     purpose: 'Pengurusan pendaftaran BPJS Kesehatan Mandiri keluarga',
     status: 'processing',
     dateRequested: '2026-05-25'

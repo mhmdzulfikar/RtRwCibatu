@@ -1,16 +1,18 @@
-import { useState, FormEvent } from 'react';
+import { useState } from 'react';
 import { CitizenDues, DuesPaymentRequest } from '../types';
 
 export interface UsePayDuesModalProps {
   selectedCitizen: CitizenDues;
-  onSubmitPaymentRequest: (request: Omit<DuesPaymentRequest, 'id' | 'status' | 'dateSubmitted'>) => void;
+  onSubmitPaymentRequest: (request: Omit<DuesPaymentRequest, 'id' | 'status' | 'dateSubmitted'>, file?: File) => void;
 }
 
 export function usePayDuesModal({ selectedCitizen, onSubmitPaymentRequest }: UsePayDuesModalProps) {
-  const [payMonth, setPayMonth] = useState('Mei');
-  const [payAmount] = useState('100000');
+  const [payMonth, setPayMonth] = useState('Januari');
+  const [payAmount, setPayAmount] = useState(100000);
   const [payMethod, setPayMethod] = useState('Transfer BCA (VA RT 005 - 8275005)');
-  const [simulatedFile, setSimulatedFile] = useState<string | null>(null);
+  
+  // Real File Upload State
+  const [simulatedFile, setSimulatedFile] = useState<File | null>(null);
 
   const months = [
     'Januari',
@@ -27,41 +29,41 @@ export function usePayDuesModal({ selectedCitizen, onSubmitPaymentRequest }: Use
     'Desember',
   ];
 
-  const handleFileSimulate = () => {
-    const rand = Math.floor(Math.random() * 90000) + 10000;
-    setSimulatedFile(`bukti_transfer_rt${selectedCitizen.rt || '005'}_tx${rand}.jpg`);
+  // Handle actual file selection
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setSimulatedFile(e.target.files[0]);
+    }
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!simulatedFile) {
-      alert('Harap unggah / simulasikan bukti transfer terlebih dahulu.');
-      return;
-    }
+    if (!simulatedFile) return;
 
     onSubmitPaymentRequest({
       citizenName: selectedCitizen.citizenName,
       houseNumber: selectedCitizen.houseNumber,
       month: payMonth,
       year: 2026,
-      amount: parseFloat(payAmount),
+      amount: payAmount,
       paymentMethod: payMethod,
-      transferProofUrl: simulatedFile,
+      transferProofUrl: '', // Will be assigned by backend
       rt: selectedCitizen.rt,
       rw: selectedCitizen.rw,
-    });
+    }, simulatedFile);
   };
 
   return {
     payMonth,
     setPayMonth,
     payAmount,
+    setPayAmount,
     payMethod,
     setPayMethod,
     simulatedFile,
     setSimulatedFile,
     months,
-    handleFileSimulate,
+    handleFileChange,
     handleSubmit,
   };
 }
