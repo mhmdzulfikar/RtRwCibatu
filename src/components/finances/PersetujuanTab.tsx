@@ -54,7 +54,15 @@ export default function PersetujuanTab({
 
                   {req.transferProofUrl && (
                     <div className="inline-flex items-center gap-1.5 bg-white/40 border border-white/60 px-2 py-1 rounded-lg text-[11px] text-blue-700 font-sans">
-                      <FileText className="h-3 w-3" /> Bukti unggahan: <code className="font-mono text-slate-700 text-[10px] bg-white/30 px-1 rounded">{req.transferProofUrl}</code>
+                      <FileText className="h-3 w-3" /> Bukti unggahan: 
+                      <a 
+                        href={`http://localhost:3001${req.transferProofUrl}`} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="font-mono font-bold hover:underline text-blue-600 bg-white/30 px-1 rounded"
+                      >
+                        Lihat Gambar Asli
+                      </a>
                     </div>
                   )}
                 </div>

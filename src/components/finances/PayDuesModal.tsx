@@ -19,12 +19,13 @@ export default function PayDuesModal({
     payMonth,
     setPayMonth,
     payAmount,
+    setPayAmount,
     payMethod,
     setPayMethod,
     simulatedFile,
     setSimulatedFile,
     months,
-    handleFileSimulate,
+    handleFileChange,
     handleSubmit,
   } = usePayDuesModal({ selectedCitizen, onSubmitPaymentRequest });
 
@@ -69,7 +70,7 @@ export default function PayDuesModal({
                   const st = history2026[m];
                   return (
                     <option key={m} value={m} disabled={st === 'Lunas'} className="bg-white">
-                      {m} ({st === 'Lunas' ? 'Lunas ✔' : st === 'Pending' ? 'Pending ⏳' : 'Belum ❌'})
+                      {m} - {st === 'Lunas' ? 'Lunas' : st === 'Pending' ? 'Pending' : 'Belum'}
                     </option>
                   );
                 })}
@@ -80,9 +81,9 @@ export default function PayDuesModal({
               <label className="text-xs font-bold text-slate-700">Jumlah Iuran (Rp)</label>
               <input
                 type="number"
-                readOnly
                 value={payAmount}
-                className="w-full px-3 py-2 bg-white/20 border-white/40 border rounded-xl text-xs text-slate-500 font-mono outline-none"
+                onChange={(e) => setPayAmount(Number(e.target.value))}
+                className="w-full px-3 py-2 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-xs text-slate-700 font-mono focus:outline-none transition-all"
               />
             </div>
           </div>
@@ -109,14 +110,21 @@ export default function PayDuesModal({
             </select>
           </div>
 
-          {/* SIMULATED UPLOAD TRANSFER PROOF */}
+          {/* ACTUAL UPLOAD TRANSFER PROOF */}
           <div className="space-y-2 border border-dashed border-white/60 bg-white/20 p-4 rounded-xl text-center">
             {simulatedFile ? (
               <div className="text-xs space-y-1 font-sans">
                 <p className="text-emerald-700 font-bold flex items-center justify-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600 rounded-full" /> File Berhasil Diunggah!
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 rounded-full" /> File Siap Diunggah
                 </p>
-                <p className="text-[10px] text-slate-400 font-mono break-all">{simulatedFile}</p>
+                <div className="relative inline-block mt-2 mb-2">
+                  <img 
+                    src={URL.createObjectURL(simulatedFile)} 
+                    alt="Preview" 
+                    className="h-20 w-auto rounded-md shadow-sm border border-white/50 object-cover"
+                  />
+                </div>
+                <p className="text-[10px] text-slate-400 font-mono break-all">{simulatedFile.name}</p>
                 <button
                   type="button"
                   onClick={() => setSimulatedFile(null)}
@@ -126,23 +134,27 @@ export default function PayDuesModal({
                 </button>
               </div>
             ) : (
-              <div className="space-y-2 font-sans">
+              <div className="space-y-2 font-sans relative">
                 <div className="p-2.5 rounded-full bg-blue-100/60 border border-white/40 text-blue-600 inline-flex">
                   <Upload className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="text-xs font-extrabold text-slate-700">Unggah Bukti Pembayaran</p>
                   <p className="text-[10px] text-slate-400 mt-1">
-                    Gunakan simulasi klik di bawah untuk mengunggah berkas transfer
+                    Upload berkas struk transfer asli Anda (JPG/PNG, Max 5MB)
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleFileSimulate}
-                  className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] rounded-lg cursor-pointer transition-colors shadow-2xs"
-                >
-                  Simulasikan Upload Bukti Transfer (.JPG)
-                </button>
+                <div className="mt-3 relative w-full h-8 flex justify-center">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <div className="pointer-events-none px-3.5 py-2 bg-blue-600 text-white font-bold text-[10px] rounded-lg shadow-2xs">
+                    Pilih File Gambar Asli
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -152,7 +164,7 @@ export default function PayDuesModal({
             <span className="font-bold text-slate-800 block">Informasi Transfer Rekening RT:</span>
             • BCA Virtual Account:{' '}
             <strong>8275 005 {selectedCitizen.houseNumber.replace(/\D/g, '') || '01'}</strong> <br />
-            • Atas Nama: <strong>KAS KELUARGA RT005 JATIBENING</strong>
+            • Atas Nama: <strong>KAS KELUARGA RT005 CIBATU</strong>
           </div>
 
           <div className="flex gap-2 pt-2">

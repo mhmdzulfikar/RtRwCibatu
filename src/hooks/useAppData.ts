@@ -35,7 +35,14 @@ export function useAppData(requireAdminAccess: () => boolean) {
       setAnnouncements(hydrateAnnouncementPhotos(dataAnn)); // Tetap pasang foto dummy
 
       setTransactions(await resTx.json());
-      setCitizensDues(await resDues.json());
+      
+      const duesRaw = await resDues.json();
+      const parsedDues = duesRaw.map((d: any) => ({
+        ...d,
+        paymentHistory: typeof d.paymentHistory === 'string' ? JSON.parse(d.paymentHistory) : d.paymentHistory
+      }));
+      setCitizensDues(parsedDues);
+      
       setPaymentRequests(await resPayReq.json());
       setLetterRequests(await resLetReq.json());
     } catch (error) {
@@ -116,18 +123,27 @@ export function useAppData(requireAdminAccess: () => boolean) {
   // ----------------------------------------------------
   // DUES / PAYMENT DISPATCHERS
   // ----------------------------------------------------
-  const handleSubmitPaymentRequest = async (newPayReq: Omit<DuesPaymentRequest, 'id' | 'status' | 'dateSubmitted'>) => {
-    const fresh = {
-      ...newPayReq,
-      id: `pay-${Date.now()}`,
-      status: 'pending',
-      dateSubmitted: new Date().toISOString().substring(0, 10)
-    };
+  const handleSubmitPaymentRequest = async (newPayReq: Omit<DuesPaymentRequest, 'id' | 'status' | 'dateSubmitted'>, file?: File) => {
     try {
+      const formData = new FormData();
+      formData.append('citizenName', newPayReq.citizenName);
+      formData.append('houseNumber', newPayReq.houseNumber);
+      formData.append('month', newPayReq.month);
+      formData.append('year', newPayReq.year.toString());
+      formData.append('amount', newPayReq.amount.toString());
+      formData.append('paymentMethod', newPayReq.paymentMethod);
+      if (newPayReq.rt) formData.append('rt', newPayReq.rt);
+      if (newPayReq.rw) formData.append('rw', newPayReq.rw);
+      formData.append('status', 'pending');
+      formData.append('dateSubmitted', new Date().toISOString().substring(0, 10));
+
+      if (file) {
+        formData.append('transferProof', file);
+      }
+
       const res = await fetch(`${API_BASE}/payment-requests`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(fresh)
+        body: formData
       });
       
       if (res.ok) {

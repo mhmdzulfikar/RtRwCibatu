@@ -94,10 +94,10 @@ export default function LetterPreviewModal({
               RUKUN TETANGGA 005 / RUKUN WARGA 02
             </h2>
             <h3 className="text-sm md:text-base font-bold tracking-wide uppercase font-sans">
-              KELURAHAN JATIBENING BARU • KECAMATAN PONDOK GEDE
+              KELURAHAN CIBATU
             </h3>
             <p className="text-[10px] md:text-xs text-gray-600 italic font-sans font-medium">
-              Sekretariat: Kavling Melati Indah, Jatibening Baru, Pondok Gede, Kota Bekasi, Jawa Barat
+              Sekretariat: Perumahan Harper, Kelurahan Cibatu
             </p>
           </div>
 
@@ -113,7 +113,7 @@ export default function LetterPreviewModal({
 
           {/* Opening Body */}
           <p className="text-xs md:text-sm text-justify leading-relaxed mt-6">
-            Yang bertanda tangan di bawah ini Rukun Tetangga (RT) 005 Rukun Warga (RW) 02 Kelurahan Jatibening Baru,
+            Yang bertanda tangan di bawah ini Rukun Tetangga (RT) 005 Rukun Warga (RW) 02 Kelurahan Cibatu,
             Kecamatan Pondok Gede, Kota Bekasi dengan menerangkan bahwa:
           </p>
 

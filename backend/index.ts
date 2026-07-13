@@ -55,9 +55,38 @@ app.use('/api/citizens-dues', citizenDuesRoutes);
 app.use('/api/payment-requests', paymentRequestRoutes);
 app.use('/api/letters', letterRoutes);
 
+import path from 'path';
+import fs from 'fs';
+
 // ==========================================
-// RUNNING SERVER
+// RUNNING SERVER & CLEANUP CRON
 // ==========================================
+const UPLOADS_DIR = path.join(__dirname, 'uploads');
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
+
+// Serve static uploads
+app.use('/uploads', express.static(UPLOADS_DIR));
+
 app.listen(PORT, () => {
   console.log(` Backend server berjalan di http://localhost:${PORT}`);
+  
+  // Clean up files older than 7 days
+  setInterval(() => {
+    fs.readdir(UPLOADS_DIR, (err, files) => {
+      if (err) return;
+      const now = Date.now();
+      const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+      files.forEach(file => {
+        const filePath = path.join(UPLOADS_DIR, file);
+        fs.stat(filePath, (err, stats) => {
+          if (err) return;
+          if (now - stats.mtimeMs > SEVEN_DAYS) {
+            fs.unlink(filePath, () => {});
+          }
+        });
+      });
+    });
+  }, 1000 * 60 * 60 * 12); // Cek setiap 12 jam
 });

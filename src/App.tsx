@@ -52,6 +52,7 @@ export default function App() {
     handleLogout,
     handleUpdateProfile,
     handleResetWargaPassword,
+    handleRecoverAdminPassword,
     requireAdminAccess,
     requireWargaAccess,
   } = useAuth(setActiveTab);
@@ -91,7 +92,7 @@ export default function App() {
           <div className="flex items-center gap-2">
             <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${isAdmin ? 'bg-amber-400' : 'bg-emerald-400'}`} />
             <span className="text-[11px] sm:text-xs font-mono font-bold text-slate-300">
-              PORTAL RT 005 AKTIF • JATIBENING BARU, BEKASI
+              PORTAL RT 005 AKTIF • PERUMAHAN HARPER, CIBATU
             </span>
           </div>
 
@@ -324,8 +325,8 @@ export default function App() {
                 RT
               </div>
               <div className="leading-tight">
-                <h4 className="font-bold text-white text-sm">RT 005 Jatibening Baru</h4>
-                <p className="text-xs text-slate-500">Kecamatan Pondok Gede, Kota Bekasi</p>
+                <h4 className="font-bold text-white text-sm">RT 005 Cibatu</h4>
+                <p className="text-xs text-slate-500">Kelurahan Cibatu</p>
               </div>
             </div>
 
@@ -336,7 +337,7 @@ export default function App() {
 
           <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-[11px] text-slate-600">
             <p>
-              Hak Cipta © 2026 Pengurus RT 005 Jatibening Baru. Seluruh Hak Cipta Dilindungi Undang-Undang.
+              Hak Cipta © 2026 Pengurus RT 005 Perumahan Harper Cibatu. Seluruh Hak Cipta Dilindungi Undang-Undang.
             </p>
             <p className="font-mono">
               Portal Warga Digital v2.1.0 • Built with safety, transparency & React
