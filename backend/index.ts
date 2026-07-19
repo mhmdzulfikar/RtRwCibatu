@@ -10,6 +10,8 @@ import paymentRequestRoutes from './src/routes/paymentRequest.routes';
 import letterRoutes from './src/routes/letter.routes';
 import authRoutes from './src/routes/auth.routes';
 import { verifyToken } from './src/middleware/auth.middleware';
+import helmet from 'helmet';
+import { sanitizeInput } from './src/middleware/sanitize.middleware';
 dotenv.config();
 import { honeypotTrap } from 'indo-data-faker';
 
@@ -18,7 +20,9 @@ const PORT = 3001;
 
 // Middlewares
 app.use(cors());
+app.use(helmet()); // Melindungi aplikasi dengan mengatur HTTP headers terkait keamanan
 app.use(express.json());
+app.use(sanitizeInput); // Membersihkan input (body, query, params) dari ancaman XSS
 
 // ==========================================
 // DAFTAR ROUTES (ENDPOINTS)
