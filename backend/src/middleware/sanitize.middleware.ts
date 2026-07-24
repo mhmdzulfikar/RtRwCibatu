@@ -34,11 +34,18 @@ export const sanitizeInput = (req: Request, res: Response, next: NextFunction) =
   if (req.body) {
     req.body = sanitizeObject(req.body);
   }
-  if (req.query) {
-    req.query = sanitizeObject(req.query);
+  
+  if (req.query && typeof req.query === 'object') {
+    const sanitizedQuery = sanitizeObject(req.query);
+    for (const key in req.query) delete req.query[key];
+    Object.assign(req.query, sanitizedQuery);
   }
-  if (req.params) {
-    req.params = sanitizeObject(req.params);
+  
+  if (req.params && typeof req.params === 'object') {
+    const sanitizedParams = sanitizeObject(req.params);
+    for (const key in req.params) delete req.params[key];
+    Object.assign(req.params, sanitizedParams);
   }
+  
   next();
 };

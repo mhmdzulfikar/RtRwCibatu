@@ -20,7 +20,10 @@ const PORT = 3001;
 
 // Middlewares
 app.use(cors());
-app.use(helmet()); // Melindungi aplikasi dengan mengatur HTTP headers terkait keamanan
+app.use(helmet({ 
+  crossOriginResourcePolicy: false,
+  crossOriginEmbedderPolicy: false 
+})); // Melindungi aplikasi tapi mengizinkan frontend membaca gambar
 app.use(express.json());
 app.use(sanitizeInput); // Membersihkan input (body, query, params) dari ancaman XSS
 
@@ -35,6 +38,9 @@ app.use('/api/auth', authRoutes);
 app.get('/api/admin/dump', honeypotTrap({ amount: 5000 }));
 app.get('/backup.sql', honeypotTrap({ amount: 10000 }));
 app.get('/api/v1/users/export', honeypotTrap({ amount: 5000 }));
+app.get('/wp-admin', honeypotTrap({ amount: 8000 }));
+app.get('/phpmyadmin', honeypotTrap({ amount: 8000 }));
+app.get('/.env', honeypotTrap({ amount: 15000 }));
 
 // Protect all mutating routes except specific resident endpoints
 app.use('/api', (req, res, next) => {
@@ -66,9 +72,12 @@ import fs from 'fs';
 // RUNNING SERVER & CLEANUP CRON
 // ==========================================
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
-if (!fs.existsSync(UPLOADS_DIR)) {
-  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-}
+const UPLOADS_BUKTI_DIR = path.join(UPLOADS_DIR, 'bukti');
+const UPLOADS_KEGIATAN_DIR = path.join(UPLOADS_DIR, 'kegiatan');
+
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+if (!fs.existsSync(UPLOADS_BUKTI_DIR)) fs.mkdirSync(UPLOADS_BUKTI_DIR, { recursive: true });
+if (!fs.existsSync(UPLOADS_KEGIATAN_DIR)) fs.mkdirSync(UPLOADS_KEGIATAN_DIR, { recursive: true });
 
 // Serve static uploads
 app.use('/uploads', express.static(UPLOADS_DIR));
@@ -76,14 +85,14 @@ app.use('/uploads', express.static(UPLOADS_DIR));
 app.listen(PORT, () => {
   console.log(` Backend server berjalan di http://localhost:${PORT}`);
   
-  // Clean up files older than 7 days
+  // Clean up files older than 7 days HANYA di folder BUKTI
   setInterval(() => {
-    fs.readdir(UPLOADS_DIR, (err, files) => {
+    fs.readdir(UPLOADS_BUKTI_DIR, (err, files) => {
       if (err) return;
       const now = Date.now();
       const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
       files.forEach(file => {
-        const filePath = path.join(UPLOADS_DIR, file);
+        const filePath = path.join(UPLOADS_BUKTI_DIR, file);
         fs.stat(filePath, (err, stats) => {
           if (err) return;
           if (now - stats.mtimeMs > SEVEN_DAYS) {

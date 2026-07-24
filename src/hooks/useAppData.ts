@@ -57,30 +57,96 @@ export function useAppData(requireAdminAccess: () => boolean) {
   // ----------------------------------------------------
   // ANNOUNCEMENTS ACTION DISPATCHERS
   // ----------------------------------------------------
-  const handleAddAnnouncement = async (newAnn: Omit<Announcement, 'id' | 'date'>) => {
+  const handleAddAnnouncement = async (newAnn: Omit<Announcement, 'id' | 'date'>, file?: File) => {
     if (!requireAdminAccess()) return;
     
-    const fresh = {
-      ...newAnn,
-      id: `ann-${Date.now()}`,
-      date: new Date().toISOString().substring(0, 10)
-    };
+    const freshId = `ann-${Date.now()}`;
+    const freshDate = new Date().toISOString().substring(0, 10);
 
     try {
-      const res = await fetch(`${API_BASE}/announcements`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getAuthToken()}`
-        },
-        body: JSON.stringify(fresh)
-      });
+      let options: RequestInit;
+
+      if (file) {
+        const formData = new FormData();
+        formData.append('id', freshId);
+        formData.append('title', newAnn.title);
+        formData.append('content', newAnn.content);
+        formData.append('date', freshDate);
+        formData.append('category', newAnn.category);
+        formData.append('author', newAnn.author);
+        formData.append('isPinned', newAnn.isPinned.toString());
+        if (newAnn.imageAlt) formData.append('imageAlt', newAnn.imageAlt);
+        formData.append('image', file);
+
+        options = {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${getAuthToken()}`
+            // Don't set Content-Type for FormData, browser will set it with boundary
+          },
+          body: formData
+        };
+      } else {
+        options = {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAuthToken()}`
+          },
+          body: JSON.stringify({
+            ...newAnn,
+            id: freshId,
+            date: freshDate
+          })
+        };
+      }
+
+      const res = await fetch(`${API_BASE}/announcements`, options);
       if (res.ok) fetchAllData(); // Refresh data
     } catch (e) {
       console.error('Gagal menambah pengumuman', e);
     }
   };
+  const handleEditAnnouncement = async (id: string, updatedAnn: Partial<Announcement>, file?: File | null) => {
+    if (!requireAdminAccess()) return;
+    
+    try {
+      let options: RequestInit;
 
+      if (file) {
+        const formData = new FormData();
+        if (updatedAnn.title) formData.append('title', updatedAnn.title);
+        if (updatedAnn.content) formData.append('content', updatedAnn.content);
+        if (updatedAnn.category) formData.append('category', updatedAnn.category);
+        if (updatedAnn.author) formData.append('author', updatedAnn.author);
+        if (updatedAnn.isPinned !== undefined) formData.append('isPinned', updatedAnn.isPinned.toString());
+        if (updatedAnn.imageAlt) formData.append('imageAlt', updatedAnn.imageAlt);
+        formData.append('image', file);
+
+        options = {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${getAuthToken()}`
+          },
+          body: formData
+        };
+      } else {
+        options = {
+          method: 'PUT',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAuthToken()}`
+          },
+          body: JSON.stringify(updatedAnn)
+        };
+      }
+
+      const res = await fetch(`${API_BASE}/announcements/${id}`, options);
+      if (res.ok) fetchAllData();
+    } catch (e) {
+      console.error('Gagal mengubah pengumuman', e);
+    }
+  };
   const handleDeleteAnnouncement = async (id: string) => {
     if (!requireAdminAccess()) return;
     try {
@@ -232,6 +298,26 @@ export function useAppData(requireAdminAccess: () => boolean) {
     }
   };
 
+  const handleFetchLetterForPrint = async (id: string, nik?: string) => {
+    try {
+      const res = await fetch(`${API_BASE}/letters/${id}/print`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getAuthToken()}`
+        },
+        body: JSON.stringify({ nik })
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+      return null;
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  };
+
   // ----------------------------------------------------
   // CALCULATIONS
   // ----------------------------------------------------
@@ -251,6 +337,7 @@ export function useAppData(requireAdminAccess: () => boolean) {
     paymentRequests,
     totalBalance,
     handleAddAnnouncement,
+    handleEditAnnouncement,
     handleDeleteAnnouncement,
     handleAddTransaction,
     handleSubmitPaymentRequest,
@@ -258,5 +345,6 @@ export function useAppData(requireAdminAccess: () => boolean) {
     handleRejectPaymentRequest,
     handleSubmitLetterRequest,
     handleUpdateLetterStatus,
+    handleFetchLetterForPrint,
   };
 }

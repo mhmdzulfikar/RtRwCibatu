@@ -1,13 +1,14 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Megaphone, Search, Plus, Trash2, Pin, Calendar, User, ChevronRight, X, AlertCircle } from 'lucide-react';
+import { Megaphone, Search, Plus, Trash2, Edit3, Pin, Calendar, User, ChevronRight, X, AlertCircle } from 'lucide-react';
 import { Announcement } from '../types';
 import { useAnnouncementsView } from '../hooks/useAnnouncementsView';
 
 interface AnnouncementsViewProps {
   announcements: Announcement[];
   isAdmin: boolean;
-  onAddAnnouncement: (announcement: Omit<Announcement, 'id' | 'date'>) => void;
+  onAddAnnouncement: (announcement: Omit<Announcement, 'id' | 'date'>, file?: File) => void;
+  onEditAnnouncement?: (id: string, announcement: Partial<Announcement>, file?: File | null) => void;
   onDeleteAnnouncement: (id: string) => void;
 }
 
@@ -15,6 +16,7 @@ export default function AnnouncementsView({
   announcements,
   isAdmin,
   onAddAnnouncement,
+  onEditAnnouncement,
   onDeleteAnnouncement,
 }: AnnouncementsViewProps) {
   const {
@@ -30,7 +32,12 @@ export default function AnnouncementsView({
     years,
     filteredAnnouncements,
     handleSubmit,
-  } = useAnnouncementsView({ announcements, onAddAnnouncement });
+    editingId,
+    handleEditClick,
+    closeForm,
+  } = useAnnouncementsView({ announcements, onAddAnnouncement, onEditAnnouncement });
+
+  const [enlargedImage, setEnlargedImage] = React.useState<string | null>(null);
 
   return (
     <div className="space-y-6">
@@ -62,10 +69,14 @@ export default function AnnouncementsView({
         >
           <div className="flex justify-between items-center border-b border-white/40 pb-3">
             <h3 className="font-extrabold text-slate-800 text-lg flex items-center gap-2">
-              <Megaphone className="h-5 w-5 text-blue-600" /> Buat Pengumuman Baru (Admin)
+              {editingId ? (
+                <><Edit3 className="h-5 w-5 text-blue-600" /> Edit Pengumuman (Admin)</>
+              ) : (
+                <><Megaphone className="h-5 w-5 text-blue-600" /> Buat Pengumuman Baru (Admin)</>
+              )}
             </h3>
             <button
-              onClick={() => setShowAddForm(false)}
+              onClick={closeForm}
               className="p-1.5 rounded-full hover:bg-white/40 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
             >
               <X className="h-5 w-5" />
@@ -130,13 +141,18 @@ export default function AnnouncementsView({
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">URL Foto Kegiatan (Opsional)</label>
+              <label className="text-xs font-bold text-slate-600">Foto Kegiatan (Opsional)</label>
               <input
-                type="url"
-                value={form.imageUrl}
-                onChange={(e) => updateForm('imageUrl', e.target.value)}
-                placeholder="https://..."
-                className="w-full px-4 py-2 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-sans"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files.length > 0) {
+                    updateForm('imageFile', e.target.files[0]);
+                  } else {
+                    updateForm('imageFile', null);
+                  }
+                }}
+                className="w-full px-4 py-2 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-sans file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               />
             </div>
 
@@ -255,11 +271,12 @@ export default function AnnouncementsView({
                   {ann.imageUrl && (
                     <div className="-mx-1 -mt-1 overflow-hidden rounded-[1.35rem] aspect-[16/9] bg-slate-100 border border-white/60">
                       <img
-                        src={ann.imageUrl}
+                        src={ann.imageUrl.startsWith('/') ? `http://localhost:3001${ann.imageUrl}` : ann.imageUrl}
                         alt={ann.imageAlt || ann.title}
                         loading="lazy"
                         referrerPolicy="no-referrer"
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 cursor-zoom-in"
+                        onClick={() => setEnlargedImage(ann.imageUrl!)}
                       />
                     </div>
                   )}
@@ -310,13 +327,22 @@ export default function AnnouncementsView({
                     </button>
 
                     {isAdmin && (
-                      <button
-                        onClick={() => onDeleteAnnouncement(ann.id)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50/50 transition-colors cursor-pointer"
-                        title="Hapus Pengumuman"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleEditClick(ann)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50/50 transition-colors cursor-pointer"
+                          title="Edit Pengumuman"
+                        >
+                          <Edit3 className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => onDeleteAnnouncement(ann.id)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50/50 transition-colors cursor-pointer"
+                          title="Hapus Pengumuman"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -373,10 +399,11 @@ export default function AnnouncementsView({
               {selectedAnnouncement.imageUrl && (
                 <div className="overflow-hidden rounded-[1.35rem] aspect-[16/9] bg-slate-100 border border-white/60">
                   <img
-                    src={selectedAnnouncement.imageUrl}
+                    src={selectedAnnouncement.imageUrl.startsWith('/') ? `http://localhost:3001${selectedAnnouncement.imageUrl}` : selectedAnnouncement.imageUrl}
                     alt={selectedAnnouncement.imageAlt || selectedAnnouncement.title}
-                    referrerPolicy="no-referrer"
-                    className="h-full w-full object-cover"
+                    className="w-full h-full object-cover cursor-zoom-in hover:scale-[1.02] transition-transform"
+                    loading="lazy"
+                    onClick={() => setEnlargedImage(selectedAnnouncement.imageUrl!)}
                   />
                 </div>
               )}
@@ -401,6 +428,29 @@ export default function AnnouncementsView({
               </div>
             </div>
           </motion.div>
+        </div>
+      )}
+
+      {/* Lightbox Modal */}
+      {enlargedImage && (
+        <div 
+          className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-4 cursor-zoom-out transition-all"
+          onClick={() => setEnlargedImage(null)}
+        >
+          <button 
+            className="absolute top-6 right-6 p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors cursor-pointer border border-white/10"
+            onClick={(e) => { e.stopPropagation(); setEnlargedImage(null); }}
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <motion.img 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            src={enlargedImage.startsWith('/') ? `http://localhost:3001${enlargedImage}` : enlargedImage}
+            className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl"
+            alt="Perbesar Gambar"
+          />
         </div>
       )}
     </div>

@@ -9,7 +9,7 @@ const router = Router();
 // Configure multer storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = path.join(__dirname, '../../uploads');
+    const dir = path.join(__dirname, '../../uploads/bukti');
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     cb(null, dir);
   },
