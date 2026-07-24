@@ -4,10 +4,11 @@ import { isSafeHttpUrl } from '../security';
 
 export interface UseAnnouncementsViewProps {
   announcements: Announcement[];
-  onAddAnnouncement: (announcement: Omit<Announcement, 'id' | 'date'>) => void;
+  onAddAnnouncement: (announcement: Omit<Announcement, 'id' | 'date'>, file?: File) => void;
+  onEditAnnouncement?: (id: string, announcement: Partial<Announcement>, file?: File | null) => void;
 }
 
-export function useAnnouncementsView({ announcements, onAddAnnouncement }: UseAnnouncementsViewProps) {
+export function useAnnouncementsView({ announcements, onAddAnnouncement, onEditAnnouncement }: UseAnnouncementsViewProps) {
   // 1. Grouped State for Filters
   const [filters, setFilters] = useState({
     search: '',
@@ -26,7 +27,7 @@ export function useAnnouncementsView({ announcements, onAddAnnouncement }: UseAn
     category: 'Umum' as Announcement['category'],
     isPinned: false,
     author: 'Ketua RT (Bp. Hendra)',
-    imageUrl: '',
+    imageFile: null as File | null,
   });
 
   const updateForm = <K extends keyof typeof form>(key: K, value: typeof form[K]) => {
@@ -36,6 +37,7 @@ export function useAnnouncementsView({ announcements, onAddAnnouncement }: UseAn
   // 3. UI View State
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   // Filter lists constants
   const categories = ['Semua', 'Kegiatan', 'Iuran', 'Keamanan', 'Umum', 'Darurat'];
@@ -65,43 +67,75 @@ export function useAnnouncementsView({ announcements, onAddAnnouncement }: UseAn
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     });
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (!form.title.trim() || !form.content.trim()) {
-      alert('Harap isi judul dan konten pengumuman.');
-      return;
-    }
-
-    const trimmedImageUrl = form.imageUrl.trim();
-    if (trimmedImageUrl && !isSafeHttpUrl(trimmedImageUrl)) {
-      alert('URL foto harus memakai alamat http atau https yang valid.');
-      return;
-    }
-
-    onAddAnnouncement({
-      title: form.title,
-      content: form.content,
-      category: form.category,
-      author: form.author,
-      isPinned: form.isPinned,
-      ...(trimmedImageUrl
-        ? {
-            imageUrl: trimmedImageUrl,
-            imageAlt: `${form.title} - dokumentasi kegiatan RT 005`,
-          }
-        : {}),
+  const handleEditClick = (announcement: Announcement) => {
+    setEditingId(announcement.id);
+    setForm({
+      title: announcement.title,
+      content: announcement.content,
+      category: announcement.category,
+      isPinned: announcement.isPinned,
+      author: announcement.author,
+      imageFile: null, // File baru
     });
+    setShowAddForm(true);
+  };
 
-    // Reset Form
+  const closeForm = () => {
     setForm({
       title: '',
       content: '',
       category: 'Umum',
       isPinned: false,
       author: 'Ketua RT (Bp. Hendra)',
-      imageUrl: '',
+      imageFile: null,
     });
+    setEditingId(null);
     setShowAddForm(false);
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!form.title.trim() || !form.content.trim()) {
+      alert('Harap isi judul dan konten pengumuman.');
+      return;
+    }
+
+    try {
+      if (editingId && onEditAnnouncement) {
+        await onEditAnnouncement(editingId, {
+          title: form.title,
+          content: form.content,
+          category: form.category,
+          author: form.author,
+          isPinned: form.isPinned,
+          ...(form.imageFile ? { imageAlt: `${form.title} - dokumentasi kegiatan RT 005` } : {}),
+        }, form.imageFile);
+      } else {
+        await onAddAnnouncement({
+          title: form.title,
+          content: form.content,
+          category: form.category,
+          author: form.author,
+          isPinned: form.isPinned,
+          ...(form.imageFile ? { imageAlt: `${form.title} - dokumentasi kegiatan RT 005` } : {}),
+        }, form.imageFile || undefined);
+      }
+      
+      // Reset form on success
+      setForm({
+        title: '',
+        content: '',
+        category: 'Umum',
+        isPinned: false,
+        author: 'Ketua RT (Bp. Hendra)',
+        imageFile: null,
+      });
+      setShowAddForm(false);
+      setEditingId(null);
+    } catch (error) {
+      console.error('Failed to submit form', error);
+      alert('Terjadi kesalahan saat menyimpan pengumuman. Pastikan backend berjalan dan periksa koneksi.');
+    }
   };
 
   return {
@@ -117,5 +151,8 @@ export function useAnnouncementsView({ announcements, onAddAnnouncement }: UseAn
     years,
     filteredAnnouncements,
     handleSubmit,
+    editingId,
+    handleEditClick,
+    closeForm,
   };
 }

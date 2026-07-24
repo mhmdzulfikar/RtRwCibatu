@@ -67,6 +67,7 @@ export default function App() {
     paymentRequests,
     totalBalance,
     handleAddAnnouncement,
+    handleEditAnnouncement,
     handleDeleteAnnouncement,
     handleAddTransaction,
     handleSubmitPaymentRequest,
@@ -74,6 +75,7 @@ export default function App() {
     handleRejectPaymentRequest,
     handleSubmitLetterRequest,
     handleUpdateLetterStatus,
+    handleFetchLetterForPrint,
   } = useAppData(requireAdminAccess);
 
   const currentDateLabel = (() => {
@@ -285,6 +287,7 @@ export default function App() {
                 announcements={announcements}
                 isAdmin={isAdmin}
                 onAddAnnouncement={handleAddAnnouncement}
+                onEditAnnouncement={handleEditAnnouncement}
                 onDeleteAnnouncement={handleDeleteAnnouncement}
               />
             )}
@@ -310,6 +313,7 @@ export default function App() {
                 isWarga={isWarga}
                 onSubmitRequest={handleSubmitLetterRequest}
                 onUpdateStatus={handleUpdateLetterStatus}
+                onFetchLetterForPrint={handleFetchLetterForPrint}
               />
             )}
           </motion.div>

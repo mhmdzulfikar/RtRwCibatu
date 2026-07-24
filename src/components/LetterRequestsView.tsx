@@ -20,6 +20,7 @@ interface LetterRequestsViewProps {
   isWarga?: boolean;
   onSubmitRequest: (req: Omit<LetterRequest, 'id' | 'status' | 'dateRequested'>) => void;
   onUpdateStatus: (id: string, status: LetterRequest['status'], updateData?: { referenceNo?: string; rejectedReason?: string }) => void;
+  onFetchLetterForPrint: (id: string, nik?: string) => Promise<LetterRequest | null>;
 }
 
 export default function LetterRequestsView({
@@ -28,6 +29,7 @@ export default function LetterRequestsView({
   isWarga,
   onSubmitRequest,
   onUpdateStatus,
+  onFetchLetterForPrint,
 }: LetterRequestsViewProps) {
   const {
     viewState,
@@ -35,7 +37,9 @@ export default function LetterRequestsView({
     triggerRejectSubmit,
     triggerApproveSign,
     getSafeNik,
-  } = useLetterRequestsView({ isAdmin, onUpdateStatus });
+    getSafeName,
+    handlePrintClick,
+  } = useLetterRequestsView({ isAdmin, isWarga, onUpdateStatus, onFetchLetterForPrint });
   
   const { showApplyForm, selectedLetter, rejectingId, rejectionReasonText } = viewState;
 
@@ -156,14 +160,16 @@ export default function LetterRequestsView({
 
                   <div>
                     <h4 className="font-extrabold text-slate-900 text-sm md:text-base">
-                      {req.applicantName}
+                      {getSafeName(req.applicantName)}
                     </h4>
                     <p className="text-xs text-slate-500">
                       Keperluan: <strong className="text-slate-700 font-bold">{req.purpose}</strong>
                     </p>
-                    <p className="text-[11px] text-slate-400 leading-normal">
-                      NIK: <span className="font-mono bg-white/30 px-1 py-0.5 rounded border border-white/50">{getSafeNik(req.nik)}</span> • Alamat: {req.address}
-                    </p>
+                    {req.nik && req.address && (
+                      <p className="text-[11px] text-slate-400 leading-normal">
+                        NIK: <span className="font-mono bg-white/30 px-1 py-0.5 rounded border border-white/50">{getSafeNik(req.nik)}</span> • Alamat: {req.address}
+                      </p>
+                    )}
                   </div>
 
                   {/* Reject message row */}
@@ -184,10 +190,10 @@ export default function LetterRequestsView({
 
                 {/* CITIZEN vs ADMIN actions inside item card */}
                 <div className="flex gap-2 shrink-0 w-full md:w-auto font-sans">
-                  {/* CITIZEN: View Printable Letter */}
-                  {req.status === 'ready' && (
+                  {/* VIEW PRINTABLE LETTER (RESTRICTED TO ADMIN & WARGA) */}
+                  {req.status === 'ready' && (isAdmin || isWarga) && (
                     <button
-                      onClick={() => updateViewState({ selectedLetter: req })}
+                      onClick={() => handlePrintClick(req)}
                       className="px-4 py-2 text-emerald-700 bg-emerald-500/15 hover:bg-emerald-600 hover:text-white border border-emerald-250/30 rounded-xl font-bold text-xs inline-flex items-center gap-1.5 justify-center cursor-pointer w-full md:w-auto transition-all"
                     >
                       <Eye className="h-3.5 w-3.5" /> Lihat & Cetak Surat

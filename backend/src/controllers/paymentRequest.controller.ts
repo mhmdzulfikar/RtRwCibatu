@@ -17,7 +17,7 @@ export const createPaymentRequest = async (req: Request, res: Response) => {
     
     // If a file was uploaded, use the file path
     if (req.file) {
-      transferProofUrl = `/uploads/${req.file.filename}`;
+      transferProofUrl = `/uploads/bukti/${req.file.filename}`;
     }
 
     const reqPayment = await prisma.duesPaymentRequest.create({ 
