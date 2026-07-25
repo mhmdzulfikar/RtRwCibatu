@@ -8,7 +8,7 @@ interface DashboardProps {
   announcements: Announcement[];
   totalBalance: number;
   isAdmin?: boolean;
-  onResetWargaPassword?: (newPassword: string) => Promise<{ success: boolean; error?: string }>;
+  onResetWargaPassword?: (targetUsername: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 export default function Dashboard({ onNavigate, announcements, totalBalance, isAdmin, onResetWargaPassword }: DashboardProps) {
@@ -32,20 +32,22 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
   const [editStatsForm, setEditStatsForm] = useState(dashboardStats);
 
   // Admin Reset Warga Password State
+  const [targetUsername, setTargetUsername] = useState('');
   const [newWargaPassword, setNewWargaPassword] = useState('');
   const [resetWargaLoading, setResetWargaLoading] = useState(false);
   const [resetWargaMessage, setResetWargaMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const handleResetWargaSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!onResetWargaPassword || !newWargaPassword) return;
+    if (!onResetWargaPassword || !targetUsername || !newWargaPassword) return;
     
     setResetWargaLoading(true);
     setResetWargaMessage(null);
     try {
-      const res = await onResetWargaPassword(newWargaPassword);
+      const res = await onResetWargaPassword(targetUsername, newWargaPassword);
       if (res.success) {
-        setResetWargaMessage({ type: 'success', text: 'Password warga berhasil direset!' });
+        setResetWargaMessage({ type: 'success', text: `Password untuk ${targetUsername} berhasil direset!` });
+        setTargetUsername('');
         setNewWargaPassword('');
       } else {
         setResetWargaMessage({ type: 'error', text: res.error || 'Gagal mereset password' });
@@ -593,7 +595,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
                 </div>
                 <div>
                   <h4 className="font-bold text-red-900 text-sm">Manajemen Akun Warga</h4>
-                  <p className="text-xs text-red-700/80">Ubah password akun bersama warga</p>
+                  <p className="text-xs text-red-700/80">Reset password akun warga spesifik</p>
                 </div>
               </div>
               
@@ -604,6 +606,20 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
                     {resetWargaMessage.text}
                   </div>
                 )}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-red-900">Username Warga (Misal: Harper_A01)</label>
+                  <div className="relative">
+                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-400" />
+                    <input
+                      type="text"
+                      required
+                      value={targetUsername}
+                      onChange={(e) => setTargetUsername(e.target.value)}
+                      className="w-full pl-9 pr-4 py-2 border border-red-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white"
+                      placeholder="Username warga..."
+                    />
+                  </div>
+                </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-red-900">Password Baru Warga</label>
                   <div className="relative">
