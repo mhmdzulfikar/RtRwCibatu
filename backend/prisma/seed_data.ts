@@ -156,9 +156,59 @@ const INITIAL_TRANSACTIONS = [
   }
 ];
 
+import bcrypt from 'bcrypt';
+import * as dotenv from 'dotenv';
+
+// Load .env variables
+dotenv.config();
+
 async function main() {
   console.log('Seeding dummy data...');
+
+  // 0. Clean up mistakenly hardcoded admin if it exists
+  try {
+    await prisma.user.delete({ where: { username: 'admin' } });
+  } catch (e) {
+    // Ignore if not found
+  }
+
+  // 1. Create Admin account from .env
+  const adminUser = process.env.ADMIN_USERNAME || 'admin';
+  const adminPass = process.env.ADMIN_PASSWORD || 'admin123';
+  const adminPasswordHash = await bcrypt.hash(adminPass, 10);
+
+  await prisma.user.upsert({
+    where: { username: adminUser },
+    update: { password: adminPasswordHash },
+    create: {
+      username: adminUser,
+      password: adminPasswordHash,
+      role: 'admin',
+      displayName: 'Administrator RT',
+    },
+  });
+
+  // 2. Create CitizenDues & Individual User accounts
   for (const c of INITIAL_CITIZENS_DUES) {
+    // Generate username like Harper_A01 from "Blok A/01"
+    const parsedHouse = c.houseNumber.replace('Blok ', '').replace('/', ''); // e.g. "A01"
+    const username = `Harper_${parsedHouse}`; // "Harper_A01"
+    const rawPassword = `warga${parsedHouse}`; // "wargaA01"
+    const hashedPassword = await bcrypt.hash(rawPassword, 10);
+
+    // Create User first
+    await prisma.user.upsert({
+      where: { username },
+      update: {},
+      create: {
+        username: username,
+        password: hashedPassword,
+        role: 'warga',
+        displayName: `Warga ${c.houseNumber} (${c.citizenName})`,
+      },
+    });
+
+    // Create CitizenDues
     await prisma.citizenDues.upsert({
       where: { id: c.id },
       update: {},
@@ -173,6 +223,7 @@ async function main() {
     });
   }
 
+  // 3. Transactions
   for (const t of INITIAL_TRANSACTIONS) {
     await prisma.financialTransaction.upsert({
       where: { id: t.id },
