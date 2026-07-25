@@ -112,24 +112,24 @@ export const updateProfile = async (req: Request, res: Response): Promise<any> =
 };
 
 export const resetWargaPassword = async (req: Request, res: Response): Promise<any> => {
-  const { newPassword } = req.body;
+  const { targetUsername, newPassword } = req.body;
   const requesterRole = (req as any).user?.role;
 
   if (requesterRole !== 'admin') {
     return res.status(403).json({ error: 'Forbidden: Only admin can reset warga password' });
   }
 
-  if (!newPassword) {
-    return res.status(400).json({ error: 'New password is required' });
+  if (!targetUsername || !newPassword) {
+    return res.status(400).json({ error: 'Target username and new password are required' });
   }
 
   try {
-    const wargaUser = await prisma.user.findFirst({
-      where: { role: 'warga' },
+    const wargaUser = await prisma.user.findUnique({
+      where: { username: targetUsername },
     });
 
-    if (!wargaUser) {
-      return res.status(404).json({ error: 'Warga account not found' });
+    if (!wargaUser || wargaUser.role !== 'warga') {
+      return res.status(404).json({ error: 'Warga account not found or invalid target' });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -139,7 +139,7 @@ export const resetWargaPassword = async (req: Request, res: Response): Promise<a
       data: { password: hashedPassword },
     });
 
-    return res.status(200).json({ message: 'Password Warga berhasil direset!' });
+    return res.status(200).json({ message: `Password untuk akun ${targetUsername} berhasil direset!` });
   } catch (error) {
     console.error('Reset password error:', error);
     return res.status(500).json({ error: 'Internal server error' });
