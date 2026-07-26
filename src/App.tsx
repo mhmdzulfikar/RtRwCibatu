@@ -52,6 +52,7 @@ export default function App() {
     handleLogout,
     handleUpdateProfile,
     handleResetWargaPassword,
+    handleCreateWargaAccount,
     handleRecoverAdminPassword,
     requireAdminAccess,
     requireWargaAccess,
@@ -70,6 +71,7 @@ export default function App() {
     handleEditAnnouncement,
     handleDeleteAnnouncement,
     handleAddTransaction,
+    handleAddCitizenDues,
     handleSubmitPaymentRequest,
     handleApprovePaymentRequest,
     handleRejectPaymentRequest,
@@ -279,6 +281,7 @@ export default function App() {
                 totalBalance={totalBalance}
                 isAdmin={isAdmin}
                 onResetWargaPassword={handleResetWargaPassword}
+                onCreateWargaAccount={handleCreateWargaAccount}
               />
             )}
 
@@ -299,6 +302,7 @@ export default function App() {
                 paymentRequests={paymentRequests}
                 isAdmin={isAdmin}
                 isWarga={isWarga}
+                onAddCitizenDues={handleAddCitizenDues}
                 onAddTransaction={handleAddTransaction}
                 onApprovePaymentRequest={handleApprovePaymentRequest}
                 onRejectPaymentRequest={handleRejectPaymentRequest}

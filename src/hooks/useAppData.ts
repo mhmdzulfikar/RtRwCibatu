@@ -238,6 +238,23 @@ export function useAppData(requireAdminAccess: () => boolean) {
     }
   };
 
+  const handleAddCitizenDues = async (citizenName: string, houseNumber: string) => {
+    if (!requireAdminAccess()) return;
+    try {
+      const res = await fetch(`${API_BASE}/citizens-dues`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getAuthToken()}`
+        },
+        body: JSON.stringify({ citizenName, houseNumber })
+      });
+      if (res.ok) fetchAllData();
+    } catch (e) {
+      console.error('Gagal menambah warga:', e);
+    }
+  };
+
   const handleRejectPaymentRequest = async (id: string) => {
     if (!requireAdminAccess()) return;
     try {
@@ -340,6 +357,7 @@ export function useAppData(requireAdminAccess: () => boolean) {
     handleEditAnnouncement,
     handleDeleteAnnouncement,
     handleAddTransaction,
+    handleAddCitizenDues,
     handleSubmitPaymentRequest,
     handleApprovePaymentRequest,
     handleRejectPaymentRequest,

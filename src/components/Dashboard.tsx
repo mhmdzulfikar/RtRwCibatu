@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Home, FileText, Wallet, Megaphone, Users, Shield, ArrowRight, Star, HeartHandshake, Edit3, X, Save, Lock, CheckCircle2, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Home, FileText, Wallet, Megaphone, Users, Shield, ArrowRight, Star, HeartHandshake, Edit3, X, Save, Lock, CheckCircle2, AlertCircle, ChevronLeft, ChevronRight, Eye, EyeOff } from 'lucide-react';
 import { Announcement } from '../types';
 
 interface DashboardProps {
@@ -9,9 +9,10 @@ interface DashboardProps {
   totalBalance: number;
   isAdmin?: boolean;
   onResetWargaPassword?: (targetUsername: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
+  onCreateWargaAccount?: (displayName: string, username: string, password: string) => Promise<{ success: boolean; message?: string; error?: string }>;
 }
 
-export default function Dashboard({ onNavigate, announcements, totalBalance, isAdmin, onResetWargaPassword }: DashboardProps) {
+export default function Dashboard({ onNavigate, announcements, totalBalance, isAdmin, onResetWargaPassword, onCreateWargaAccount }: DashboardProps) {
   // Pengurus RT State
   const [management, setManagement] = useState({
     ketua: 'Bp. Hendra Kurniawan',
@@ -34,6 +35,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
   // Admin Reset Warga Password State
   const [targetUsername, setTargetUsername] = useState('');
   const [newWargaPassword, setNewWargaPassword] = useState('');
+  const [showWargaPassword, setShowWargaPassword] = useState(false);
   const [resetWargaLoading, setResetWargaLoading] = useState(false);
   const [resetWargaMessage, setResetWargaMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -58,6 +60,39 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
       setResetWargaLoading(false);
     }
   };
+
+  // Admin Create Warga State
+  const [createWargaDisplayName, setCreateWargaDisplayName] = useState('');
+  const [createWargaUsername, setCreateWargaUsername] = useState('');
+  const [createWargaPassword, setCreateWargaPassword] = useState('');
+  const [showCreateWargaPassword, setShowCreateWargaPassword] = useState(false);
+  const [createWargaLoading, setCreateWargaLoading] = useState(false);
+  const [createWargaMessage, setCreateWargaMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleCreateWargaSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!onCreateWargaAccount || !createWargaDisplayName || !createWargaUsername || !createWargaPassword) return;
+    
+    setCreateWargaLoading(true);
+    setCreateWargaMessage(null);
+    try {
+      const res = await onCreateWargaAccount(createWargaDisplayName, createWargaUsername, createWargaPassword);
+      if (res.success) {
+        setCreateWargaMessage({ type: 'success', text: res.message || `Akun warga ${createWargaUsername} berhasil dibuat!` });
+        setCreateWargaDisplayName('');
+        setCreateWargaUsername('');
+        setCreateWargaPassword('');
+      } else {
+        setCreateWargaMessage({ type: 'error', text: res.error || 'Gagal membuat akun warga' });
+      }
+    } catch (error) {
+      setCreateWargaMessage({ type: 'error', text: 'Terjadi kesalahan' });
+    } finally {
+      setCreateWargaLoading(false);
+    }
+  };
+
+  // Editing handlers...
 
 
   useEffect(() => {
@@ -586,8 +621,86 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
             </div>
           </div>
 
-          {/* Fitur Spesial Admin: Reset Password Warga */}
+          {/* Fitur Spesial Admin: Tambah Akun Warga & Reset Password */}
           {isAdmin && (
+            <div className="space-y-6">
+              <div className="glass-panel p-6 rounded-[2rem] space-y-4 border-2 border-emerald-100 bg-emerald-50/30">
+                <div className="flex items-center gap-3 pb-3 border-b border-emerald-200">
+                  <div className="p-2.5 bg-emerald-100 text-emerald-600 rounded-xl">
+                    <Users className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-emerald-900 text-sm">Tambah Akun Warga</h4>
+                    <p className="text-xs text-emerald-700/80">Buat akun baru untuk warga</p>
+                  </div>
+                </div>
+                
+                <form onSubmit={handleCreateWargaSubmit} className="space-y-3 pt-2">
+                  {createWargaMessage && (
+                    <div className={`p-3 rounded-lg text-sm flex items-center gap-2 ${createWargaMessage.type === 'success' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
+                      {createWargaMessage.type === 'success' ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+                      {createWargaMessage.text}
+                    </div>
+                  )}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-emerald-900">Nama Lengkap Warga</label>
+                    <div className="relative">
+                      <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-400" />
+                      <input
+                        type="text"
+                        required
+                        value={createWargaDisplayName}
+                        onChange={(e) => setCreateWargaDisplayName(e.target.value)}
+                        className="w-full pl-9 pr-4 py-2 border border-emerald-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
+                        placeholder="Nama warga..."
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-emerald-900">Username (Untuk Login)</label>
+                    <div className="relative">
+                      <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-400" />
+                      <input
+                        type="text"
+                        required
+                        value={createWargaUsername}
+                        onChange={(e) => setCreateWargaUsername(e.target.value)}
+                        className="w-full pl-9 pr-4 py-2 border border-emerald-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
+                        placeholder="Contoh: Harper_A01"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-emerald-900">Password Awal</label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-400" />
+                      <input
+                        type={showCreateWargaPassword ? 'text' : 'password'}
+                        required
+                        value={createWargaPassword}
+                        onChange={(e) => setCreateWargaPassword(e.target.value)}
+                        className="w-full pl-9 pr-10 py-2 border border-emerald-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
+                        placeholder="Password standar..."
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCreateWargaPassword(!showCreateWargaPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
+                      >
+                        {showCreateWargaPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={createWargaLoading}
+                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-colors mt-2"
+                  >
+                    {createWargaLoading ? 'Memproses...' : 'Buat Akun Warga'}
+                  </button>
+                </form>
+              </div>
+
             <div className="glass-panel p-6 rounded-[2rem] space-y-4 border-2 border-red-100 bg-red-50/30">
               <div className="flex items-center gap-3 pb-3 border-b border-red-200">
                 <div className="p-2.5 bg-red-100 text-red-600 rounded-xl">
@@ -625,13 +738,20 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-400" />
                     <input
-                      type="password"
+                      type={showWargaPassword ? 'text' : 'password'}
                       required
                       value={newWargaPassword}
                       onChange={(e) => setNewWargaPassword(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2 border border-red-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white"
+                      className="w-full pl-9 pr-10 py-2 border border-red-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white"
                       placeholder="Masukkan password baru..."
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowWargaPassword(!showWargaPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
+                    >
+                      {showWargaPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
                 </div>
                 <button
@@ -643,6 +763,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
                   Simpan Password Warga
                 </button>
               </form>
+            </div>
             </div>
           )}
         </div>

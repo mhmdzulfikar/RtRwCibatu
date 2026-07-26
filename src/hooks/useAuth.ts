@@ -42,8 +42,14 @@ export function useAuth(setActiveTab: (tab: string) => void) {
       });
       const result = await response.json();
       if (response.ok) {
-        // Update local session data
-        const updatedUser = { ...currentUser, displayName: result.user.displayName };
+        const updatedUser = { 
+          ...currentUser, 
+          displayName: result.user.displayName,
+          username: result.user.username
+        };
+        if (result.token) {
+          updatedUser.sessionToken = result.token;
+        }
         handleLogin(updatedUser);
         return { success: true };
       } else {
@@ -68,6 +74,25 @@ export function useAuth(setActiveTab: (tab: string) => void) {
       const result = await response.json();
       if (response.ok) return { success: true };
       return { success: false, error: result.error || 'Gagal mereset password' };
+    } catch (e) {
+      return { success: false, error: 'Gagal koneksi ke server' };
+    }
+  };
+
+  const handleCreateWargaAccount = async (displayName: string, username: string, password: string) => {
+    if (!isAdmin || !currentUser?.sessionToken) return { success: false, error: 'Akses ditolak' };
+    try {
+      const response = await fetch('http://localhost:3001/api/auth/admin/create-warga', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentUser.sessionToken}`
+        },
+        body: JSON.stringify({ displayName, username, password })
+      });
+      const result = await response.json();
+      if (response.ok) return { success: true, message: result.message };
+      return { success: false, error: result.error || 'Gagal membuat akun warga' };
     } catch (e) {
       return { success: false, error: 'Gagal koneksi ke server' };
     }
@@ -147,6 +172,7 @@ export function useAuth(setActiveTab: (tab: string) => void) {
     handleLogout,
     handleUpdateProfile,
     handleResetWargaPassword,
+    handleCreateWargaAccount,
     handleRecoverAdminPassword,
     requireAdminAccess,
     requireWargaAccess

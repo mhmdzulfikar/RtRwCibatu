@@ -1,9 +1,11 @@
 import { Router } from 'express';
-import { getCitizensDues, updateCitizenDues } from '../controllers/citizenDues.controller';
+import { getCitizensDues, updateCitizenDues, createCitizenDues } from '../controllers/citizenDues.controller';
+import { verifyToken } from '../middleware/auth.middleware';
 
 const router = Router();
 
 router.get('/', getCitizensDues);
-router.put('/:id', updateCitizenDues);
+router.post('/', verifyToken, createCitizenDues);
+router.put('/:id', verifyToken, updateCitizenDues);
 
 export default router;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { X, UserRound, Lock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { X, UserRound, Lock, CheckCircle2, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 interface ProfileSettingsModalProps {
   onClose: () => void;
@@ -10,8 +10,11 @@ interface ProfileSettingsModalProps {
 
 export default function ProfileSettingsModal({ onClose, onUpdate, currentUser }: ProfileSettingsModalProps) {
   const [displayName, setDisplayName] = useState(currentUser.displayName);
+  const [newUsername, setNewUsername] = useState(currentUser.username);
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -24,7 +27,7 @@ export default function ProfileSettingsModal({ onClose, onUpdate, currentUser }:
     setSuccess(false);
 
     try {
-      const res = await onUpdate({ displayName, password, newPassword });
+      const res = await onUpdate({ displayName, password, newPassword, newUsername });
       if (res.success) {
         setSuccess(true);
         setTimeout(() => onClose(), 1500);
@@ -80,7 +83,21 @@ export default function ProfileSettingsModal({ onClose, onUpdate, currentUser }:
           )}
 
           <div className="space-y-1.5">
-            <label className="text-sm font-semibold text-slate-700">Nama Tampilan</label>
+            <label className="text-sm font-semibold text-slate-700">Username <span className="text-slate-400 font-normal text-xs">(Untuk Login)</span></label>
+            <div className="relative">
+              <UserRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <input
+                type="text"
+                value={newUsername}
+                onChange={(e) => setNewUsername(e.target.value)}
+                required
+                className="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-semibold text-slate-700">Nama Tampilan <span className="text-slate-400 font-normal text-xs">(Terlihat oleh publik)</span></label>
             <div className="relative">
               <UserRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
@@ -98,12 +115,19 @@ export default function ProfileSettingsModal({ onClose, onUpdate, currentUser }:
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
-                type="password"
+                type={showOldPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full pl-9 pr-11 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="********"
               />
+              <button
+                type="button"
+                onClick={() => setShowOldPassword(!showOldPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
+              >
+                {showOldPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
             </div>
           </div>
 
@@ -112,12 +136,19 @@ export default function ProfileSettingsModal({ onClose, onUpdate, currentUser }:
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
-                type="password"
+                type={showNewPassword ? 'text' : 'password'}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full pl-9 pr-11 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="********"
               />
+              <button
+                type="button"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
+              >
+                {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
             </div>
           </div>
 
