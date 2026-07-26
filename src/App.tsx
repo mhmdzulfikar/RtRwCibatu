@@ -112,7 +112,7 @@ export default function App() {
             </span>
             {isAdmin || isWarga ? (
               <div className="flex items-center gap-2">
-                {isAdmin && (
+                {(isAdmin || isWarga) && (
                   <button
                     onClick={() => setShowProfileSettings(true)}
                     className="px-3 py-1 rounded-full text-xs font-black tracking-tight inline-flex items-center gap-1.5 bg-slate-800 text-slate-300 border border-slate-700 hover:text-white hover:bg-slate-700 transition-all cursor-pointer"

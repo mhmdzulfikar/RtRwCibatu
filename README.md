@@ -4,83 +4,155 @@ Portal warga terintegrasi untuk pengelolaan administrasi, transparansi keuangan,
 
 ---
 
-## Struktur Direktori Proyek
+## 🎯 Fitur Utama
 
-Aplikasi ini sekarang menggunakan arsitektur **Full-Stack (React Frontend + Node.js/Express Backend + SQLite)**. Arsitektur proyek dibagi menjadi dua bagian utama:
+- **Sistem Autentikasi**: Login aman dengan peran **Admin** (Pengurus RT) dan **Warga**, didukung oleh JWT dan bcrypt.
+- **Pengumuman Resmi**: Feed informasi dinamis dari pengurus RT, dilengkapi dukungan penyematan (pinning) untuk pengumuman darurat.
+- **Transparansi Keuangan (Kas & Iuran)**:
+  - Pencatatan riwayat transaksi kas (pemasukan & pengeluaran).
+  - Matriks iuran bulanan warga per blok rumah dengan status pembayaran (Belum, Pending, Lunas).
+  - Pengajuan pembayaran iuran mandiri oleh warga beserta bukti transfer (upload gambar).
+  - Antrean persetujuan pembayaran oleh bendahara/admin.
+- **Administrasi & Pengajuan Surat**:
+  - Fasilitas bagi warga untuk mengajukan surat pengantar (domisili, dll).
+  - Tinjauan status persetujuan, penolakan dengan alasan, dan referensi surat.
+  - Tanda tangan digital dari pengurus RT dan pratinjau surat siap cetak (PDF).
+
+---
+
+## 🛠️ Teknologi yang Digunakan
+
+Aplikasi ini menggunakan arsitektur **Full-Stack** yang dipisahkan antara client (frontend) dan server (backend).
+
+### Frontend
+- **Framework**: [React 19](https://react.dev/) dengan [TypeScript](https://www.typescriptlang.org/)
+- **Bundler**: [Vite](https://vitejs.dev/)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Ikon & Animasi**: Lucide React & Framer Motion (via `motion`)
+
+### Backend
+- **Runtime**: [Node.js](https://nodejs.org/) dengan [Express.js](https://expressjs.com/)
+- **Database & ORM**: [SQLite](https://www.sqlite.org/index.html) dan [Prisma ORM](https://www.prisma.io/)
+- **Keamanan**: JWT (JSON Web Tokens), bcrypt, Helmet, XSS-Clean, dan Express Rate Limit
+- **Upload File**: Multer
+
+---
+
+## 📂 Struktur Direktori Proyek
 
 ```text
 RtRwCibatu/
-├── backend/                  # 🚀 SERVER BACKEND (Node.js + Express)
-│   ├── prisma/               # Konfigurasi Database ORM
-│   │   ├── schema.prisma     # Skema tabel database SQLite
-│   │   └── dev.db            # File Database SQLite asli
-│   ├── src/                  # Logika API dengan pola MVC (Model-View-Controller)
-│   │   ├── config/           # Koneksi ke PrismaClient
-│   │   ├── controllers/      # Otak utama (Logika pengolahan data)
-│   │   └── routes/           # Daftar jalan tol endpoint (misal: /api/announcements)
-│   ├── index.ts              # Entry point utama Server Express (berjalan di port 3001)
-│   └── package.json          # Dependency backend (express, cors, prisma, dll)
+├── backend/                  # 🚀 SERVER BACKEND
+│   ├── prisma/               # Konfigurasi ORM dan Database
+│   │   ├── schema.prisma     # Skema tabel SQLite (User, Announcement, dll)
+│   │   ├── seed.ts           # Skrip inisialisasi data awal (Admin & Warga)
+│   │   └── dev.db            # Database SQLite fisik
+│   ├── src/                  # Kode Sumber Backend (MVC Pattern)
+│   │   ├── config/           # Konfigurasi sistem dan database
+│   │   ├── controllers/      # Logika pemrosesan permintaan API
+│   │   ├── routes/           # Definisi endpoint (Auth, Keuangan, Surat, dll)
+│   │   └── middleware/       # Autentikasi dan pengecekan otorisasi
+│   ├── index.ts              # Entry point server backend
+│   └── package.json          # Dependensi backend
 │
-├── src/                      # 🖥️ FRONTEND UI (React + TypeScript + Vite)
-│   ├── hooks/                # Custom hooks (useAppData.ts sekarang me-fetch dari API Backend)
-│   ├── components/           # Komponen-komponen UI modular (Dashboard, Modals, Tabs)
-│   │   ├── finances/         # Subfolder modular khusus fitur Keuangan
-│   │   └── letters/          # Subfolder modular khusus fitur Pengajuan Surat
-│   ├── data.ts               # Data mockup awal (sebelum terkoneksi ke backend)
-│   ├── types.ts              # Wadah definisi tipe data TypeScript (Interface)
-│   ├── security.ts           # Logika sesi admin
-│   └── App.tsx               # Komponen Induk Aplikasi
+├── src/                      # 🖥️ FRONTEND UI
+│   ├── components/           # Komponen UI modular
+│   │   ├── finances/         # Modul Keuangan (Kas, Iuran)
+│   │   └── letters/          # Modul Pengajuan Surat
+│   ├── hooks/                # Custom React Hooks untuk integrasi API
+│   ├── App.tsx               # Komponen Induk (Routing dan Layout)
+│   ├── data.ts               # Data default/mockup
+│   └── types.ts              # Definisi tipe (TypeScript Interfaces)
 │
-├── .env.example              # Contoh konfigurasi kredensial admin Frontend
-├── package.json              # Dependency frontend
-└── vite.config.ts            # Bundler Vite
+├── .env.example              # Template variabel lingkungan Frontend
+├── package.json              # Dependensi frontend
+└── vite.config.ts            # Konfigurasi Vite
 ```
 
 ---
 
-## Panduan Menjalankan Aplikasi Secara Lokal
+## 🚀 Panduan Instalasi dan Menjalankan Proyek Lokal
 
-**Persyaratan Sistem**
-- Node.js (v18+ sangat direkomendasikan)
-- npm atau pnpm
+**Persyaratan Sistem:**
+- [Node.js](https://nodejs.org/) (Versi 18 atau lebih baru direkomendasikan)
+- `npm`, `yarn`, atau `pnpm`
 
-### 1. Menjalankan Backend Server (Terminal 1)
-Buka terminal, masuk ke folder `backend/`, instal dependensi, lalu jalankan server:
+### 1. Persiapan Backend (Server API)
+
+Buka terminal dan navigasi ke direktori `backend`:
+
 ```bash
 cd backend
-npm install
-npx prisma generate
-npm run dev
 ```
-Server backend akan menyala di `http://localhost:3001`. Semua data sekarang akan disimpan ke dalam database SQLite secara permanen!
 
-### 2. Menjalankan Frontend React (Terminal 2)
-Buka tab terminal baru, tetap di folder utama (root), instal dependensi, lalu jalankan UI:
+Instal dependensi:
 ```bash
 npm install
+```
+
+Siapkan variabel lingkungan. Buat file `.env` di dalam folder `backend/` berdasarkan nilai default yang dibutuhkan (seperti `DATABASE_URL="file:./dev.db"`, `JWT_SECRET`, dll).
+
+Inisialisasi database dan Prisma ORM:
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+Isi database dengan data awal (Akun Admin dan Warga default):
+```bash
+npx prisma db seed
+# Periksa file prisma/seed.ts untuk melihat default Username dan Password.
+```
+
+Jalankan server backend:
+```bash
 npm run dev
 ```
-Aplikasi warga (UI) akan berjalan di `http://localhost:3000`.
+> **Backend API** sekarang berjalan di `http://localhost:3001`
 
-### Konfigurasi Admin
-Salin isi file `.env.example` ke dalam file `.env` baru (atau gunakan file `.env` default yang telah disiapkan secara otomatis):
-```env
-VITE_ADMIN_USERNAME="adminrt005"
-VITE_ADMIN_PASSWORD="rahasiart005aman"
+### 2. Persiapan Frontend (Aplikasi Web)
+
+Buka jendela terminal baru dan pastikan Anda berada di direktori **root (utama)** proyek.
+
+Instal dependensi UI:
+```bash
+npm install
 ```
+
+Konfigurasi variabel lingkungan untuk frontend. Salin `.env.example` menjadi `.env` jika belum ada:
+```bash
+cp .env.example .env
+```
+
+Jalankan server pengembangan UI:
+```bash
+npm run dev
+```
+> **Aplikasi Frontend** sekarang berjalan di `http://localhost:3000`
 
 ---
 
-## Fitur Utama
+## 🔐 Kredensial Default (Dari Seeding)
 
-- **Database SQLite Dinamis**: Data warga, kas, dan surat kini tersimpan ke database fisik di backend, bukan lagi di memori peramban sementara (*localStorage*).
-- **Pengumuman Resmi**: Feed dinamis dari pengurus RT dengan penandaan pin untuk informasi darurat atau penting.
-- **Laporan Kas & Iuran Transparan**:
-  - Saldo riil kas yang diperbarui otomatis dari tabel database.
-  - Matriks iuran bulanan warga per blok rumah dengan status pembayaran (Belum, Pending, Lunas).
-  - Simulasi pembayaran mandiri bagi warga dengan upload bukti transfer bank virtual.
-  - Antrean persetujuan bendahara RT untuk memverifikasi bukti setoran warga.
-- **Pengajuan Surat Pengantar Domisili**:
-  - Tanda tangan digital resmi pengurus RT dan pratinjau surat siap cetak (PDF).
-- **Arsitektur MVC yang Rapi**:
-  - Backend dipisahkan menjadi *Controllers* dan *Routes* untuk kemudahan *maintenance* oleh developer di masa depan.
+Jika Anda telah menjalankan `npx prisma db seed`, Anda dapat menggunakan akun berikut untuk masuk ke aplikasi (bisa diubah di `backend/prisma/seed.ts`):
+
+- **Admin (Pengurus RT)**
+  - Username: Mengikuti `.env` backend atau default `4DM1NR7R3`
+  - Password: Mengikuti `.env` backend atau default `c1B4T6C1K4R4Ng`
+
+- **Warga**
+  - Username: `warga`
+  - Password: `warga123`
+
+*(Sangat disarankan untuk mengubah password ini saat aplikasi digunakan di lingkungan produksi!)*
+
+---
+
+## 🛡️ Arsitektur Keamanan
+
+Sistem telah dilengkapi beberapa perlindungan:
+- **Rate Limiting**: Mencegah serangan brute-force dengan membatasi jumlah permintaan API.
+- **Helmet**: Menambahkan berbagai HTTP headers untuk keamanan peramban.
+- **XSS Protection**: Memfilter input pengguna untuk mencegah Cross-Site Scripting.
+- **Bcrypt Hashing**: Kata sandi tidak pernah disimpan dalam bentuk plain-text di database.
+- **JWT Authentication**: Akses token sementara untuk rute API yang dilindungi, dengan verifikasi peran (Role-based access).

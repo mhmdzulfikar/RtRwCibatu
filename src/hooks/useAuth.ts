@@ -54,7 +54,7 @@ export function useAuth(setActiveTab: (tab: string) => void) {
     }
   };
 
-  const handleResetWargaPassword = async (newPassword: string) => {
+  const handleResetWargaPassword = async (targetUsername: string, newPassword: string) => {
     if (!isAdmin || !currentUser?.sessionToken) return { success: false, error: 'Akses ditolak' };
     try {
       const response = await fetch('http://localhost:3001/api/auth/admin/reset-warga', {
@@ -63,7 +63,7 @@ export function useAuth(setActiveTab: (tab: string) => void) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${currentUser.sessionToken}`
         },
-        body: JSON.stringify({ newPassword })
+        body: JSON.stringify({ targetUsername, newPassword })
       });
       const result = await response.json();
       if (response.ok) return { success: true };
