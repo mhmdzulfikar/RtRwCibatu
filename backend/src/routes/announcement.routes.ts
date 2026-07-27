@@ -18,11 +18,26 @@ const storage = multer.diskStorage({
     cb(null, `ann-${Date.now()}${ext}`);
   }
 });
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB limit
+const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Format file tidak didukung. Hanya menerima JPG, PNG, atau WEBP.'));
+  }
+};
+
+const upload = multer({ 
+  storage, 
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter 
+}); 
+
+import { verifyToken } from '../middleware/auth.middleware';
 
 router.get('/', getAnnouncements);
-router.post('/', upload.single('image'), createAnnouncement);
-router.put('/:id', upload.single('image'), updateAnnouncement);
-router.delete('/:id', deleteAnnouncement);
+router.post('/', verifyToken, upload.single('image'), createAnnouncement);
+router.put('/:id', verifyToken, upload.single('image'), updateAnnouncement);
+router.delete('/:id', verifyToken, deleteAnnouncement);
 
 export default router;

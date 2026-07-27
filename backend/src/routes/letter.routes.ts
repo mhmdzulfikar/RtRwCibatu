@@ -5,8 +5,8 @@ import { verifyToken } from '../middleware/auth.middleware';
 const router = Router();
 
 router.get('/', getLetters);
-router.post('/', createLetter);
-router.put('/:id', updateLetter);
+router.post('/', verifyToken, createLetter);
+router.put('/:id', verifyToken, updateLetter);
 router.post('/:id/print', verifyToken, getLetterForPrint);
 
 export default router;

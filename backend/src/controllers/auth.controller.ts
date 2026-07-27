@@ -57,15 +57,15 @@ export const login = async (req: Request, res: Response): Promise<any> => {
 };
 
 export const updateProfile = async (req: Request, res: Response): Promise<any> => {
-  const { displayName, password, newPassword } = req.body;
-  const username = (req as any).user?.username;
+  const { displayName, password, newPassword, newUsername } = req.body;
+  const userId = (req as any).user?.id;
 
-  if (!username) {
+  if (!userId) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
   try {
-    const user = await prisma.user.findUnique({ where: { username } });
+    const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -74,6 +74,14 @@ export const updateProfile = async (req: Request, res: Response): Promise<any> =
 
     if (displayName) {
       updateData.displayName = displayName;
+    }
+
+    if (newUsername && newUsername !== user.username) {
+      const existing = await prisma.user.findUnique({ where: { username: newUsername } });
+      if (existing) {
+        return res.status(400).json({ error: 'Username sudah digunakan oleh akun lain' });
+      }
+      updateData.username = newUsername;
     }
 
     if (newPassword) {
@@ -92,12 +100,23 @@ export const updateProfile = async (req: Request, res: Response): Promise<any> =
     }
 
     const updatedUser = await prisma.user.update({
-      where: { username },
+      where: { id: userId },
       data: updateData,
     });
 
+    const jwtSecret = process.env.JWT_SECRET;
+    let newToken;
+    if (jwtSecret) {
+      newToken = jwt.sign(
+        { id: updatedUser.id, username: updatedUser.username, role: updatedUser.role },
+        jwtSecret,
+        { expiresIn: '12h' }
+      );
+    }
+
     return res.status(200).json({
       message: 'Profile updated successfully',
+      token: newToken,
       user: {
         id: updatedUser.id,
         username: updatedUser.username,
@@ -181,6 +200,52 @@ export const recoverAdminPassword = async (req: Request, res: Response): Promise
     return res.status(200).json({ message: 'Password Admin berhasil dipulihkan! Silakan login kembali.' });
   } catch (error) {
     console.error('Recover admin password error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const createWargaAccount = async (req: Request, res: Response): Promise<any> => {
+  const { displayName, username, password } = req.body;
+  const requesterRole = (req as any).user?.role;
+
+  if (requesterRole !== 'admin') {
+    return res.status(403).json({ error: 'Forbidden: Only admin can create warga accounts' });
+  }
+
+  if (!displayName || !username || !password) {
+    return res.status(400).json({ error: 'Nama, Username, dan Password wajib diisi' });
+  }
+
+  try {
+    const existing = await prisma.user.findUnique({
+      where: { username },
+    });
+
+    if (existing) {
+      return res.status(400).json({ error: 'Username sudah digunakan, silakan pilih yang lain' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await prisma.user.create({
+      data: {
+        displayName,
+        username,
+        password: hashedPassword,
+        role: 'warga',
+      },
+    });
+
+    return res.status(201).json({
+      message: `Akun warga ${username} berhasil dibuat!`,
+      user: {
+        id: newUser.id,
+        username: newUser.username,
+        displayName: newUser.displayName,
+      }
+    });
+  } catch (error) {
+    console.error('Create warga account error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };

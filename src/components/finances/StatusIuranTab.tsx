@@ -1,11 +1,12 @@
-import React from 'react';
-import { Search, Info } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, Info, Plus, X } from 'lucide-react';
 import { CitizenDues } from '../../types';
 import { useStatusIuran } from '../../hooks/useStatusIuran';
 
 interface StatusIuranTabProps {
   citizensDues: CitizenDues[];
   onPayDuesClick: (citizen: CitizenDues) => void;
+  onAddCitizen?: (name: string, houseNumber: string) => void;
   selectedRT: string;
   selectedRW: string;
   isWarga?: boolean;
@@ -15,11 +16,26 @@ interface StatusIuranTabProps {
 export default function StatusIuranTab({
   citizensDues,
   onPayDuesClick,
+  onAddCitizen,
   selectedRT,
   selectedRW,
   isWarga,
   isAdmin,
 }: StatusIuranTabProps) {
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newCitizenName, setNewCitizenName] = useState('');
+  const [newHouseNumber, setNewHouseNumber] = useState('');
+
+  const handleAddSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (onAddCitizen && newCitizenName && newHouseNumber) {
+      onAddCitizen(newCitizenName, newHouseNumber);
+      setShowAddModal(false);
+      setNewCitizenName('');
+      setNewHouseNumber('');
+    }
+  };
+
   const {
     duesSearch,
     setDuesSearch,
@@ -35,7 +51,7 @@ export default function StatusIuranTab({
         <div className="space-y-1 font-sans">
           <h4 className="font-extrabold text-slate-800 text-sm">Ketentuan Iuran RT 005</h4>
           <p className="text-xs text-slate-600 leading-relaxed">
-            Setiap warga Kepala Keluarga di lingkungan RT 005 RW 02 diwajibkan menyetor iuran lingkungan sebesar <strong>Rp 100.000 / Bulan</strong> untuk pembiayaan kebersihan (truk sampah), jasa keamanan malam, santunan sosial kematian warga, dan pembinaan olahraga. Pengelola RT mendokumentasikan setiap setoran secara tertulis dan digital demi nilai integritas bersama.
+            Setiap warga Kepala Keluarga di lingkungan RT 005 RW 02 diwajibkan menyetor iuran lingkungan sebesar <strong>Rp 35.000 / Bulan</strong> untuk pembiayaan kebersihan (truk sampah), jasa keamanan malam, santunan sosial kematian warga, dan pembinaan olahraga. Pengelola RT mendokumentasikan setiap setoran secara tertulis dan digital demi nilai integritas bersama.
           </p>
         </div>
       </div>
@@ -47,18 +63,71 @@ export default function StatusIuranTab({
             <p className="text-xs text-slate-500 mt-0.5 font-sans">Cari berdasarkan nama Kepala Keluarga atau nomor blok rumah Anda.</p>
           </div>
 
-          {/* Dues search field */}
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-            <input
-              type="text"
-              value={duesSearch}
-              onChange={(e) => setDuesSearch(e.target.value)}
-              placeholder="Cari Nama / No Blok..."
-              className="w-full pl-9 pr-3 py-1.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none font-sans"
-            />
+          {/* Dues search field & Add Button */}
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+              <input
+                type="text"
+                value={duesSearch}
+                onChange={(e) => setDuesSearch(e.target.value)}
+                placeholder="Cari Nama / No Blok..."
+                className="w-full pl-9 pr-3 py-1.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none font-sans"
+              />
+            </div>
+            {isAdmin && (
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="px-4 py-1.5 bg-blue-600 text-white rounded-xl font-bold text-xs hover:bg-blue-700 whitespace-nowrap shadow-md cursor-pointer flex items-center gap-1.5"
+              >
+                <Plus className="h-3.5 w-3.5" /> Tambah Warga
+              </button>
+            )}
           </div>
         </div>
+
+        {/* Modal Tambah Warga */}
+        {showAddModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4">
+            <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden border border-slate-100">
+              <div className="p-5 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                <h3 className="font-extrabold text-slate-800 text-sm">Tambah Warga Baru</h3>
+                <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-rose-500 cursor-pointer transition-colors">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <form onSubmit={handleAddSubmit} className="p-5 space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Nama Kepala Keluarga</label>
+                  <input
+                    type="text"
+                    required
+                    value={newCitizenName}
+                    onChange={(e) => setNewCitizenName(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                    placeholder="Contoh: Budi Santoso"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Nomor Blok / Rumah</label>
+                  <input
+                    type="text"
+                    required
+                    value={newHouseNumber}
+                    onChange={(e) => setNewHouseNumber(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                    placeholder="Contoh: Blok C/05"
+                  />
+                </div>
+                <div className="pt-2">
+                  <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-2 text-xs font-bold transition-colors cursor-pointer shadow-md">
+                    Simpan Data
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* Matrix of status */}
         <div className="overflow-x-auto">

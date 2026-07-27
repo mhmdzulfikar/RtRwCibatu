@@ -20,9 +20,9 @@ const PORT = 3001;
 
 // Middlewares
 app.use(cors());
-app.use(helmet({ 
+app.use(helmet({
   crossOriginResourcePolicy: false,
-  crossOriginEmbedderPolicy: false 
+  crossOriginEmbedderPolicy: false
 })); // Melindungi aplikasi tapi mengizinkan frontend membaca gambar
 app.use(express.json());
 app.use(sanitizeInput); // Membersihkan input (body, query, params) dari ancaman XSS
@@ -33,11 +33,11 @@ app.use(sanitizeInput); // Membersihkan input (body, query, params) dari ancaman
 import { rateLimit } from 'express-rate-limit';
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 menit
+  windowMs: 1000, // 15 menit
   max: 10, // Maksimal 10 request per IP (mencegah brute force)
   message: { error: 'Terlalu banyak percobaan login. Sistem terkunci, silakan coba lagi setelah 15 menit.' },
-  standardHeaders: true, 
-  legacyHeaders: false, 
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 app.use('/api/auth', authLimiter, authRoutes);
@@ -94,7 +94,7 @@ app.use('/uploads', express.static(UPLOADS_DIR));
 
 app.listen(PORT, () => {
   console.log(` Backend server berjalan di http://localhost:${PORT}`);
-  
+
   // Clean up files older than 7 days HANYA di folder BUKTI
   setInterval(() => {
     fs.readdir(UPLOADS_BUKTI_DIR, (err, files) => {
@@ -106,7 +106,7 @@ app.listen(PORT, () => {
         fs.stat(filePath, (err, stats) => {
           if (err) return;
           if (now - stats.mtimeMs > SEVEN_DAYS) {
-            fs.unlink(filePath, () => {});
+            fs.unlink(filePath, () => { });
           }
         });
       });

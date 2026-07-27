@@ -10,7 +10,9 @@ import {
   Home,
   AlertCircle,
   CheckCircle2,
-  RefreshCcw
+  RefreshCcw,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { AuthenticatedUser } from '../types';
 import { setStoredSession } from '../security';
@@ -42,6 +44,8 @@ export default function LoginModal({
   const { username, password, loginError, recoveryKey, newPassword, recoveryMessage } = form;
 
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRecoveryPassword, setShowRecoveryPassword] = useState(false);
 
   const handleLogin = async (event: FormEvent) => {
     event.preventDefault();
@@ -205,14 +209,21 @@ export default function LoginModal({
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
-                    type="password"
+                    type={showRecoveryPassword ? 'text' : 'password'}
                     value={newPassword}
                     onChange={(e) => updateForm({ newPassword: e.target.value })}
-                    className="w-full pl-10 pr-4 py-3 bg-white/50 border border-white/70 focus:bg-white/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500 transition-all"
+                    className="w-full pl-10 pr-11 py-3 bg-white/50 border border-white/70 focus:bg-white/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500 transition-all"
                     placeholder="Minimal 6 karakter"
                     disabled={isLoading}
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowRecoveryPassword(!showRecoveryPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
+                  >
+                    {showRecoveryPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                 </div>
               </div>
               <div className="flex gap-2 pt-2">
@@ -257,14 +268,22 @@ export default function LoginModal({
               <div className="relative">
                 <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => updateForm({ password: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 bg-white/50 border border-white/70 focus:bg-white/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all disabled:opacity-50"
+                  className="w-full pl-10 pr-11 py-3 bg-white/50 border border-white/70 focus:bg-white/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all disabled:opacity-50"
                   autoComplete="current-password"
                   disabled={isLoading}
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none disabled:opacity-50 cursor-pointer"
+                  disabled={isLoading}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
             </div>
 
