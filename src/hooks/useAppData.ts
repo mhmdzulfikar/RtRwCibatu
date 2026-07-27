@@ -209,6 +209,9 @@ export function useAppData(requireAdminAccess: () => boolean) {
 
       const res = await fetch(`${API_BASE}/payment-requests`, {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        },
         body: formData
       });
       
@@ -278,6 +281,7 @@ export function useAppData(requireAdminAccess: () => boolean) {
   const handleSubmitLetterRequest = async (newLetter: Omit<LetterRequest, 'id' | 'status' | 'dateRequested'>) => {
     const fresh = {
       ...newLetter,
+      address: (newLetter as any).address || 'Data alamat otomatis dari sistem',
       id: `req-${Date.now().toString().substring(10)}`,
       status: 'submitted',
       dateRequested: new Date().toISOString().substring(0, 10)
@@ -285,7 +289,10 @@ export function useAppData(requireAdminAccess: () => boolean) {
     try {
       await fetch(`${API_BASE}/letters`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getAuthToken()}`
+        },
         body: JSON.stringify(fresh)
       });
       fetchAllData();

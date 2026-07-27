@@ -42,6 +42,12 @@ export default function LetterRequestsView({
   } = useLetterRequestsView({ isAdmin, isWarga, onUpdateStatus, onFetchLetterForPrint });
   
   const { showApplyForm, selectedLetter, rejectingId, rejectionReasonText } = viewState;
+  const [activeTab, setActiveTab] = React.useState<'aktif' | 'riwayat'>('aktif');
+
+  const filteredRequests = requests.filter(req => {
+    if (activeTab === 'aktif') return req.status === 'submitted' || req.status === 'processing';
+    return req.status === 'ready' || req.status === 'rejected';
+  });
 
   return (
     <div className="space-y-8">
@@ -111,21 +117,46 @@ export default function LetterRequestsView({
 
       {/* LIST OF CURRENT APPLICATIONS / TRACKER */}
       <section className="space-y-4">
-        <h2 className="text-lg font-extrabold text-slate-800 flex items-center gap-2 font-sans">
-          <Activity className="h-4 w-4 text-blue-600" /> Pantau Antrean & Hasil Dokumen
-        </h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <h2 className="text-lg font-extrabold text-slate-800 flex items-center gap-2 font-sans">
+            <Activity className="h-4 w-4 text-blue-600" /> Pantau Dokumen
+          </h2>
+          
+          <div className="flex gap-2 bg-white/40 p-1 rounded-xl border border-white/60">
+            <button
+              onClick={() => setActiveTab('aktif')}
+              className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                activeTab === 'aktif' 
+                  ? 'bg-blue-600 text-white shadow-md' 
+                  : 'text-slate-600 hover:bg-white/60'
+              }`}
+            >
+              Surat Aktif
+            </button>
+            <button
+              onClick={() => setActiveTab('riwayat')}
+              className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                activeTab === 'riwayat' 
+                  ? 'bg-blue-600 text-white shadow-md' 
+                  : 'text-slate-600 hover:bg-white/60'
+              }`}
+            >
+              Riwayat (Selesai/Ditolak)
+            </button>
+          </div>
+        </div>
 
-        {requests.length === 0 ? (
+        {filteredRequests.length === 0 ? (
           <div className="p-12 text-center glass-panel rounded-[2rem] space-y-3 font-sans">
             <FileSearch className="h-10 w-10 text-slate-300 mx-auto" />
-            <h4 className="font-extrabold text-slate-800 text-sm">Belum ada pengajuan terdaftar</h4>
+            <h4 className="font-extrabold text-slate-800 text-sm">Belum ada {activeTab === 'aktif' ? 'surat yang aktif' : 'riwayat surat'}</h4>
             <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-              {(isAdmin || isWarga) ? 'Silakan buat pengajuan pertama Anda dengan mengklik "Buat Pengajuan Baru" di sisi atas.' : 'Hanya warga RT 005 yang sudah login yang dapat mengajukan surat pengantar domisili.'}
+              {(isAdmin || isWarga) ? (activeTab === 'aktif' ? 'Silakan buat pengajuan pertama Anda dengan mengklik "Buat Pengajuan Baru" di sisi atas.' : 'Belum ada surat yang selesai atau ditolak.') : 'Hanya warga RT 005 yang sudah login yang dapat mengakses ini.'}
             </p>
           </div>
         ) : (
           <div className="space-y-4">
-            {requests.map((req) => (
+            {filteredRequests.map((req) => (
               <div
                 key={req.id}
                 className="glass-panel p-5 rounded-[1.5rem] flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-blue-200/60 transition-colors"
