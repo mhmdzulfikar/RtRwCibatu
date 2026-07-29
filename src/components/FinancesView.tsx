@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { AnimatePresence } from 'motion/react';
 import { CheckCircle2 } from 'lucide-react';
 import { FinancialTransaction, CitizenDues, DuesPaymentRequest } from '../types';
+import { useFinancesView } from '../hooks/useFinancesView';
 
 import LaporanKasTab from './finances/LaporanKasTab';
 import StatusIuranTab from './finances/StatusIuranTab';
@@ -13,6 +14,8 @@ interface FinancesViewProps {
   citizensDues: CitizenDues[];
   paymentRequests: DuesPaymentRequest[];
   isAdmin: boolean;
+  isWarga?: boolean;
+  onAddCitizenDues: (name: string, houseNumber: string) => void;
   onAddTransaction: (tx: Omit<FinancialTransaction, 'id' | 'recordedBy'>) => void;
   onApprovePaymentRequest: (id: string) => void;
   onRejectPaymentRequest: (id: string) => void;
@@ -24,45 +27,23 @@ export default function FinancesView({
   citizensDues,
   paymentRequests,
   isAdmin,
+  isWarga,
+  onAddCitizenDues,
   onAddTransaction,
   onApprovePaymentRequest,
   onRejectPaymentRequest,
   onSubmitPaymentRequest,
 }: FinancesViewProps) {
-  // Navigation inside Finances Tab
-  const [activeSubTab, setActiveSubTab] = useState<'laporan' | 'status-iuran' | 'persetujuan'>('laporan');
-
-  // RW & RT defaults for scoping
-  const [selectedRW] = useState('02');
-  const [selectedRT] = useState('005');
-
-  // Bayar Iuran Modal & Success Tip States
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [selectedCitizen, setSelectedCitizen] = useState<CitizenDues | null>(null);
-  const [isSuccessTip, setIsSuccessTip] = useState(false);
-
-  useEffect(() => {
-    if (!isAdmin && activeSubTab === 'persetujuan') {
-      setActiveSubTab('laporan');
-    }
-  }, [activeSubTab, isAdmin]);
-
-  const handlePayDuesClick = (citizen: CitizenDues) => {
-    setSelectedCitizen(citizen);
-    setShowPaymentModal(true);
-  };
-
-  const handlePaymentSubmit = (request: Omit<DuesPaymentRequest, 'id' | 'status' | 'dateSubmitted'>) => {
-    onSubmitPaymentRequest(request);
-    setShowPaymentModal(false);
-    setSelectedCitizen(null);
-    setIsSuccessTip(true);
-    setTimeout(() => {
-      setIsSuccessTip(false);
-    }, 5000);
-  };
-
-  const pendingRequests = paymentRequests.filter((p) => p.status === 'pending');
+  const {
+    activeSubTab,
+    setActiveSubTab,
+    scope,
+    paymentModal,
+    updatePaymentModal,
+    handlePayDuesClick,
+    handlePaymentSubmit,
+    pendingRequests,
+  } = useFinancesView({ isAdmin, paymentRequests, onSubmitPaymentRequest });
 
   return (
     <div className="space-y-8">
@@ -73,7 +54,7 @@ export default function FinancesView({
             Laporan Keuangan & Iuran
           </h1>
           <p className="text-slate-500 mt-1">
-            Transparansi pembukuan kas RT 005 dan pengelolaan kewajiban iuran bulanan warga.
+            Transparansi pembukuan kas RT 002 dan pengelolaan kewajiban iuran bulanan warga.
           </p>
         </div>
 
@@ -121,7 +102,7 @@ export default function FinancesView({
 
       {/* SUCCESS POPUP FOR PAYMENT SUBMIT */}
       <AnimatePresence>
-        {isSuccessTip && (
+        {paymentModal.showSuccessTip && (
           <div className="bg-emerald-500/90 border border-emerald-400/50 backdrop-blur-md text-white p-4.5 rounded-[1.5rem] flex items-center justify-between shadow-lg">
             <div className="flex items-center gap-3">
               <CheckCircle2 className="h-6 w-6 shrink-0 text-white" />
@@ -133,7 +114,7 @@ export default function FinancesView({
               </div>
             </div>
             <button
-              onClick={() => setIsSuccessTip(false)}
+              onClick={() => updatePaymentModal({ showSuccessTip: false })}
               className="text-emerald-100 hover:text-white font-bold text-xs px-3.5 py-1.5 bg-emerald-600/60 rounded-xl transition-colors shrink-0 cursor-pointer"
             >
               OK
@@ -147,8 +128,8 @@ export default function FinancesView({
         <LaporanKasTab
           transactions={transactions}
           isAdmin={isAdmin}
-          selectedRT={selectedRT}
-          selectedRW={selectedRW}
+          selectedRT={scope.rt}
+          selectedRW={scope.rw}
           onAddTransaction={onAddTransaction}
         />
       )}
@@ -158,8 +139,11 @@ export default function FinancesView({
         <StatusIuranTab
           citizensDues={citizensDues}
           onPayDuesClick={handlePayDuesClick}
-          selectedRT={selectedRT}
-          selectedRW={selectedRW}
+          onAddCitizen={onAddCitizenDues}
+          selectedRT={scope.rt}
+          selectedRW={scope.rw}
+          isWarga={isWarga}
+          isAdmin={isAdmin}
         />
       )}
 
@@ -173,13 +157,10 @@ export default function FinancesView({
       )}
 
       {/* MODAL PAY DUES (CITIZEN INTERACTION SIMULATOR) */}
-      {showPaymentModal && selectedCitizen && (
+      {paymentModal.isOpen && paymentModal.selectedCitizen && (
         <PayDuesModal
-          selectedCitizen={selectedCitizen}
-          onClose={() => {
-            setShowPaymentModal(false);
-            setSelectedCitizen(null);
-          }}
+          selectedCitizen={paymentModal.selectedCitizen}
+          onClose={() => updatePaymentModal({ isOpen: false, selectedCitizen: null })}
           onSubmitPaymentRequest={handlePaymentSubmit}
         />
       )}

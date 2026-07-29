@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Home,
@@ -15,350 +15,70 @@ import {
   Calendar
 } from 'lucide-react';
 
-import { AuthenticatedUser, Announcement, FinancialTransaction, CitizenDues, LetterRequest, DuesPaymentRequest } from './types';
-
-import {
-  INITIAL_ANNOUNCEMENTS,
-  INITIAL_TRANSACTIONS,
-  INITIAL_CITIZENS_DUES,
-  INITIAL_LETTER_REQUESTS,
-  INITIAL_PAYMENT_REQUESTS,
-  hydrateAnnouncementPhotos
-} from './data';
-import { ADMIN_SESSION_MAX_AGE_MS, AUTH_STORAGE_KEY, readStoredSession } from './security';
-
 import Dashboard from './components/Dashboard';
 import AnnouncementsView from './components/AnnouncementsView';
 import FinancesView from './components/FinancesView';
 import LetterRequestsView from './components/LetterRequestsView';
-import AdminLoginModal from './components/AdminLoginModal';
+import LoginModal from './components/LoginModal';
+import ProfileSettingsModal from './components/ProfileSettingsModal';
 
+import { useAuth } from './hooks/useAuth';
+import { useAppData } from './hooks/useAppData';
 
 export default function App() {
   // Navigation State
-  const [activeTab, setActiveTab] = useState<string>('beranda');
-  const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(() => readStoredSession());
-  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
-  const [showAdminLogin, setShowAdminLogin] = useState<boolean>(false);
-  const isAdmin = currentUser?.role === 'admin';
+  const [appState, setAppState] = useState({
+    activeTab: 'beranda',
+    mobileMenuOpen: false,
+    showProfileSettings: false,
+  });
 
-  // Central Database States (Backed up by localStorage for persistent testing)
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [transactions, setTransactions] = useState<FinancialTransaction[]>([]);
-  const [citizensDues, setCitizensDues] = useState<CitizenDues[]>([]);
-  const [letterRequests, setLetterRequests] = useState<LetterRequest[]>([]);
-  const [paymentRequests, setPaymentRequests] = useState<DuesPaymentRequest[]>([]);
+  
+  const updateAppState = (updates: Partial<typeof appState>) => setAppState((p) => ({ ...p, ...updates }));
+  const { activeTab, mobileMenuOpen, showProfileSettings } = appState;
 
-  // Hydrate central states from localStorage on startup
-  useEffect(() => {
-    try {
-      const storedAnn = localStorage.getItem('rt005_announcements');
-      if (storedAnn) {
-        const parsedAnnouncements = JSON.parse(storedAnn) as Announcement[];
-        const announcementsWithPhotos = hydrateAnnouncementPhotos(parsedAnnouncements);
-        setAnnouncements(announcementsWithPhotos);
-        if (JSON.stringify(parsedAnnouncements) !== JSON.stringify(announcementsWithPhotos)) {
-          localStorage.setItem('rt005_announcements', JSON.stringify(announcementsWithPhotos));
-        }
-      }
-      else {
-        const announcementsWithPhotos = hydrateAnnouncementPhotos(INITIAL_ANNOUNCEMENTS);
-        setAnnouncements(announcementsWithPhotos);
-        localStorage.setItem('rt005_announcements', JSON.stringify(announcementsWithPhotos));
-      }
+  const setActiveTab = (tab: string) => updateAppState({ activeTab: tab });
+  const setMobileMenuOpen = (open: boolean) => updateAppState({ mobileMenuOpen: open });
+  const setShowProfileSettings = (open: boolean) => updateAppState({ showProfileSettings: open });
 
-      const storedTx = localStorage.getItem('rt005_transactions');
-      if (storedTx) setTransactions(JSON.parse(storedTx));
-      else {
-        setTransactions(INITIAL_TRANSACTIONS);
-        localStorage.setItem('rt005_transactions', JSON.stringify(INITIAL_TRANSACTIONS));
-      }
 
-      const storedDues = localStorage.getItem('rt005_citizens_dues');
-      if (storedDues) setCitizensDues(JSON.parse(storedDues));
-      else {
-        setCitizensDues(INITIAL_CITIZENS_DUES);
-        localStorage.setItem('rt005_citizens_dues', JSON.stringify(INITIAL_CITIZENS_DUES));
-      }
+  // Custom Hooks for Logic
+  const {
+    authState,
+    updateAuthState,
+    isAdmin,
+    isWarga,
+    handleLogin,
+    handleLogout,
+    handleUpdateProfile,
+    handleResetWargaPassword,
+    handleCreateWargaAccount,
+    handleRecoverAdminPassword,
+    requireAdminAccess,
+    requireWargaAccess,
+  } = useAuth(setActiveTab);
+  const { currentUser, showLoginModal } = authState;
+  const setShowLoginModal = (v: boolean) => updateAuthState({ showLoginModal: v });
 
-      const storedLetters = localStorage.getItem('rt005_letter_requests');
-      if (storedLetters) setLetterRequests(JSON.parse(storedLetters));
-      else {
-        setLetterRequests(INITIAL_LETTER_REQUESTS);
-        localStorage.setItem('rt005_letter_requests', JSON.stringify(INITIAL_LETTER_REQUESTS));
-      }
-
-      const storedPayments = localStorage.getItem('rt005_payment_requests');
-      if (storedPayments) setPaymentRequests(JSON.parse(storedPayments));
-      else {
-        setPaymentRequests(INITIAL_PAYMENT_REQUESTS);
-        localStorage.setItem('rt005_payment_requests', JSON.stringify(INITIAL_PAYMENT_REQUESTS));
-      }
-    } catch (e) {
-      console.error('Failed to load local storage database. Falling back to memory.', e);
-      setAnnouncements(INITIAL_ANNOUNCEMENTS);
-      setTransactions(INITIAL_TRANSACTIONS);
-      setCitizensDues(INITIAL_CITIZENS_DUES);
-      setLetterRequests(INITIAL_LETTER_REQUESTS);
-      setPaymentRequests(INITIAL_PAYMENT_REQUESTS);
-    }
-  }, []);
-
-  // Helper helper to write states easily
-  const saveStateToStorage = (key: string, data: any) => {
-    try {
-      localStorage.setItem(key, JSON.stringify(data));
-    } catch (error) {
-      console.error('Failed to write key to local storage', error);
-    }
-  };
-
-  const handleAdminLogin = (user: AuthenticatedUser) => {
-    setCurrentUser(user);
-    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
-    setShowAdminLogin(false);
-    setActiveTab('beranda');
-  };
-
-  const handleLogout = () => {
-    sessionStorage.removeItem(AUTH_STORAGE_KEY);
-    localStorage.removeItem(AUTH_STORAGE_KEY);
-    setCurrentUser(null);
-    setShowAdminLogin(false);
-    setActiveTab('beranda');
-    setMobileMenuOpen(false);
-  };
-
-  useEffect(() => {
-    if (!currentUser) return;
-
-    const checkExpiry = () => {
-      const loginTime = new Date(currentUser.loginTime).getTime();
-      if (!loginTime || Date.now() - loginTime > ADMIN_SESSION_MAX_AGE_MS) {
-        handleLogout();
-      }
-    };
-
-    const intervalId = window.setInterval(checkExpiry, 60 * 1000);
-    checkExpiry();
-
-    return () => window.clearInterval(intervalId);
-  }, [currentUser]);
-
-  const requireAdminAccess = () => {
-    if (isAdmin) return true;
-    alert('Akses admin ditolak. Silakan login sebagai pengurus RT.');
-    return false;
-  };
-
-  // ----------------------------------------------------
-  // ANNOUNCEMENTS ACTION DISPATCHERS
-  // ----------------------------------------------------
-  const handleAddAnnouncement = (newAnn: Omit<Announcement, 'id' | 'date'>) => {
-    if (!requireAdminAccess()) return;
-
-    const fresh: Announcement = {
-      ...newAnn,
-      id: `ann-${Date.now()}`,
-      date: new Date().toISOString().substring(0, 10)
-    };
-    const updated = [fresh, ...announcements];
-    setAnnouncements(updated);
-    saveStateToStorage('rt005_announcements', updated);
-  };
-
-  const handleDeleteAnnouncement = (id: string) => {
-    if (!requireAdminAccess()) return;
-
-    const updated = announcements.filter(a => a.id !== id);
-    setAnnouncements(updated);
-    saveStateToStorage('rt005_announcements', updated);
-  };
-
-  // ----------------------------------------------------
-  // TRANSACTIONS ACTION DISPATCHERS
-  // ----------------------------------------------------
-  const handleAddTransaction = (newTx: Omit<FinancialTransaction, 'id' | 'recordedBy'>) => {
-    if (!requireAdminAccess()) return;
-
-    const fresh: FinancialTransaction = {
-      ...newTx,
-      id: `tx-${Date.now()}`,
-      recordedBy: 'Admin RT / Bendahara'
-    };
-    const updated = [fresh, ...transactions];
-    setTransactions(updated);
-    saveStateToStorage('rt005_transactions', updated);
-  };
-
-  // ----------------------------------------------------
-  // DUES / PAYMENT SUBMISSION AND VERIFICATION DISPATCHERS
-  // ----------------------------------------------------
-  const handleSubmitPaymentRequest = (newPayReq: Omit<DuesPaymentRequest, 'id' | 'status' | 'dateSubmitted'>) => {
-    const fresh: DuesPaymentRequest = {
-      ...newPayReq,
-      id: `pay-${Date.now()}`,
-      status: 'pending',
-      dateSubmitted: new Date().toISOString().substring(0, 10)
-    };
-    const updated = [fresh, ...paymentRequests];
-    setPaymentRequests(updated);
-    saveStateToStorage('rt005_payment_requests', updated);
-
-    // Also change that citizen's month history status from 'Belum' to 'Pending' so they see it in transition!
-    const updatedDuesList = citizensDues.map(c => {
-      // Match by name or house number and respect optional RT/RW when provided
-      const nameMatch = c.citizenName.toLowerCase().trim() === newPayReq.citizenName.toLowerCase().trim();
-      const houseMatch = c.houseNumber.toLowerCase().trim() === newPayReq.houseNumber.toLowerCase().trim();
-      const rtMatch = newPayReq.rt ? c.rt === newPayReq.rt : true;
-      const rwMatch = newPayReq.rw ? c.rw === newPayReq.rw : true;
-      if ((nameMatch || houseMatch) && rtMatch && rwMatch) {
-        const yearObj = c.paymentHistory[newPayReq.year] || {};
-        return {
-          ...c,
-          paymentHistory: {
-            ...c.paymentHistory,
-            [newPayReq.year]: {
-              ...yearObj,
-              [newPayReq.month]: 'Pending' as const
-            }
-          }
-        };
-      }
-      return c;
-    });
-    setCitizensDues(updatedDuesList);
-    saveStateToStorage('rt005_citizens_dues', updatedDuesList);
-  };
-
-  const handleApprovePaymentRequest = (id: string) => {
-    if (!requireAdminAccess()) return;
-
-    const targetReq = paymentRequests.find(p => p.id === id);
-    if (!targetReq) return;
-
-    // 1. Mark status as approved
-    const updatedRequests = paymentRequests.map(r => r.id === id ? { ...r, status: 'approved' as const } : r);
-    setPaymentRequests(updatedRequests);
-    saveStateToStorage('rt005_payment_requests', updatedRequests);
-
-    // 2. Turn month status inside citizensDues from 'Pending' to 'Lunas'
-    const updatedDuesList = citizensDues.map(c => {
-      const nameMatch = c.citizenName.toLowerCase().trim() === targetReq.citizenName.toLowerCase().trim();
-      const houseMatch = c.houseNumber.toLowerCase().trim() === targetReq.houseNumber.toLowerCase().trim();
-      const rtMatch = targetReq.rt ? c.rt === targetReq.rt : true;
-      const rwMatch = targetReq.rw ? c.rw === targetReq.rw : true;
-      if ((nameMatch || houseMatch) && rtMatch && rwMatch) {
-        const yearObj = c.paymentHistory[targetReq.year] || {};
-        return {
-          ...c,
-          paymentHistory: {
-            ...c.paymentHistory,
-            [targetReq.year]: {
-              ...yearObj,
-              [targetReq.month]: 'Lunas' as const
-            }
-          }
-        };
-      }
-      return c;
-    });
-    setCitizensDues(updatedDuesList);
-    saveStateToStorage('rt005_citizens_dues', updatedDuesList);
-
-    // 3. Automatically append an income financial transaction into transactions logbook!
-    handleAddTransaction({
-      description: `Iuran Bulanan ${targetReq.month} 2026 - ${targetReq.citizenName} (${targetReq.houseNumber})`,
-      amount: targetReq.amount,
-      type: 'masuk',
-      date: new Date().toISOString().substring(0, 10),
-      category: 'Iuran Bulanan'
-    });
-  };
-
-  const handleRejectPaymentRequest = (id: string) => {
-    if (!requireAdminAccess()) return;
-
-    const targetReq = paymentRequests.find(p => p.id === id);
-    if (!targetReq) return;
-
-    // 1. Mark status as rejected
-    const updatedRequests = paymentRequests.map(r => r.id === id ? { ...r, status: 'rejected' as const } : r);
-    setPaymentRequests(updatedRequests);
-    saveStateToStorage('rt005_payment_requests', updatedRequests);
-
-    // 2. Set month status inside citizensDues back to 'Belum' from 'Pending'
-    const updatedDuesList = citizensDues.map(c => {
-      const nameMatch = c.citizenName.toLowerCase().trim() === targetReq.citizenName.toLowerCase().trim();
-      const houseMatch = c.houseNumber.toLowerCase().trim() === targetReq.houseNumber.toLowerCase().trim();
-      const rtMatch = targetReq.rt ? c.rt === targetReq.rt : true;
-      const rwMatch = targetReq.rw ? c.rw === targetReq.rw : true;
-      if ((nameMatch || houseMatch) && rtMatch && rwMatch) {
-        const yearObj = c.paymentHistory[targetReq.year] || {};
-        return {
-          ...c,
-          paymentHistory: {
-            ...c.paymentHistory,
-            [targetReq.year]: {
-              ...yearObj,
-              [targetReq.month]: 'Belum' as const
-            }
-          }
-        };
-      }
-      return c;
-    });
-    setCitizensDues(updatedDuesList);
-    saveStateToStorage('rt005_citizens_dues', updatedDuesList);
-  };
-
-  // ----------------------------------------------------
-  // LETTERS (SURAT DOMISILI) DISPATCHERS
-  // ----------------------------------------------------
-  const handleSubmitLetterRequest = (newLetter: Omit<LetterRequest, 'id' | 'status' | 'dateRequested'>) => {
-    const fresh: LetterRequest = {
-      ...newLetter,
-      id: `req-${Date.now().toString().substring(10)}`, // short layout
-      status: 'submitted',
-      dateRequested: new Date().toISOString().substring(0, 10)
-    };
-    const updated = [fresh, ...letterRequests];
-    setLetterRequests(updated);
-    saveStateToStorage('rt005_letter_requests', updated);
-  };
-
-  const handleUpdateLetterStatus = (
-    id: string,
-    status: LetterRequest['status'],
-    updateData?: { referenceNo?: string; rejectedReason?: string }
-  ) => {
-    if (!requireAdminAccess()) return;
-
-    const updated = letterRequests.map(r => {
-      if (r.id === id) {
-        return {
-          ...r,
-          status,
-          ...(updateData?.referenceNo ? { referenceNo: updateData.referenceNo } : {}),
-          ...(updateData?.rejectedReason ? { rejectedReason: updateData.rejectedReason } : {})
-        };
-      }
-      return r;
-    });
-    setLetterRequests(updated);
-    saveStateToStorage('rt005_letter_requests', updated);
-  };
-
-  // ----------------------------------------------------
-  // MATHEMATICS CALCULATIONS FOR TREASURY
-  // ----------------------------------------------------
-  const calculateTotalBalance = () => {
-    const sumIn = transactions.filter(t => t.type === 'masuk').reduce((s, t) => s + t.amount, 0);
-    const sumOut = transactions.filter(t => t.type === 'keluar').reduce((s, t) => s + t.amount, 0);
-    return sumIn - sumOut;
-  };
-
-  const totalBalance = calculateTotalBalance();
+  const {
+    announcements,
+    transactions,
+    citizensDues,
+    letterRequests,
+    paymentRequests,
+    totalBalance,
+    handleAddAnnouncement,
+    handleEditAnnouncement,
+    handleDeleteAnnouncement,
+    handleAddTransaction,
+    handleAddCitizenDues,
+    handleSubmitPaymentRequest,
+    handleApprovePaymentRequest,
+    handleRejectPaymentRequest,
+    handleSubmitLetterRequest,
+    handleUpdateLetterStatus,
+    handleFetchLetterForPrint,
+  } = useAppData(requireAdminAccess);
 
   const currentDateLabel = (() => {
     const date = new Date();
@@ -376,7 +96,7 @@ export default function App() {
           <div className="flex items-center gap-2">
             <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${isAdmin ? 'bg-amber-400' : 'bg-emerald-400'}`} />
             <span className="text-[11px] sm:text-xs font-mono font-bold text-slate-300">
-              PORTAL RT 005 AKTIF • JATIBENING BARU, BEKASI
+              PORTAL RT 002 AKTIF • Perumahan Taman Cibiru, CIBATU
             </span>
           </div>
 
@@ -384,25 +104,37 @@ export default function App() {
             <span
               className={`px-3 py-1 rounded-full text-xs font-black tracking-tight inline-flex items-center gap-1.5 ${isAdmin
                   ? 'bg-amber-400 text-slate-950'
-                  : 'bg-slate-800 text-slate-200 border border-slate-700'
+                  : isWarga 
+                    ? 'bg-blue-200 text-blue-900 border border-blue-300'
+                    : 'bg-slate-800 text-slate-200 border border-slate-700'
                 }`}
             >
               {isAdmin ? <Shield className="h-3 w-3" /> : <UserRound className="h-3 w-3" />}
-              {isAdmin ? currentUser?.displayName || 'Pengurus RT 005' : 'Mode Warga'}
+              {isAdmin ? currentUser?.displayName || 'Pengurus RT 002' : (isWarga ? currentUser?.displayName || 'Warga RT 002' : 'Mode Pengunjung')}
             </span>
-            {isAdmin ? (
-              <button
-                onClick={handleLogout}
-                className="px-3 py-1 rounded-full text-xs font-black tracking-tight inline-flex items-center gap-1.5 bg-slate-800 text-slate-300 border border-slate-700 hover:text-white hover:bg-slate-700 transition-all cursor-pointer"
-              >
-                <LogOut className="h-3 w-3" /> Keluar Admin
-              </button>
+            {isAdmin || isWarga ? (
+              <div className="flex items-center gap-2">
+                {(isAdmin || isWarga) && (
+                  <button
+                    onClick={() => setShowProfileSettings(true)}
+                    className="px-3 py-1 rounded-full text-xs font-black tracking-tight inline-flex items-center gap-1.5 bg-slate-800 text-slate-300 border border-slate-700 hover:text-white hover:bg-slate-700 transition-all cursor-pointer"
+                  >
+                    Pengaturan Profil
+                  </button>
+                )}
+                <button
+                  onClick={handleLogout}
+                  className="px-3 py-1 rounded-full text-xs font-black tracking-tight inline-flex items-center gap-1.5 bg-red-900/40 text-red-300 border border-red-900/50 hover:text-white hover:bg-red-900/60 transition-all cursor-pointer"
+                >
+                  <LogOut className="h-3 w-3" /> Keluar
+                </button>
+              </div>
             ) : (
               <button
-                onClick={() => setShowAdminLogin(true)}
+                onClick={() => setShowLoginModal(true)}
                 className="px-3 py-1 rounded-full text-xs font-black tracking-tight inline-flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700 transition-all cursor-pointer"
               >
-                <Lock className="h-3 w-3" /> Login Admin
+                <Lock className="h-3 w-3" /> Login Portal
               </button>
             )}
           </div>
@@ -410,13 +142,23 @@ export default function App() {
       </div>
 
       <AnimatePresence>
-        {showAdminLogin && !isAdmin && (
-          <AdminLoginModal
-            onClose={() => setShowAdminLogin(false)}
-            onLogin={handleAdminLogin}
+        {showLoginModal && !isAdmin && !isWarga && (
+          <LoginModal
+            onClose={() => setShowLoginModal(false)}
+            onLogin={handleLogin}
+            onRecoverAdminPassword={handleRecoverAdminPassword}
+          />
+        )}
+        
+        {showProfileSettings && currentUser && (
+          <ProfileSettingsModal
+            onClose={() => setShowProfileSettings(false)}
+            onUpdate={handleUpdateProfile}
+            currentUser={currentUser as any}
           />
         )}
       </AnimatePresence>
+
 
       {/* HEADER NAVBAR CONTAINER */}
       <header className="sticky top-0 z-30 bg-white/30 backdrop-blur-md border-b border-white/40 shadow-xs">
@@ -431,9 +173,9 @@ export default function App() {
                 <Building2 className="h-5 w-5" />
               </div>
               <div className="leading-tight">
-                <span className="text-[10px] text-primary uppercase font-mono tracking-wider font-extrabold">RT 005 / RW 02</span>
+                <span className="text-[10px] text-primary uppercase font-mono tracking-wider font-extrabold">RT 002 / RW 16</span>
                 <h1 className="bg-clip-text text-transparent bg-gradient-to-r from-blue-800 to-teal-800 font-extrabold text-base md:text-lg tracking-tight flex items-center gap-1">
-                  RT 005 Digital Hub
+                  RT 002 Digital Hub
                 </h1>
               </div>
             </div>
@@ -537,6 +279,9 @@ export default function App() {
                 onNavigate={(t) => setActiveTab(t)}
                 announcements={announcements}
                 totalBalance={totalBalance}
+                isAdmin={isAdmin}
+                onResetWargaPassword={handleResetWargaPassword}
+                onCreateWargaAccount={handleCreateWargaAccount}
               />
             )}
 
@@ -545,6 +290,7 @@ export default function App() {
                 announcements={announcements}
                 isAdmin={isAdmin}
                 onAddAnnouncement={handleAddAnnouncement}
+                onEditAnnouncement={handleEditAnnouncement}
                 onDeleteAnnouncement={handleDeleteAnnouncement}
               />
             )}
@@ -555,6 +301,8 @@ export default function App() {
                 citizensDues={citizensDues}
                 paymentRequests={paymentRequests}
                 isAdmin={isAdmin}
+                isWarga={isWarga}
+                onAddCitizenDues={handleAddCitizenDues}
                 onAddTransaction={handleAddTransaction}
                 onApprovePaymentRequest={handleApprovePaymentRequest}
                 onRejectPaymentRequest={handleRejectPaymentRequest}
@@ -566,8 +314,10 @@ export default function App() {
               <LetterRequestsView
                 requests={letterRequests}
                 isAdmin={isAdmin}
+                isWarga={isWarga}
                 onSubmitRequest={handleSubmitLetterRequest}
                 onUpdateStatus={handleUpdateLetterStatus}
+                onFetchLetterForPrint={handleFetchLetterForPrint}
               />
             )}
           </motion.div>
@@ -583,8 +333,8 @@ export default function App() {
                 RT
               </div>
               <div className="leading-tight">
-                <h4 className="font-bold text-white text-sm">RT 005 Jatibening Baru</h4>
-                <p className="text-xs text-slate-500">Kecamatan Pondok Gede, Kota Bekasi</p>
+                <h4 className="font-bold text-white text-sm">RT 002 Cibatu</h4>
+                <p className="text-xs text-slate-500">Kelurahan Cibatu</p>
               </div>
             </div>
 
@@ -595,7 +345,7 @@ export default function App() {
 
           <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-[11px] text-slate-600">
             <p>
-              Hak Cipta © 2026 Pengurus RT 005 Jatibening Baru. Seluruh Hak Cipta Dilindungi Undang-Undang.
+              Hak Cipta © 2026 Pengurus RT 002 Perumahan Taman Cibiru Cibatu. Seluruh Hak Cipta Dilindungi Undang-Undang.
             </p>
             <p className="font-mono">
               Portal Warga Digital v2.1.0 • Built with safety, transparency & React

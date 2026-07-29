@@ -34,7 +34,7 @@ export const hydrateAnnouncementPhotos = (announcements: Announcement[]): Announ
     if (announcement.imageUrl) {
       return {
         ...announcement,
-        imageAlt: announcement.imageAlt || `${announcement.title} - dokumentasi kegiatan RT 005`
+        imageAlt: announcement.imageAlt || `${announcement.title} - dokumentasi kegiatan RT 002`
       };
     }
 
@@ -47,17 +47,17 @@ export const INITIAL_ANNOUNCEMENTS: Announcement[] = [
   {
     id: 'ann-1',
     title: 'Kerja Bakti Akbar Menyambut Musim Hujan',
-    content: 'Dihimbau kepada seluruh bapak-bapak dan pemuda RT 005 untuk hadir dalam kegiatan Kerja Bakti membersihkan saluran air (selokan) utama guna mengantisipasi banjir di musim hujan. Mohon membawa peralatan kerja bakti masing-masing dari rumah (cangkul, sapu lidi, dll).\n\nKonsumsi dan kopi disediakan oleh pihak PKK RT 005.',
+    content: 'Dihimbau kepada seluruh bapak-bapak dan pemuda RT 002 untuk hadir dalam kegiatan Kerja Bakti membersihkan saluran air (selokan) utama guna mengantisipasi banjir di musim hujan. Mohon membawa peralatan kerja bakti masing-masing dari rumah (cangkul, sapu lidi, dll).\n\nKonsumsi dan kopi disediakan oleh pihak PKK RT 002.',
     date: '2026-05-28',
     category: 'Kegiatan',
     author: 'Ketua RT (Bp. Hendra)',
-    isPinned: true,
+    isPinned: false,
     ...ANNOUNCEMENT_PHOTOS['ann-1']
   },
   {
     id: 'ann-2',
     title: 'Pembayaran Iuran Warga Kini Bisa Melalui Portal Digital',
-    content: 'Dalam rangka mempermudah pendataan dan meningkatkan transparansi keuangan, pembayaran iuran warga bulanan RT 005 (sebesar Rp 100.000) kini dapat diajukan secara langsung melalui Portal Digital ini. \n\nSilakan masuk ke menu "Laporan Keuangan", cari nama kepala keluarga Anda pada kolom status iuran, lalu klik "Bayar Iuran" untuk mengunggah bukti transfer. Panitia keuangan RT akan memverifikasi pembayaran Anda maksimal 1x24 jam.',
+    content: 'Dalam rangka mempermudah pendataan dan meningkatkan transparansi keuangan, pembayaran iuran warga bulanan RT 002 (sebesar Rp 100.000) kini dapat diajukan secara langsung melalui Portal Digital ini. \n\nSilakan masuk ke menu "Laporan Keuangan", cari nama kepala keluarga Anda pada kolom status iuran, lalu klik "Bayar Iuran" untuk mengunggah bukti transfer. Panitia keuangan RT akan memverifikasi pembayaran Anda maksimal 1x24 jam.',
     date: '2026-05-25',
     category: 'Iuran',
     author: 'Bendahara RT (Ibu Susan)',
@@ -66,11 +66,11 @@ export const INITIAL_ANNOUNCEMENTS: Announcement[] = [
   {
     id: 'ann-3',
     title: 'Jadwal Imunisasi Bulanan Posyandu Anggrek 5',
-    content: 'Diberitahukan kepada ibu-ibu yang memiliki balita di lingkungan RT 005, bahwa kegiatan rutin imunisasi dan penimbangan balita akan dilaksanakan di Sekretariat RT 005 pada Hari Kamis, 28 Mei 2026 mulai pukul 08:30 WIB s.d Selesai. Mohon membawa buku KIA/KMS masing-masing.',
+    content: 'Diberitahukan kepada ibu-ibu yang memiliki balita di lingkungan RT 002, bahwa kegiatan rutin imunisasi dan penimbangan balita akan dilaksanakan di Sekretariat RT 002 pada Hari Kamis, 28 Mei 2026 mulai pukul 08:30 WIB s.d Selesai. Mohon membawa buku KIA/KMS masing-masing.',
     date: '2026-05-22',
     category: 'Kegiatan',
-    author: 'PKK RT 005',
-    isPinned: false,
+    author: 'PKK RT 002',
+    isPinned: true,
     ...ANNOUNCEMENT_PHOTOS['ann-3']
   },
   {
@@ -374,7 +374,7 @@ export const INITIAL_LETTER_REQUESTS: LetterRequest[] = [
     phone: '081234567890',
     religion: 'Islam',
     profession: 'Karyawan Swasta',
-    address: 'Jl. Melati Raya No. 1, RT 005 RW 02, Jatibening Baru',
+    address: 'Perumahan Taman Cibiru, Jl. Melati Raya No. 1, RT 002 RW 16, Cibatu',
     purpose: 'Persyaratan KPR Bank / Kredit Perumahan Syariah',
     status: 'ready',
     dateRequested: '2026-05-24',
@@ -391,7 +391,7 @@ export const INITIAL_LETTER_REQUESTS: LetterRequest[] = [
     phone: '087788990011',
     religion: 'Islam',
     profession: 'Ibu Rumah Tangga',
-    address: 'Perumahan Cemara Blok B/02, RT 005 RW 02, Jatibening Baru',
+    address: 'Perumahan Taman Cibiru Blok B/02, RT 002 RW 16, Cibatu',
     purpose: 'Pengurusan pendaftaran BPJS Kesehatan Mandiri keluarga',
     status: 'processing',
     dateRequested: '2026-05-25'

@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Megaphone, Search, Plus, Trash2, Pin, Calendar, User, ChevronRight, X, AlertCircle } from 'lucide-react';
+import { Megaphone, Search, Plus, Trash2, Edit3, Pin, Calendar, User, ChevronRight, X, AlertCircle } from 'lucide-react';
 import { Announcement } from '../types';
-import { isSafeHttpUrl } from '../security';
+import { useAnnouncementsView } from '../hooks/useAnnouncementsView';
 
 interface AnnouncementsViewProps {
   announcements: Announcement[];
   isAdmin: boolean;
-  onAddAnnouncement: (announcement: Omit<Announcement, 'id' | 'date'>) => void;
+  onAddAnnouncement: (announcement: Omit<Announcement, 'id' | 'date'>, file?: File) => void;
+  onEditAnnouncement?: (id: string, announcement: Partial<Announcement>, file?: File | null) => void;
   onDeleteAnnouncement: (id: string) => void;
 }
 
@@ -15,85 +16,28 @@ export default function AnnouncementsView({
   announcements,
   isAdmin,
   onAddAnnouncement,
+  onEditAnnouncement,
   onDeleteAnnouncement,
 }: AnnouncementsViewProps) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
-  const [selectedYear, setSelectedYear] = useState<string>('Semua');
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
+  const {
+    filters,
+    updateFilter,
+    form,
+    updateForm,
+    showAddForm,
+    setShowAddForm,
+    selectedAnnouncement,
+    setSelectedAnnouncement,
+    categories,
+    years,
+    filteredAnnouncements,
+    handleSubmit,
+    editingId,
+    handleEditClick,
+    closeForm,
+  } = useAnnouncementsView({ announcements, onAddAnnouncement, onEditAnnouncement });
 
-  // Form State
-  const [newTitle, setNewTitle] = useState('');
-  const [newContent, setNewContent] = useState('');
-  const [newCategory, setNewCategory] = useState<Announcement['category']>('Umum');
-  const [newIsPinned, setNewIsPinned] = useState(false);
-  const [newAuthor, setNewAuthor] = useState('Ketua RT (Bp. Hendra)');
-  const [newImageUrl, setNewImageUrl] = useState('');
-
-  // Filter lists
-  const categories = ['Semua', 'Kegiatan', 'Iuran', 'Keamanan', 'Umum', 'Darurat'];
-  const getAnnouncementYear = (date: string) => {
-    const parsedYear = new Date(date).getFullYear();
-    if (!Number.isNaN(parsedYear)) return String(parsedYear);
-    const fallbackYear = date.match(/\d{4}/)?.[0];
-    return fallbackYear || '';
-  };
-  const years = Array.from(new Set(announcements.map((a) => getAnnouncementYear(a.date)).filter(Boolean)))
-    .sort((a, b) => Number(b) - Number(a));
-
-  const filteredAnnouncements = announcements
-    .filter((a) => {
-      const matchesSearch =
-        a.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        a.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        getAnnouncementYear(a.date).includes(searchTerm.trim());
-      const matchesCategory = selectedCategory === 'Semua' || a.category === selectedCategory;
-      const matchesYear = selectedYear === 'Semua' || getAnnouncementYear(a.date) === selectedYear;
-      return matchesSearch && matchesCategory && matchesYear;
-    })
-    // Sort pinned to Top, then sort by date descending
-    .sort((a, b) => {
-      if (a.isPinned && !b.isPinned) return -1;
-      if (!a.isPinned && b.isPinned) return 1;
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
-    });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTitle.trim() || !newContent.trim()) {
-      alert('Harap isi judul dan konten pengumuman.');
-      return;
-    }
-
-    const trimmedImageUrl = newImageUrl.trim();
-    if (trimmedImageUrl && !isSafeHttpUrl(trimmedImageUrl)) {
-      alert('URL foto harus memakai alamat http atau https yang valid.');
-      return;
-    }
-
-    onAddAnnouncement({
-      title: newTitle,
-      content: newContent,
-      category: newCategory,
-      author: newAuthor,
-      isPinned: newIsPinned,
-      ...(trimmedImageUrl
-        ? {
-            imageUrl: trimmedImageUrl,
-            imageAlt: `${newTitle} - dokumentasi kegiatan RT 005`,
-          }
-        : {}),
-    });
-
-    // Reset Form
-    setNewTitle('');
-    setNewContent('');
-    setNewCategory('Umum');
-    setNewIsPinned(false);
-    setNewImageUrl('');
-    setShowAddForm(false);
-  };
+  const [enlargedImage, setEnlargedImage] = React.useState<string | null>(null);
 
   return (
     <div className="space-y-6">
@@ -102,7 +46,7 @@ export default function AnnouncementsView({
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-800 to-teal-800">Pengumuman Warga</h1>
           <p className="text-slate-500 mt-1">
-            Informasi resmi, agenda kegiatan, serta imbauan bagi warga RT 005 / RW 02.
+            Informasi resmi, agenda kegiatan, serta imbauan bagi warga RT 002 / RW 16.
           </p>
         </div>
 
@@ -125,10 +69,14 @@ export default function AnnouncementsView({
         >
           <div className="flex justify-between items-center border-b border-white/40 pb-3">
             <h3 className="font-extrabold text-slate-800 text-lg flex items-center gap-2">
-              <Megaphone className="h-5 w-5 text-blue-600" /> Buat Pengumuman Baru (Admin)
+              {editingId ? (
+                <><Edit3 className="h-5 w-5 text-blue-600" /> Edit Pengumuman (Admin)</>
+              ) : (
+                <><Megaphone className="h-5 w-5 text-blue-600" /> Buat Pengumuman Baru (Admin)</>
+              )}
             </h3>
             <button
-              onClick={() => setShowAddForm(false)}
+              onClick={closeForm}
               className="p-1.5 rounded-full hover:bg-white/40 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
             >
               <X className="h-5 w-5" />
@@ -142,8 +90,8 @@ export default function AnnouncementsView({
                 <input
                   type="text"
                   required
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
+                  value={form.title}
+                  onChange={(e) => updateForm('title', e.target.value)}
                   placeholder="Contoh: Kerja Bakti Bulanan RT..."
                   className="w-full px-4 py-2 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-sans"
                 />
@@ -152,8 +100,8 @@ export default function AnnouncementsView({
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-600">Kategori</label>
                 <select
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value as Announcement['category'])}
+                  value={form.category}
+                  onChange={(e) => updateForm('category', e.target.value as Announcement['category'])}
                   className="w-full px-4 py-2 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all bg-white"
                 >
                   <option value="Umum">Umum</option>
@@ -171,8 +119,8 @@ export default function AnnouncementsView({
                 <input
                   type="text"
                   required
-                  value={newAuthor}
-                  onChange={(e) => setNewAuthor(e.target.value)}
+                  value={form.author}
+                  onChange={(e) => updateForm('author', e.target.value)}
                   className="w-full px-4 py-2 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-sans"
                 />
               </div>
@@ -181,8 +129,8 @@ export default function AnnouncementsView({
                 <label className="flex items-center gap-2 cursor-pointer select-none">
                   <input
                     type="checkbox"
-                    checked={newIsPinned}
-                    onChange={(e) => setNewIsPinned(e.target.checked)}
+                    checked={form.isPinned}
+                    onChange={(e) => updateForm('isPinned', e.target.checked)}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-white/60 rounded-xs"
                   />
                   <span className="text-sm font-bold text-slate-700 flex items-center gap-1">
@@ -193,13 +141,18 @@ export default function AnnouncementsView({
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">URL Foto Kegiatan (Opsional)</label>
+              <label className="text-xs font-bold text-slate-600">Foto Kegiatan (Opsional)</label>
               <input
-                type="url"
-                value={newImageUrl}
-                onChange={(e) => setNewImageUrl(e.target.value)}
-                placeholder="https://..."
-                className="w-full px-4 py-2 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-sans"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files.length > 0) {
+                    updateForm('imageFile', e.target.files[0]);
+                  } else {
+                    updateForm('imageFile', null);
+                  }
+                }}
+                className="w-full px-4 py-2 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-sans file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               />
             </div>
 
@@ -208,8 +161,8 @@ export default function AnnouncementsView({
               <textarea
                 required
                 rows={4}
-                value={newContent}
-                onChange={(e) => setNewContent(e.target.value)}
+                value={form.content}
+                onChange={(e) => updateForm('content', e.target.value)}
                 placeholder="Tuliskan detail pengumuman secara lengkap di sini (jadwal, tempat, instruksi, kontak penanggung jawab, dll)..."
                 className="w-full px-4 py-2.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-sans"
               />
@@ -241,8 +194,8 @@ export default function AnnouncementsView({
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input
             type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={filters.search}
+            onChange={(e) => updateFilter('search', e.target.value)}
             placeholder="Cari pengumuman..."
             className="w-full pl-11 pr-4 py-2.5 bg-white/40 border border-white/60 backdrop-blur-md rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs transition-all font-sans"
           />
@@ -252,8 +205,8 @@ export default function AnnouncementsView({
         <div className="relative lg:w-44">
           <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <select
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(e.target.value)}
+            value={filters.year}
+            onChange={(e) => updateFilter('year', e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-white/40 border border-white/60 backdrop-blur-md rounded-xl text-sm font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs transition-all"
           >
             <option value="Semua">Semua Tahun</option>
@@ -270,9 +223,9 @@ export default function AnnouncementsView({
           {categories.map((cat) => (
             <button
               key={cat}
-              onClick={() => setSelectedCategory(cat)}
+              onClick={() => updateFilter('category', cat)}
               className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                selectedCategory === cat
+                filters.category === cat
                   ? 'bg-blue-600 text-white shadow-xs'
                   : 'bg-white/40 text-slate-600 border border-white/60 hover:bg-white/60'
               }`}
@@ -318,11 +271,12 @@ export default function AnnouncementsView({
                   {ann.imageUrl && (
                     <div className="-mx-1 -mt-1 overflow-hidden rounded-[1.35rem] aspect-[16/9] bg-slate-100 border border-white/60">
                       <img
-                        src={ann.imageUrl}
+                        src={ann.imageUrl.startsWith('/') ? `http://localhost:3001${ann.imageUrl}` : ann.imageUrl}
                         alt={ann.imageAlt || ann.title}
                         loading="lazy"
                         referrerPolicy="no-referrer"
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 cursor-zoom-in"
+                        onClick={() => setEnlargedImage(ann.imageUrl!)}
                       />
                     </div>
                   )}
@@ -373,13 +327,22 @@ export default function AnnouncementsView({
                     </button>
 
                     {isAdmin && (
-                      <button
-                        onClick={() => onDeleteAnnouncement(ann.id)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50/50 transition-colors cursor-pointer"
-                        title="Hapus Pengumuman"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleEditClick(ann)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50/50 transition-colors cursor-pointer"
+                          title="Edit Pengumuman"
+                        >
+                          <Edit3 className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => onDeleteAnnouncement(ann.id)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50/50 transition-colors cursor-pointer"
+                          title="Hapus Pengumuman"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -436,10 +399,11 @@ export default function AnnouncementsView({
               {selectedAnnouncement.imageUrl && (
                 <div className="overflow-hidden rounded-[1.35rem] aspect-[16/9] bg-slate-100 border border-white/60">
                   <img
-                    src={selectedAnnouncement.imageUrl}
+                    src={selectedAnnouncement.imageUrl.startsWith('/') ? `http://localhost:3001${selectedAnnouncement.imageUrl}` : selectedAnnouncement.imageUrl}
                     alt={selectedAnnouncement.imageAlt || selectedAnnouncement.title}
-                    referrerPolicy="no-referrer"
-                    className="h-full w-full object-cover"
+                    className="w-full h-full object-cover cursor-zoom-in hover:scale-[1.02] transition-transform"
+                    loading="lazy"
+                    onClick={() => setEnlargedImage(selectedAnnouncement.imageUrl!)}
                   />
                 </div>
               )}
@@ -464,6 +428,29 @@ export default function AnnouncementsView({
               </div>
             </div>
           </motion.div>
+        </div>
+      )}
+
+      {/* Lightbox Modal */}
+      {enlargedImage && (
+        <div 
+          className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-4 cursor-zoom-out transition-all"
+          onClick={() => setEnlargedImage(null)}
+        >
+          <button 
+            className="absolute top-6 right-6 p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors cursor-pointer border border-white/10"
+            onClick={(e) => { e.stopPropagation(); setEnlargedImage(null); }}
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <motion.img 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            src={enlargedImage.startsWith('/') ? `http://localhost:3001${enlargedImage}` : enlargedImage}
+            className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl"
+            alt="Perbesar Gambar"
+          />
         </div>
       )}
     </div>

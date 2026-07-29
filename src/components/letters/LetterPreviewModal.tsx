@@ -34,9 +34,6 @@ export default function LetterPreviewModal({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const getSafeNik = (value: string) => (isAdmin ? value : maskSensitiveNumber(value));
-  const getSafeKk = (value: string) => (isAdmin ? value : maskSensitiveNumber(value));
-
   return (
     <div
       onClick={onClose}
@@ -59,11 +56,11 @@ export default function LetterPreviewModal({
             <button
               onClick={() =>
                 handleCopyText(
-                  `Surat Keterangan Pengantar RT 005 RW 02 - Nomor: ${
+                  `Surat Keterangan Pengantar RT 002 RW 16 - Nomor: ${
                     selectedLetter.referenceNo
-                  }\nNama: ${selectedLetter.applicantName}\nNIK: ${getSafeNik(
-                    selectedLetter.nik
-                  )}\nAlamat: ${selectedLetter.address}`
+                  }\nNama: ${selectedLetter.applicantName}\nNIK: ${
+                    selectedLetter.nik || ''
+                  }\nAlamat: ${selectedLetter.address || ''}`
                 )
               }
               className="p-2 border border-white/60 bg-white/10 hover:bg-white/30 rounded-lg text-slate-600 hover:text-slate-800 transition-colors text-xs flex items-center gap-1 font-bold cursor-pointer"
@@ -94,10 +91,10 @@ export default function LetterPreviewModal({
               RUKUN TETANGGA 005 / RUKUN WARGA 02
             </h2>
             <h3 className="text-sm md:text-base font-bold tracking-wide uppercase font-sans">
-              KELURAHAN JATIBENING BARU • KECAMATAN PONDOK GEDE
+              KELURAHAN CIBATU
             </h3>
             <p className="text-[10px] md:text-xs text-gray-600 italic font-sans font-medium">
-              Sekretariat: Kavling Melati Indah, Jatibening Baru, Pondok Gede, Kota Bekasi, Jawa Barat
+              Sekretariat: Perumahan Taman Cibiru, Kelurahan Cibatu
             </p>
           </div>
 
@@ -113,7 +110,7 @@ export default function LetterPreviewModal({
 
           {/* Opening Body */}
           <p className="text-xs md:text-sm text-justify leading-relaxed mt-6">
-            Yang bertanda tangan di bawah ini Rukun Tetangga (RT) 005 Rukun Warga (RW) 02 Kelurahan Jatibening Baru,
+            Yang bertanda tangan di bawah ini Rukun Tetangga (RT) 005 Rukun Warga (RW) 02 Kelurahan Cibatu,
             Kecamatan Pondok Gede, Kota Bekasi dengan menerangkan bahwa:
           </p>
 
@@ -125,11 +122,11 @@ export default function LetterPreviewModal({
             </div>
             <div className="grid grid-cols-4 gap-1">
               <span className="font-bold">2. NIK</span>
-              <span className="col-span-3 font-mono">: {getSafeNik(selectedLetter.nik)}</span>
+              <span className="col-span-3 font-mono">: {selectedLetter.nik}</span>
             </div>
             <div className="grid grid-cols-4 gap-1">
               <span className="font-bold">3. No. KK</span>
-              <span className="col-span-3 font-mono">: {getSafeKk(selectedLetter.kk)}</span>
+              <span className="col-span-3 font-mono">: {selectedLetter.kk}</span>
             </div>
             <div className="grid grid-cols-4 gap-1">
               <span className="font-bold">4. TTL</span>
@@ -142,20 +139,22 @@ export default function LetterPreviewModal({
               <span className="col-span-3">: {selectedLetter.gender}</span>
             </div>
             <div className="grid grid-cols-4 gap-1">
-              <span className="font-bold">6. Agama / Pekerjaan</span>
-              <span className="col-span-3">
-                : {selectedLetter.religion} / {selectedLetter.profession}
-              </span>
+              <span className="font-bold">6. Agama</span>
+              <span className="col-span-3">: {selectedLetter.religion}</span>
+            </div>
+            <div className="grid grid-cols-4 gap-1">
+              <span className="font-bold">7. Pekerjaan</span>
+              <span className="col-span-3">: {selectedLetter.profession}</span>
             </div>
             <div className="grid grid-cols-4 gap-1 text-justify">
-              <span className="font-bold">7. Alamat</span>
+              <span className="font-bold">8. Alamat</span>
               <span className="col-span-3">: {selectedLetter.address}</span>
             </div>
           </div>
 
           {/* Closing Body */}
           <p className="text-xs md:text-sm text-justify leading-relaxed mt-4">
-            Orang tersebut di atas benar adalah warga domisili menetap di wilayah kami RT 005. Surat Keterangan Pengantar
+            Orang tersebut di atas benar adalah warga domisili menetap di wilayah kami RT 002. Surat Keterangan Pengantar
             ini dikeluarkan secara mandiri oleh pihak pengelola guna dipergunakan pemohon sebagai:{' '}
             <strong className="font-extrabold">{selectedLetter.purpose}</strong>.
           </p>
@@ -170,19 +169,16 @@ export default function LetterPreviewModal({
               <p>Mengetahui/Pemohon</p>
               <div className="space-y-0.5">
                 <p className="font-bold underline uppercase">{selectedLetter.applicantName}</p>
-                <p className="text-[10px] text-gray-500 font-sans">Warga RT 005</p>
+                <p className="text-[10px] text-gray-500 font-sans">Warga RT 002</p>
               </div>
             </div>
 
             <div className="col-span-6 space-y-12">
               <p>Bekasi, {selectedLetter.dateRequested}</p>
               <div className="space-y-0.5 relative">
-                {/* Signature graphic simulate logo */}
-                <span className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1 bg-red-50 text-red-600 border border-dashed border-red-300 font-mono text-[9px] font-extrabold rotate-2 uppercase tracking-widest rounded shadow-xs opacity-75">
-                  SIGNED DIGITAL RT 005
-                </span>
+                {/* Signature graphic removed based on request so physical signature can be placed */}
                 <p className="font-bold underline uppercase">Hendra Kurniawan</p>
-                <p className="text-[10px] text-gray-500 font-sans">Ketua RT 005 / RW 02</p>
+                <p className="text-[10px] text-gray-500 font-sans">Ketua RT 002 / RW 16</p>
               </div>
             </div>
           </div>

@@ -13,21 +13,29 @@ export default function ApplyLetterForm({
   onSubmitRequest,
 }: ApplyLetterFormProps) {
   // Form State
-  const [applicantName, setApplicantName] = useState('');
-  const [nik, setNik] = useState('');
-  const [kk, setKk] = useState('');
-  const [birthPlace, setBirthPlace] = useState('');
-  const [birthDate, setBirthDate] = useState('');
-  const [gender, setGender] = useState<'Laki-laki' | 'Perempuan'>('Laki-laki');
-  const [phone, setPhone] = useState('');
-  const [religion, setReligion] = useState('Islam');
-  const [profession, setProfession] = useState('');
-  const [address, setAddress] = useState('');
-  const [purpose, setPurpose] = useState('');
+  const [form, setForm] = useState({
+    applicantName: '',
+    nik: '',
+    kk: '',
+    birthPlace: '',
+    birthDate: '',
+    gender: 'Laki-laki' as 'Laki-laki' | 'Perempuan',
+    phone: '',
+    religion: 'Islam',
+    profession: '',
+    purpose: '',
+  });
+
+  const updateForm = (updates: Partial<typeof form>) => setForm((p) => ({ ...p, ...updates }));
+
+  const {
+    applicantName, nik, kk, birthPlace, birthDate,
+    gender, phone, religion, profession, purpose
+  } = form;
 
   // NIK/KK helper text limiters
-  const handleDigitsOnly = (val: string, setter: (v: string) => void) => {
-    setter(val.replace(/\D/g, ''));
+  const handleDigitsOnly = (key: keyof typeof form, val: string) => {
+    updateForm({ [key]: val.replace(/\D/g, '') });
   };
 
   const handleApplySubmit = (e: React.FormEvent) => {
@@ -45,7 +53,6 @@ export default function ApplyLetterForm({
       !birthPlace.trim() ||
       !birthDate ||
       !phone.trim() ||
-      !address.trim() ||
       !purpose.trim()
     ) {
       alert('Harap lengkapi semua data dalam formulir.');
@@ -62,7 +69,6 @@ export default function ApplyLetterForm({
       phone,
       religion,
       profession,
-      address,
       purpose,
     });
 
@@ -103,7 +109,7 @@ export default function ApplyLetterForm({
               type="text"
               required
               value={applicantName}
-              onChange={(e) => setApplicantName(e.target.value)}
+              onChange={(e) => updateForm({ applicantName: e.target.value })}
               placeholder="Contoh: Budi Santoso"
               className="w-full px-4 py-2.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
             />
@@ -117,7 +123,7 @@ export default function ApplyLetterForm({
                 required
                 maxLength={16}
                 value={nik}
-                onChange={(e) => handleDigitsOnly(e.target.value, setNik)}
+                onChange={(e) => handleDigitsOnly('nik', e.target.value)}
                 placeholder="16 digit NIK"
                 className="w-full px-4 py-2.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
               />
@@ -131,7 +137,7 @@ export default function ApplyLetterForm({
                 required
                 maxLength={16}
                 value={kk}
-                onChange={(e) => handleDigitsOnly(e.target.value, setKk)}
+                onChange={(e) => handleDigitsOnly('kk', e.target.value)}
                 placeholder="16 digit No KK"
                 className="w-full px-4 py-2.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
               />
@@ -147,7 +153,7 @@ export default function ApplyLetterForm({
               type="text"
               required
               value={birthPlace}
-              onChange={(e) => setBirthPlace(e.target.value)}
+              onChange={(e) => updateForm({ birthPlace: e.target.value })}
               placeholder="Contoh: Jakarta"
               className="w-full px-4 py-2.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-sans"
             />
@@ -159,7 +165,7 @@ export default function ApplyLetterForm({
               type="date"
               required
               value={birthDate}
-              onChange={(e) => setBirthDate(e.target.value)}
+              onChange={(e) => updateForm({ birthDate: e.target.value })}
               className="w-full px-4 py-2.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-sans"
             />
           </div>
@@ -169,7 +175,7 @@ export default function ApplyLetterForm({
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={() => setGender('Laki-laki')}
+                onClick={() => updateForm({ gender: 'Laki-laki' })}
                 className={`flex-1 py-2.5 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
                   gender === 'Laki-laki'
                     ? 'bg-blue-600 text-white border-transparent shadow-xs'
@@ -180,7 +186,7 @@ export default function ApplyLetterForm({
               </button>
               <button
                 type="button"
-                onClick={() => setGender('Perempuan')}
+                onClick={() => updateForm({ gender: 'Perempuan' })}
                 className={`flex-1 py-2.5 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
                   gender === 'Perempuan'
                     ? 'bg-blue-600 text-white border-transparent shadow-xs'
@@ -198,7 +204,7 @@ export default function ApplyLetterForm({
             <label className="text-xs font-bold text-slate-700">Agama</label>
             <select
               value={religion}
-              onChange={(e) => setReligion(e.target.value)}
+              onChange={(e) => updateForm({ religion: e.target.value })}
               className="w-full px-4 py-2.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all bg-white"
             >
               <option value="Islam" className="bg-white">Islam</option>
@@ -216,7 +222,7 @@ export default function ApplyLetterForm({
               type="text"
               required
               value={profession}
-              onChange={(e) => setProfession(e.target.value)}
+              onChange={(e) => updateForm({ profession: e.target.value })}
               placeholder="Contoh: Karyawan Swasta"
               className="w-full px-4 py-2.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             />
@@ -228,7 +234,7 @@ export default function ApplyLetterForm({
               type="text"
               required
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => updateForm({ phone: e.target.value })}
               placeholder="Contoh: 0812XXXXXXXX"
               className="w-full px-4 py-2.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             />
@@ -236,29 +242,17 @@ export default function ApplyLetterForm({
         </div>
 
         <h4 className="text-xs font-bold font-mono uppercase tracking-wider text-blue-700 border-l-4 border-blue-600 pl-2 pt-2">
-          Keperluan & Alamat RT005
+          Keperluan & Alamat RT 002
         </h4>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">Alamat Tempat Tinggal (RT 005)</label>
-            <input
-              type="text"
-              required
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="Contoh: Perumahan Cemara Blok B/02, Jatibening Baru"
-              className="w-full px-4 py-2.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-            />
-          </div>
-
-          <div className="space-y-1">
+          <div className="space-y-1 col-span-1 md:col-span-2">
             <label className="text-xs font-bold text-slate-700">Keperluan / Tujuan Pengajuan Surat</label>
             <input
               type="text"
               required
               value={purpose}
-              onChange={(e) => setPurpose(e.target.value)}
+              onChange={(e) => updateForm({ purpose: e.target.value })}
               placeholder="Contoh: Persyaratan Pengurusan Rekening Bank / Melamar Kerja / BPJS"
               className="w-full px-4 py-2.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             />

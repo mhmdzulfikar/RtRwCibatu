@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Plus,
@@ -9,7 +9,7 @@ import {
   Info
 } from 'lucide-react';
 import { LetterRequest } from '../types';
-import { maskSensitiveNumber } from '../security';
+import { useLetterRequestsView } from '../hooks/useLetterRequestsView';
 
 import ApplyLetterForm from './letters/ApplyLetterForm';
 import LetterPreviewModal from './letters/LetterPreviewModal';
@@ -17,43 +17,37 @@ import LetterPreviewModal from './letters/LetterPreviewModal';
 interface LetterRequestsViewProps {
   requests: LetterRequest[];
   isAdmin: boolean;
+  isWarga?: boolean;
   onSubmitRequest: (req: Omit<LetterRequest, 'id' | 'status' | 'dateRequested'>) => void;
   onUpdateStatus: (id: string, status: LetterRequest['status'], updateData?: { referenceNo?: string; rejectedReason?: string }) => void;
+  onFetchLetterForPrint: (id: string, nik?: string) => Promise<LetterRequest | null>;
 }
 
 export default function LetterRequestsView({
   requests,
   isAdmin,
+  isWarga,
   onSubmitRequest,
   onUpdateStatus,
+  onFetchLetterForPrint,
 }: LetterRequestsViewProps) {
-  const [showApplyForm, setShowApplyForm] = useState(false);
-  const [selectedLetter, setSelectedLetter] = useState<LetterRequest | null>(null);
+  const {
+    viewState,
+    updateViewState,
+    triggerRejectSubmit,
+    triggerApproveSign,
+    getSafeNik,
+    getSafeName,
+    handlePrintClick,
+  } = useLetterRequestsView({ isAdmin, isWarga, onUpdateStatus, onFetchLetterForPrint });
+  
+  const { showApplyForm, selectedLetter, rejectingId, rejectionReasonText } = viewState;
+  const [activeTab, setActiveTab] = React.useState<'aktif' | 'riwayat'>('aktif');
 
-  // Admin reject modal state
-  const [rejectingId, setRejectingId] = useState<string | null>(null);
-  const [rejectionReasonText, setRejectionReasonText] = useState('');
-
-  const triggerRejectSubmit = (id: string) => {
-    if (!rejectionReasonText.trim()) {
-      alert('Harap berikan alasan penolakan.');
-      return;
-    }
-    onUpdateStatus(id, 'rejected', { rejectedReason: rejectionReasonText });
-    setRejectingId(null);
-    setRejectionReasonText('');
-  };
-
-  const triggerApproveSign = (req: LetterRequest) => {
-    const romanMonths = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
-    const currentMonthRoman = romanMonths[new Date().getMonth()];
-    const randNum = Math.floor(Math.random() * 80) + 10;
-    const refNo = `${randNum}/SRT-DOM/${currentMonthRoman}/${new Date().getFullYear()}`;
-
-    onUpdateStatus(req.id, 'ready', { referenceNo: refNo });
-  };
-
-  const getSafeNik = (value: string) => (isAdmin ? value : maskSensitiveNumber(value));
+  const filteredRequests = requests.filter(req => {
+    if (activeTab === 'aktif') return req.status === 'submitted' || req.status === 'processing';
+    return req.status === 'ready' || req.status === 'rejected';
+  });
 
   return (
     <div className="space-y-8">
@@ -68,9 +62,9 @@ export default function LetterRequestsView({
           </p>
         </div>
 
-        {!showApplyForm && (
+        {(!showApplyForm && (isAdmin || isWarga)) && (
           <button
-            onClick={() => setShowApplyForm(true)}
+            onClick={() => updateViewState({ showApplyForm: true })}
             className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-md shadow-blue-500/10 text-sm cursor-pointer active:scale-95"
           >
             <Plus className="h-4 w-4" /> Buat Pengajuan Baru
@@ -81,7 +75,7 @@ export default function LetterRequestsView({
       {/* DETAILED FORM FOR REGISTRATION / REQUEST */}
       {showApplyForm && (
         <ApplyLetterForm
-          onClose={() => setShowApplyForm(false)}
+          onClose={() => updateViewState({ showApplyForm: false })}
           onSubmitRequest={onSubmitRequest}
         />
       )}
@@ -97,15 +91,14 @@ export default function LetterRequestsView({
             <textarea
               rows={3}
               value={rejectionReasonText}
-              onChange={(e) => setRejectionReasonText(e.target.value)}
+              onChange={(e) => updateViewState({ rejectionReasonText: e.target.value })}
               placeholder="Contoh: NIK pemohon salah / mohon perbaiki NIK sesuai KK asli Anda."
               className="w-full px-3.5 py-2.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-xs sm:text-sm focus:outline-none transition-all"
             />
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => {
-                  setRejectingId(null);
-                  setRejectionReasonText('');
+                  updateViewState({ rejectingId: null, rejectionReasonText: '' });
                 }}
                 className="px-4 py-2 border border-white/60 bg-white/20 hover:bg-white/40 rounded-xl text-xs font-bold text-slate-600 transition-colors cursor-pointer"
               >
@@ -124,21 +117,46 @@ export default function LetterRequestsView({
 
       {/* LIST OF CURRENT APPLICATIONS / TRACKER */}
       <section className="space-y-4">
-        <h2 className="text-lg font-extrabold text-slate-800 flex items-center gap-2 font-sans">
-          <Activity className="h-4 w-4 text-blue-600" /> Pantau Antrean & Hasil Dokumen
-        </h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <h2 className="text-lg font-extrabold text-slate-800 flex items-center gap-2 font-sans">
+            <Activity className="h-4 w-4 text-blue-600" /> Pantau Dokumen
+          </h2>
+          
+          <div className="flex gap-2 bg-white/40 p-1 rounded-xl border border-white/60">
+            <button
+              onClick={() => setActiveTab('aktif')}
+              className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                activeTab === 'aktif' 
+                  ? 'bg-blue-600 text-white shadow-md' 
+                  : 'text-slate-600 hover:bg-white/60'
+              }`}
+            >
+              Surat Aktif
+            </button>
+            <button
+              onClick={() => setActiveTab('riwayat')}
+              className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                activeTab === 'riwayat' 
+                  ? 'bg-blue-600 text-white shadow-md' 
+                  : 'text-slate-600 hover:bg-white/60'
+              }`}
+            >
+              Riwayat (Selesai/Ditolak)
+            </button>
+          </div>
+        </div>
 
-        {requests.length === 0 ? (
+        {filteredRequests.length === 0 ? (
           <div className="p-12 text-center glass-panel rounded-[2rem] space-y-3 font-sans">
             <FileSearch className="h-10 w-10 text-slate-300 mx-auto" />
-            <h4 className="font-extrabold text-slate-800 text-sm">Belum ada pengajuan terdaftar</h4>
+            <h4 className="font-extrabold text-slate-800 text-sm">Belum ada {activeTab === 'aktif' ? 'surat yang aktif' : 'riwayat surat'}</h4>
             <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-              Silakan buat pengajuan pertama Anda dengan mengklik "Buat Pengajuan Baru" di sisi atas.
+              {(isAdmin || isWarga) ? (activeTab === 'aktif' ? 'Silakan buat pengajuan pertama Anda dengan mengklik "Buat Pengajuan Baru" di sisi atas.' : 'Belum ada surat yang selesai atau ditolak.') : 'Hanya warga RT 002 yang sudah login yang dapat mengakses ini.'}
             </p>
           </div>
         ) : (
           <div className="space-y-4">
-            {requests.map((req) => (
+            {filteredRequests.map((req) => (
               <div
                 key={req.id}
                 className="glass-panel p-5 rounded-[1.5rem] flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-blue-200/60 transition-colors"
@@ -173,14 +191,16 @@ export default function LetterRequestsView({
 
                   <div>
                     <h4 className="font-extrabold text-slate-900 text-sm md:text-base">
-                      {req.applicantName}
+                      {getSafeName(req.applicantName)}
                     </h4>
                     <p className="text-xs text-slate-500">
                       Keperluan: <strong className="text-slate-700 font-bold">{req.purpose}</strong>
                     </p>
-                    <p className="text-[11px] text-slate-400 leading-normal">
-                      NIK: <span className="font-mono bg-white/30 px-1 py-0.5 rounded border border-white/50">{getSafeNik(req.nik)}</span> • Alamat: {req.address}
-                    </p>
+                    {req.nik && req.address && (
+                      <p className="text-[11px] text-slate-400 leading-normal">
+                        NIK: <span className="font-mono bg-white/30 px-1 py-0.5 rounded border border-white/50">{getSafeNik(req.nik)}</span> • Alamat: {req.address}
+                      </p>
+                    )}
                   </div>
 
                   {/* Reject message row */}
@@ -201,10 +221,10 @@ export default function LetterRequestsView({
 
                 {/* CITIZEN vs ADMIN actions inside item card */}
                 <div className="flex gap-2 shrink-0 w-full md:w-auto font-sans">
-                  {/* CITIZEN: View Printable Letter */}
-                  {req.status === 'ready' && (
+                  {/* VIEW PRINTABLE LETTER (RESTRICTED TO ADMIN & WARGA) */}
+                  {req.status === 'ready' && (isAdmin || isWarga) && (
                     <button
-                      onClick={() => setSelectedLetter(req)}
+                      onClick={() => handlePrintClick(req)}
                       className="px-4 py-2 text-emerald-700 bg-emerald-500/15 hover:bg-emerald-600 hover:text-white border border-emerald-250/30 rounded-xl font-bold text-xs inline-flex items-center gap-1.5 justify-center cursor-pointer w-full md:w-auto transition-all"
                     >
                       <Eye className="h-3.5 w-3.5" /> Lihat & Cetak Surat
@@ -234,7 +254,7 @@ export default function LetterRequestsView({
 
                       {(req.status === 'submitted' || req.status === 'processing') && (
                         <button
-                          onClick={() => setRejectingId(req.id)}
+                          onClick={() => updateViewState({ rejectingId: req.id })}
                           className="px-3.5 py-2 bg-rose-500/15 border border-rose-200 hover:bg-rose-500 hover:text-white text-rose-600 rounded-xl font-bold text-xs cursor-pointer transition-all"
                           title="Tolak Pengajuan"
                         >
@@ -255,7 +275,7 @@ export default function LetterRequestsView({
         {selectedLetter && (
           <LetterPreviewModal
             selectedLetter={selectedLetter}
-            onClose={() => setSelectedLetter(null)}
+            onClose={() => updateViewState({ selectedLetter: null })}
             isAdmin={isAdmin}
           />
         )}

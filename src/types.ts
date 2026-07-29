@@ -1,5 +1,5 @@
 /**
- * Types & Interfaces for RT 005 Community Hub
+ * Types & Interfaces for RT 002 Community Hub
  */
 
 export interface Announcement {
@@ -76,7 +76,7 @@ export interface DuesPaymentRequest {
 export interface AuthenticatedUser {
   username: string;
   displayName: string;
-  role: 'admin';
+  role: 'admin' | 'warga';
   loginTime: string;
   sessionToken: string;
 }
