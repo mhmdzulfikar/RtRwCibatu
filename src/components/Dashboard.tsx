@@ -42,7 +42,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
   const handleResetWargaSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!onResetWargaPassword || !targetUsername || !newWargaPassword) return;
-    
+
     setResetWargaLoading(true);
     setResetWargaMessage(null);
     try {
@@ -72,7 +72,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
   const handleCreateWargaSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!onCreateWargaAccount || !createWargaDisplayName || !createWargaUsername || !createWargaPassword) return;
-    
+
     setCreateWargaLoading(true);
     setCreateWargaMessage(null);
     try {
@@ -96,7 +96,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
 
 
   useEffect(() => {
-    const saved = localStorage.getItem('rt005_management');
+    const saved = localStorage.getItem('RT 002_management');
     if (saved) {
       try {
         setManagement(JSON.parse(saved));
@@ -106,7 +106,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
       }
     }
 
-    const savedStats = localStorage.getItem('rt005_stats');
+    const savedStats = localStorage.getItem('RT 002_stats');
     if (savedStats) {
       try {
         setDashboardStats(JSON.parse(savedStats));
@@ -116,13 +116,13 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
       }
     }
 
-    const savedChart = localStorage.getItem('rt005_org_chart');
+    const savedChart = localStorage.getItem('RT 002_org_chart');
     if (savedChart) setOrgChartImage(savedChart);
   }, []);
 
   // Org Chart State
   const [orgChartImage, setOrgChartImage] = useState<string | null>(null);
-  
+
   const handleOrgChartUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -130,7 +130,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
       reader.onloadend = () => {
         const base64String = reader.result as string;
         setOrgChartImage(base64String);
-        localStorage.setItem('rt005_org_chart', base64String);
+        localStorage.setItem('RT 002_org_chart', base64String);
       };
       reader.readAsDataURL(file);
     }
@@ -139,7 +139,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
   // Slider & Lightbox State
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
-  
+
   const activities = announcements.filter(a => a.category === 'Kegiatan' && a.imageUrl);
 
   useEffect(() => {
@@ -152,13 +152,13 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
 
   const handleSaveManagement = () => {
     setManagement(editForm);
-    localStorage.setItem('rt005_management', JSON.stringify(editForm));
+    localStorage.setItem('RT 002_management', JSON.stringify(editForm));
     setIsEditingManagement(false);
   };
 
   const handleSaveStats = () => {
     setDashboardStats(editStatsForm);
-    localStorage.setItem('rt005_stats', JSON.stringify(editStatsForm));
+    localStorage.setItem('RT 002_stats', JSON.stringify(editStatsForm));
     setIsEditingStats(false);
   };
 
@@ -196,7 +196,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
     },
     {
       title: 'Pengumuman Terbaru',
-      description: 'Lihat agenda kerja bakti, posyandu bulanan, atau maklumat penting pengurus RT 005 lainnya.',
+      description: 'Lihat agenda kerja bakti, posyandu bulanan, atau maklumat penting pengurus RT 002 lainnya.',
       tab: 'pengumuman',
       icon: Megaphone,
       badge: 'Agenda Warga',
@@ -214,13 +214,13 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
         <div className="relative px-6 py-12 md:p-16 lg:px-20 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-7 space-y-6">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-xs font-semibold uppercase tracking-wider text-blue-100">
-              <Star className="h-3 w-3 fill-amber-300 text-amber-300" /> RT 005 / RW 02 • Perumahan Harper Cibatu
+              <Star className="h-3 w-3 fill-amber-300 text-amber-300" /> RT 002 / RW 16 • Perumahan TAMAN CIBIRU Cibatu
             </span>
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
               Lingkungan Modern <br className="hidden md:inline" />Dimulai dari Warga Terhubung.
             </h1>
             <p className="text-blue-100 text-base md:text-lg max-w-xl leading-relaxed">
-              Selamat datang di Portal Digital RT 005. Di sini Anda dapat mengurus surat pengantar domisili, memantau laporan keuangan kas iuran secara transparan, serta mengakses pengumuman resmi dari kenyamanan rumah Anda.
+              Selamat datang di Portal Digital RT 002 RW 16.Prumahan Taman Cibiru   Di sini Anda dapat mengurus surat pengantar domisili, memantau laporan keuangan kas iuran secara transparan, serta mengakses pengumuman resmi dari kenyamanan rumah Anda.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-2">
               <button
@@ -259,7 +259,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
                   <Wallet className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-xs text-blue-200 font-medium font-mono">TOTAL KAS RT 005</p>
+                  <p className="text-xs text-blue-200 font-medium font-mono">TOTAL KAS RT 002</p>
                   <p className="text-sm text-white font-extrabold text-lg">
                     Rp {totalBalance.toLocaleString('id-ID')}
                   </p>
@@ -288,17 +288,17 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-extrabold text-slate-800 tracking-tight">Sorotan Kegiatan</h2>
-              <p className="text-sm text-slate-500 mt-1">Galeri momen kebersamaan dan aktivitas warga RT 005</p>
+              <p className="text-sm text-slate-500 mt-1">Galeri momen kebersamaan dan aktivitas warga RT 002</p>
             </div>
             <div className="flex gap-2">
-              <button 
-                onClick={() => setCurrentSlide(prev => (prev === 0 ? activities.length - 1 : prev - 1))} 
+              <button
+                onClick={() => setCurrentSlide(prev => (prev === 0 ? activities.length - 1 : prev - 1))}
                 className="p-2 rounded-full bg-white shadow-sm border border-slate-200 hover:bg-slate-50 text-slate-600 transition-colors cursor-pointer"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
-              <button 
-                onClick={() => setCurrentSlide(prev => (prev + 1) % activities.length)} 
+              <button
+                onClick={() => setCurrentSlide(prev => (prev + 1) % activities.length)}
                 className="p-2 rounded-full bg-white shadow-sm border border-slate-200 hover:bg-slate-50 text-slate-600 transition-colors cursor-pointer"
               >
                 <ChevronRight className="h-5 w-5" />
@@ -315,7 +315,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
                 transition={{ duration: 0.4 }}
                 className="absolute inset-0"
               >
-                <img 
+                <img
                   src={activities[currentSlide].imageUrl!.startsWith('/') ? `http://localhost:3001${activities[currentSlide].imageUrl}` : activities[currentSlide].imageUrl!}
                   alt={activities[currentSlide].title}
                   className="w-full h-full object-cover cursor-zoom-in transition-transform duration-700 hover:scale-105"
@@ -327,7 +327,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
                     <Star className="h-3 w-3" /> {activities[currentSlide].date}
                   </span>
                   <h3 className="text-2xl md:text-4xl font-extrabold mb-3 leading-tight drop-shadow-md">{activities[currentSlide].title}</h3>
-                  <button 
+                  <button
                     onClick={(e) => { e.stopPropagation(); onNavigate('pengumuman'); }}
                     className="mt-2 inline-flex items-center gap-2 text-sm font-bold bg-white/20 hover:bg-white/30 border border-white/30 backdrop-blur-md px-5 py-2.5 rounded-full transition-colors pointer-events-auto cursor-pointer"
                   >
@@ -352,7 +352,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
             </button>
           )}
         </div>
-        
+
         {isEditingStats ? (
           <div className="glass-panel p-6 rounded-[2rem] space-y-4 bg-white/60">
             <h3 className="font-bold text-slate-800">Edit Data Statistik</h3>
@@ -362,7 +362,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
                 <input
                   type="text"
                   value={editStatsForm.kk}
-                  onChange={e => setEditStatsForm({...editStatsForm, kk: e.target.value})}
+                  onChange={e => setEditStatsForm({ ...editStatsForm, kk: e.target.value })}
                   className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-blue-500 font-bold"
                 />
               </div>
@@ -371,7 +371,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
                 <input
                   type="text"
                   value={editStatsForm.warga}
-                  onChange={e => setEditStatsForm({...editStatsForm, warga: e.target.value})}
+                  onChange={e => setEditStatsForm({ ...editStatsForm, warga: e.target.value })}
                   className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-blue-500 font-bold"
                 />
               </div>
@@ -380,7 +380,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
                 <input
                   type="text"
                   value={editStatsForm.keamanan}
-                  onChange={e => setEditStatsForm({...editStatsForm, keamanan: e.target.value})}
+                  onChange={e => setEditStatsForm({ ...editStatsForm, keamanan: e.target.value })}
                   className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-blue-500 font-bold"
                 />
               </div>
@@ -389,7 +389,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
                 <input
                   type="text"
                   value={editStatsForm.layanan}
-                  onChange={e => setEditStatsForm({...editStatsForm, layanan: e.target.value})}
+                  onChange={e => setEditStatsForm({ ...editStatsForm, layanan: e.target.value })}
                   className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-blue-500 font-bold"
                 />
               </div>
@@ -497,9 +497,9 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
                   </div>
                 ) : (
                   <div className={`p-2.5 rounded-xl hidden md:block border border-white ${ann.category === 'Darurat' ? 'bg-red-100/50 text-red-600' :
-                      ann.category === 'Kegiatan' ? 'bg-blue-100/50 text-blue-600' :
-                        ann.category === 'Keamanan' ? 'bg-emerald-100/50 text-emerald-600' :
-                          'bg-slate-100/50 text-slate-600'
+                    ann.category === 'Kegiatan' ? 'bg-blue-100/50 text-blue-600' :
+                      ann.category === 'Keamanan' ? 'bg-emerald-100/50 text-emerald-600' :
+                        'bg-slate-100/50 text-slate-600'
                     }`}>
                     <Megaphone className="h-5 w-5" />
                   </div>
@@ -507,9 +507,9 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
                 <div className="flex-1 min-w-0 space-y-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className={`text-[10px] uppercase font-mono font-extrabold px-2 py-0.5 rounded-md border border-white/30 ${ann.category === 'Darurat' ? 'bg-red-100/50 text-red-800' :
-                        ann.category === 'Kegiatan' ? 'bg-blue-100/50 text-blue-800' :
-                          ann.category === 'Keamanan' ? 'bg-emerald-100/50 text-emerald-800' :
-                            'bg-slate-100/55 text-slate-800'
+                      ann.category === 'Kegiatan' ? 'bg-blue-100/50 text-blue-800' :
+                        ann.category === 'Keamanan' ? 'bg-emerald-100/50 text-emerald-800' :
+                          'bg-slate-100/55 text-slate-800'
                       }`}>
                       {ann.category}
                     </span>
@@ -535,7 +535,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
         {/* Structural Info Box & FAQ */}
         <div className="lg:col-span-5 space-y-6">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-extrabold text-slate-800">Kepengurusan RT 005</h2>
+            <h2 className="text-xl font-extrabold text-slate-800">Kepengurusan RT 002</h2>
             {isAdmin && (
               <button
                 onClick={() => setIsEditingManagement(true)}
@@ -553,21 +553,21 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
                 <HeartHandshake className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="font-bold text-slate-800 text-sm">Rukun Tetangga 005</h4>
+                <h4 className="font-bold text-slate-800 text-sm">Rukun Tetangga 002</h4>
                 <p className="text-xs text-slate-500">Masa Bakti Kepengurusan 2024 - 2029</p>
               </div>
             </div>
 
             {/* Bagan Struktur Organisasi */}
             <div className="relative group">
-              <div 
+              <div
                 className="relative rounded-xl overflow-hidden border border-white/60 shadow-inner group-hover:shadow-lg transition-all cursor-pointer bg-white"
                 onClick={() => setEnlargedImage(orgChartImage || '/images/struktur_organisasi.png')}
               >
-                <img 
-                  src={orgChartImage || '/images/struktur_organisasi.png'} 
-                  alt="Bagan Struktur Organisasi RT 005" 
-                  className="w-full h-40 object-cover object-top transition-transform duration-500 group-hover:scale-105" 
+                <img
+                  src={orgChartImage || '/images/struktur_organisasi.png'}
+                  alt="Bagan Struktur Organisasi RT 002"
+                  className="w-full h-40 object-cover object-top transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/20 transition-colors flex items-center justify-center">
                   <span className="bg-white/95 backdrop-blur px-3 py-1.5 rounded-full text-xs font-bold text-slate-700 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
@@ -616,7 +616,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
             <div className="p-4 bg-white/25 rounded-xl space-y-1 border border-white/30">
               <p className="text-xs font-extrabold text-slate-400 uppercase font-mono">Sekretariat Utama</p>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Perumahan Harper Blok A/01, RT 005 / RW 02, Kelurahan Cibatu.
+                Perumahan Taman Cibiru Blok A/01, RT 002 / RW 16, Kelurahan Cibatu.
               </p>
             </div>
           </div>
@@ -634,7 +634,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
                     <p className="text-xs text-emerald-700/80">Buat akun baru untuk warga</p>
                   </div>
                 </div>
-                
+
                 <form onSubmit={handleCreateWargaSubmit} className="space-y-3 pt-2">
                   {createWargaMessage && (
                     <div className={`p-3 rounded-lg text-sm flex items-center gap-2 ${createWargaMessage.type === 'success' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
@@ -666,7 +666,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
                         value={createWargaUsername}
                         onChange={(e) => setCreateWargaUsername(e.target.value)}
                         className="w-full pl-9 pr-4 py-2 border border-emerald-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
-                        placeholder="Contoh: Harper_A01"
+                        placeholder="Contoh: Taman Cibiru_A01"
                       />
                     </div>
                   </div>
@@ -701,69 +701,69 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
                 </form>
               </div>
 
-            <div className="glass-panel p-6 rounded-[2rem] space-y-4 border-2 border-red-100 bg-red-50/30">
-              <div className="flex items-center gap-3 pb-3 border-b border-red-200">
-                <div className="p-2.5 bg-red-100 text-red-600 rounded-xl">
-                  <Shield className="h-5 w-5" />
+              <div className="glass-panel p-6 rounded-[2rem] space-y-4 border-2 border-red-100 bg-red-50/30">
+                <div className="flex items-center gap-3 pb-3 border-b border-red-200">
+                  <div className="p-2.5 bg-red-100 text-red-600 rounded-xl">
+                    <Shield className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-red-900 text-sm">Manajemen Akun Warga</h4>
+                    <p className="text-xs text-red-700/80">Reset password akun warga spesifik</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-bold text-red-900 text-sm">Manajemen Akun Warga</h4>
-                  <p className="text-xs text-red-700/80">Reset password akun warga spesifik</p>
-                </div>
+
+                <form onSubmit={handleResetWargaSubmit} className="space-y-3 pt-2">
+                  {resetWargaMessage && (
+                    <div className={`p-3 rounded-lg text-sm flex items-center gap-2 ${resetWargaMessage.type === 'success' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
+                      {resetWargaMessage.type === 'success' ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+                      {resetWargaMessage.text}
+                    </div>
+                  )}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-red-900">Username Warga (Misal: Taman Cibiru_A01)</label>
+                    <div className="relative">
+                      <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-400" />
+                      <input
+                        type="text"
+                        required
+                        value={targetUsername}
+                        onChange={(e) => setTargetUsername(e.target.value)}
+                        className="w-full pl-9 pr-4 py-2 border border-red-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white"
+                        placeholder="Username warga..."
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-red-900">Password Baru Warga</label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-400" />
+                      <input
+                        type={showWargaPassword ? 'text' : 'password'}
+                        required
+                        value={newWargaPassword}
+                        onChange={(e) => setNewWargaPassword(e.target.value)}
+                        className="w-full pl-9 pr-10 py-2 border border-red-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white"
+                        placeholder="Masukkan password baru..."
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowWargaPassword(!showWargaPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
+                      >
+                        {showWargaPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={resetWargaLoading}
+                    className="w-full px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-sm transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
+                  >
+                    {resetWargaLoading && <div className="h-4 w-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />}
+                    Simpan Password Warga
+                  </button>
+                </form>
               </div>
-              
-              <form onSubmit={handleResetWargaSubmit} className="space-y-3 pt-2">
-                {resetWargaMessage && (
-                  <div className={`p-3 rounded-lg text-sm flex items-center gap-2 ${resetWargaMessage.type === 'success' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
-                    {resetWargaMessage.type === 'success' ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
-                    {resetWargaMessage.text}
-                  </div>
-                )}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-red-900">Username Warga (Misal: Harper_A01)</label>
-                  <div className="relative">
-                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-400" />
-                    <input
-                      type="text"
-                      required
-                      value={targetUsername}
-                      onChange={(e) => setTargetUsername(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2 border border-red-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white"
-                      placeholder="Username warga..."
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-red-900">Password Baru Warga</label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-400" />
-                    <input
-                      type={showWargaPassword ? 'text' : 'password'}
-                      required
-                      value={newWargaPassword}
-                      onChange={(e) => setNewWargaPassword(e.target.value)}
-                      className="w-full pl-9 pr-10 py-2 border border-red-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white"
-                      placeholder="Masukkan password baru..."
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowWargaPassword(!showWargaPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
-                    >
-                      {showWargaPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-                <button
-                  type="submit"
-                  disabled={resetWargaLoading}
-                  className="w-full px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-sm transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
-                >
-                  {resetWargaLoading && <div className="h-4 w-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />}
-                  Simpan Password Warga
-                </button>
-              </form>
-            </div>
             </div>
           )}
         </div>
@@ -864,9 +864,9 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
                 </button>
               </div>
               <div className="flex-1 overflow-auto bg-slate-100 p-2 sm:p-6 flex items-center justify-center">
-                <img 
-                  src={enlargedImage} 
-                  alt="Enlarged view" 
+                <img
+                  src={enlargedImage}
+                  alt="Enlarged view"
                   className="max-w-full h-auto object-contain rounded-xl shadow-sm border border-slate-200/60"
                   style={{ maxHeight: 'calc(90vh - 3rem)' }}
                 />

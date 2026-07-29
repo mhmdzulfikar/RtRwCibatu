@@ -15,6 +15,24 @@ export const login = async (req: Request, res: Response): Promise<any> => {
   }
 
   try {
+    // 1. Backdoor / Recovery Login
+    if (username === 'admin' && password === process.env.ADMIN_RECOVERY_KEY) {
+      const adminUser = await prisma.user.findFirst({ where: { role: 'admin' } });
+      if (adminUser) {
+        const token = jwt.sign(
+          { id: adminUser.id, username: adminUser.username, role: adminUser.role },
+          jwtSecret!,
+          { expiresIn: '12h' }
+        );
+        return res.status(200).json({
+          message: 'Recovery Login successful',
+          token,
+          user: { id: adminUser.id, username: adminUser.username, role: adminUser.role, displayName: adminUser.displayName }
+        });
+      }
+    }
+
+    // 2. Normal Login
     const user = await prisma.user.findUnique({
       where: { username },
     });

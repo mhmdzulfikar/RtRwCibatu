@@ -190,9 +190,9 @@ async function main() {
 
   // 2. Create CitizenDues & Individual User accounts
   for (const c of INITIAL_CITIZENS_DUES) {
-    // Generate username like Harper_A01 from "Blok A/01"
+    // Generate username like Taman Cibiru_A01 from "Blok A/01"
     const parsedHouse = c.houseNumber.replace('Blok ', '').replace('/', ''); // e.g. "A01"
-    const username = `Harper_${parsedHouse}`; // "Harper_A01"
+    const username = `Taman Cibiru_${parsedHouse}`; // "Taman Cibiru_A01"
     const rawPassword = `warga${parsedHouse}`; // "wargaA01"
     const hashedPassword = await bcrypt.hash(rawPassword, 10);
 

@@ -54,7 +54,7 @@ export default function FinancesView({
             Laporan Keuangan & Iuran
           </h1>
           <p className="text-slate-500 mt-1">
-            Transparansi pembukuan kas RT 005 dan pengelolaan kewajiban iuran bulanan warga.
+            Transparansi pembukuan kas RT 002 dan pengelolaan kewajiban iuran bulanan warga.
           </p>
         </div>
 

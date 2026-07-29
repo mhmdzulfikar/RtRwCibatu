@@ -9,7 +9,7 @@ export interface UsePayDuesModalProps {
 export function usePayDuesModal({ selectedCitizen, onSubmitPaymentRequest }: UsePayDuesModalProps) {
   const [payMonth, setPayMonth] = useState('Januari');
   const [payAmount, setPayAmount] = useState(100000);
-  const [payMethod, setPayMethod] = useState('Transfer BCA (VA RT 005 - 8275005)');
+  const [payMethod, setPayMethod] = useState('Transfer BCA (VA RT 002 - 8275005)');
   
   // Real File Upload State
   const [simulatedFile, setSimulatedFile] = useState<File | null>(null);

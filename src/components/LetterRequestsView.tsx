@@ -151,7 +151,7 @@ export default function LetterRequestsView({
             <FileSearch className="h-10 w-10 text-slate-300 mx-auto" />
             <h4 className="font-extrabold text-slate-800 text-sm">Belum ada {activeTab === 'aktif' ? 'surat yang aktif' : 'riwayat surat'}</h4>
             <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-              {(isAdmin || isWarga) ? (activeTab === 'aktif' ? 'Silakan buat pengajuan pertama Anda dengan mengklik "Buat Pengajuan Baru" di sisi atas.' : 'Belum ada surat yang selesai atau ditolak.') : 'Hanya warga RT 005 yang sudah login yang dapat mengakses ini.'}
+              {(isAdmin || isWarga) ? (activeTab === 'aktif' ? 'Silakan buat pengajuan pertama Anda dengan mengklik "Buat Pengajuan Baru" di sisi atas.' : 'Belum ada surat yang selesai atau ditolak.') : 'Hanya warga RT 002 yang sudah login yang dapat mengakses ini.'}
             </p>
           </div>
         ) : (

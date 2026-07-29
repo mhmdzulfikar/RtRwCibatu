@@ -46,7 +46,7 @@ export default function AnnouncementsView({
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-800 to-teal-800">Pengumuman Warga</h1>
           <p className="text-slate-500 mt-1">
-            Informasi resmi, agenda kegiatan, serta imbauan bagi warga RT 005 / RW 02.
+            Informasi resmi, agenda kegiatan, serta imbauan bagi warga RT 002 / RW 16.
           </p>
         </div>
 

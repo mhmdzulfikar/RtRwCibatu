@@ -33,8 +33,8 @@ app.use(sanitizeInput); // Membersihkan input (body, query, params) dari ancaman
 import { rateLimit } from 'express-rate-limit';
 
 const authLimiter = rateLimit({
-  windowMs: 1000, // 15 menit
-  max: 10, // Maksimal 10 request per IP (mencegah brute force)
+  windowMs: 60 * 1000, // 1 menit (Khusus untuk Demo)
+  max: 3, // Maksimal 3 request salah (mencegah brute force)
   message: { error: 'Terlalu banyak percobaan login. Sistem terkunci, silakan coba lagi setelah 15 menit.' },
   standardHeaders: true,
   legacyHeaders: false,

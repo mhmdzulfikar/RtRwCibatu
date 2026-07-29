@@ -1,5 +1,5 @@
 /**
- * Types & Interfaces for RT 005 Community Hub
+ * Types & Interfaces for RT 002 Community Hub
  */
 
 export interface Announcement {

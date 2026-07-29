@@ -143,7 +143,7 @@ export default function LoginModal({
               {activeTab === 'warga' ? 'Login Warga' : activeTab === 'admin' ? 'Login Pengurus' : 'Pemulihan Admin'}
             </p>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight mt-1">
-              {activeTab === 'recovery' ? 'Reset Password' : 'Portal RT 005'}
+              {activeTab === 'recovery' ? 'Reset Password' : 'Portal RT 002'}
             </h2>
             <p className="text-xs text-slate-500 leading-relaxed mt-2">
               {activeTab === 'warga' 

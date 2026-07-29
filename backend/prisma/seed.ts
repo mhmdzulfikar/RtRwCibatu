@@ -25,7 +25,7 @@ async function main() {
       username: adminUsername,
       password: hashedAdminPassword,
       role: 'admin',
-      displayName: 'Pengurus RT 005',
+      displayName: 'Pengurus RT 002',
     },
   });
 
@@ -37,7 +37,7 @@ async function main() {
       username: wargaUsername,
       password: hashedWargaPassword,
       role: 'warga',
-      displayName: 'Warga RT 005',
+      displayName: 'Warga RT 002',
     },
   });
 

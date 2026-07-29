@@ -96,7 +96,7 @@ export default function App() {
           <div className="flex items-center gap-2">
             <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${isAdmin ? 'bg-amber-400' : 'bg-emerald-400'}`} />
             <span className="text-[11px] sm:text-xs font-mono font-bold text-slate-300">
-              PORTAL RT 005 AKTIF • PERUMAHAN HARPER, CIBATU
+              PORTAL RT 002 AKTIF • Perumahan Taman Cibiru, CIBATU
             </span>
           </div>
 
@@ -110,7 +110,7 @@ export default function App() {
                 }`}
             >
               {isAdmin ? <Shield className="h-3 w-3" /> : <UserRound className="h-3 w-3" />}
-              {isAdmin ? currentUser?.displayName || 'Pengurus RT 005' : (isWarga ? currentUser?.displayName || 'Warga RT 005' : 'Mode Pengunjung')}
+              {isAdmin ? currentUser?.displayName || 'Pengurus RT 002' : (isWarga ? currentUser?.displayName || 'Warga RT 002' : 'Mode Pengunjung')}
             </span>
             {isAdmin || isWarga ? (
               <div className="flex items-center gap-2">
@@ -173,9 +173,9 @@ export default function App() {
                 <Building2 className="h-5 w-5" />
               </div>
               <div className="leading-tight">
-                <span className="text-[10px] text-primary uppercase font-mono tracking-wider font-extrabold">RT 005 / RW 02</span>
+                <span className="text-[10px] text-primary uppercase font-mono tracking-wider font-extrabold">RT 002 / RW 16</span>
                 <h1 className="bg-clip-text text-transparent bg-gradient-to-r from-blue-800 to-teal-800 font-extrabold text-base md:text-lg tracking-tight flex items-center gap-1">
-                  RT 005 Digital Hub
+                  RT 002 Digital Hub
                 </h1>
               </div>
             </div>
@@ -333,7 +333,7 @@ export default function App() {
                 RT
               </div>
               <div className="leading-tight">
-                <h4 className="font-bold text-white text-sm">RT 005 Cibatu</h4>
+                <h4 className="font-bold text-white text-sm">RT 002 Cibatu</h4>
                 <p className="text-xs text-slate-500">Kelurahan Cibatu</p>
               </div>
             </div>
@@ -345,7 +345,7 @@ export default function App() {
 
           <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-[11px] text-slate-600">
             <p>
-              Hak Cipta © 2026 Pengurus RT 005 Perumahan Harper Cibatu. Seluruh Hak Cipta Dilindungi Undang-Undang.
+              Hak Cipta © 2026 Pengurus RT 002 Perumahan Taman Cibiru Cibatu. Seluruh Hak Cipta Dilindungi Undang-Undang.
             </p>
             <p className="font-mono">
               Portal Warga Digital v2.1.0 • Built with safety, transparency & React

@@ -56,7 +56,7 @@ export default function LetterPreviewModal({
             <button
               onClick={() =>
                 handleCopyText(
-                  `Surat Keterangan Pengantar RT 005 RW 02 - Nomor: ${
+                  `Surat Keterangan Pengantar RT 002 RW 16 - Nomor: ${
                     selectedLetter.referenceNo
                   }\nNama: ${selectedLetter.applicantName}\nNIK: ${
                     selectedLetter.nik || ''
@@ -94,7 +94,7 @@ export default function LetterPreviewModal({
               KELURAHAN CIBATU
             </h3>
             <p className="text-[10px] md:text-xs text-gray-600 italic font-sans font-medium">
-              Sekretariat: Perumahan Harper, Kelurahan Cibatu
+              Sekretariat: Perumahan Taman Cibiru, Kelurahan Cibatu
             </p>
           </div>
 
@@ -154,7 +154,7 @@ export default function LetterPreviewModal({
 
           {/* Closing Body */}
           <p className="text-xs md:text-sm text-justify leading-relaxed mt-4">
-            Orang tersebut di atas benar adalah warga domisili menetap di wilayah kami RT 005. Surat Keterangan Pengantar
+            Orang tersebut di atas benar adalah warga domisili menetap di wilayah kami RT 002. Surat Keterangan Pengantar
             ini dikeluarkan secara mandiri oleh pihak pengelola guna dipergunakan pemohon sebagai:{' '}
             <strong className="font-extrabold">{selectedLetter.purpose}</strong>.
           </p>
@@ -169,7 +169,7 @@ export default function LetterPreviewModal({
               <p>Mengetahui/Pemohon</p>
               <div className="space-y-0.5">
                 <p className="font-bold underline uppercase">{selectedLetter.applicantName}</p>
-                <p className="text-[10px] text-gray-500 font-sans">Warga RT 005</p>
+                <p className="text-[10px] text-gray-500 font-sans">Warga RT 002</p>
               </div>
             </div>
 
@@ -178,7 +178,7 @@ export default function LetterPreviewModal({
               <div className="space-y-0.5 relative">
                 {/* Signature graphic removed based on request so physical signature can be placed */}
                 <p className="font-bold underline uppercase">Hendra Kurniawan</p>
-                <p className="text-[10px] text-gray-500 font-sans">Ketua RT 005 / RW 02</p>
+                <p className="text-[10px] text-gray-500 font-sans">Ketua RT 002 / RW 16</p>
               </div>
             </div>
           </div>
