@@ -19,7 +19,7 @@ export default function PersetujuanTab({
         <div className="font-sans">
           <h3 className="font-extrabold text-slate-800 text-base">Antrean Verifikasi Setoran Iuran (Admin)</h3>
           <p className="text-xs text-slate-500 mt-0.5">
-            Verifikasi setoran iuran warga melalui unggahan bukti transfer rekening bank RT 005. Selesaikan antrean di bawah:
+            Verifikasi setoran iuran warga melalui unggahan bukti transfer rekening bank RT 002. Selesaikan antrean di bawah:
           </p>
         </div>
 

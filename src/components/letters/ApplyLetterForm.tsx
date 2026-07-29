@@ -242,7 +242,7 @@ export default function ApplyLetterForm({
         </div>
 
         <h4 className="text-xs font-bold font-mono uppercase tracking-wider text-blue-700 border-l-4 border-blue-600 pl-2 pt-2">
-          Keperluan & Alamat RT005
+          Keperluan & Alamat RT 002
         </h4>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

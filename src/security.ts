@@ -1,6 +1,6 @@
 import { AuthenticatedUser } from './types';
 
-export const AUTH_STORAGE_KEY = 'rt005_auth_session';
+export const AUTH_STORAGE_KEY = 'RT 002_auth_session';
 export const ADMIN_SESSION_MAX_AGE_MS = 30 * 60 * 1000;
 
 export const getAuthToken = (): string | null => {

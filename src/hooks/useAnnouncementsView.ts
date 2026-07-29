@@ -108,7 +108,7 @@ export function useAnnouncementsView({ announcements, onAddAnnouncement, onEditA
           category: form.category,
           author: form.author,
           isPinned: form.isPinned,
-          ...(form.imageFile ? { imageAlt: `${form.title} - dokumentasi kegiatan RT 005` } : {}),
+          ...(form.imageFile ? { imageAlt: `${form.title} - dokumentasi kegiatan RT 002` } : {}),
         }, form.imageFile);
       } else {
         await onAddAnnouncement({
@@ -117,7 +117,7 @@ export function useAnnouncementsView({ announcements, onAddAnnouncement, onEditA
           category: form.category,
           author: form.author,
           isPinned: form.isPinned,
-          ...(form.imageFile ? { imageAlt: `${form.title} - dokumentasi kegiatan RT 005` } : {}),
+          ...(form.imageFile ? { imageAlt: `${form.title} - dokumentasi kegiatan RT 002` } : {}),
         }, form.imageFile || undefined);
       }
       

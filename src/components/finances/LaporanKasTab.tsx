@@ -47,7 +47,7 @@ export default function LaporanKasTab({
         {/* Widget Balance */}
         <div className="glass-panel p-6 rounded-[2rem] flex items-center justify-between">
           <div className="space-y-1">
-            <span className="text-xs text-slate-400 font-bold uppercase font-mono">Kas Saldo RT 005</span>
+            <span className="text-xs text-slate-400 font-bold uppercase font-mono">Kas Saldo RT 002</span>
             <p className="text-2xl sm:text-3xl font-black text-slate-800 leading-none">
               Rp {netBalance.toLocaleString('id-ID')}
             </p>

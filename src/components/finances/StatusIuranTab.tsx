@@ -49,9 +49,9 @@ export default function StatusIuranTab({
       <div className="bg-rose-500/10 border border-rose-300/40 p-5 rounded-[1.8rem] flex items-start gap-3 backdrop-blur-md">
         <Info className="h-5 w-5 text-rose-600 shrink-0 mt-0.5" />
         <div className="space-y-1 font-sans">
-          <h4 className="font-extrabold text-slate-800 text-sm">Ketentuan Iuran RT 005</h4>
+          <h4 className="font-extrabold text-slate-800 text-sm">Ketentuan Iuran RT 002</h4>
           <p className="text-xs text-slate-600 leading-relaxed">
-            Setiap warga Kepala Keluarga di lingkungan RT 005 RW 02 diwajibkan menyetor iuran lingkungan sebesar <strong>Rp 35.000 / Bulan</strong> untuk pembiayaan kebersihan (truk sampah), jasa keamanan malam, santunan sosial kematian warga, dan pembinaan olahraga. Pengelola RT mendokumentasikan setiap setoran secara tertulis dan digital demi nilai integritas bersama.
+            Setiap warga Kepala Keluarga di lingkungan RT 002 RW 16 diwajibkan menyetor iuran lingkungan sebesar <strong>Rp 35.000 / Bulan</strong> untuk pembiayaan kebersihan (truk sampah), jasa keamanan malam, santunan sosial kematian warga, dan pembinaan olahraga. Pengelola RT mendokumentasikan setiap setoran secara tertulis dan digital demi nilai integritas bersama.
           </p>
         </div>
       </div>

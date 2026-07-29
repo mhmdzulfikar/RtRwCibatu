@@ -95,14 +95,14 @@ export default function PayDuesModal({
               onChange={(e) => setPayMethod(e.target.value)}
               className="w-full px-3 py-2 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-xs focus:outline-none transition-all bg-white"
             >
-              <option value="Transfer BCA (VA RT 005 - 8275005)" className="bg-white font-sans">
+              <option value="Transfer BCA (VA RT 002 - 8275005)" className="bg-white font-sans">
                 Transfer BCA (VA 8275005)
               </option>
               <option value="Transfer Mandiri (VA 005-9988)" className="bg-white font-sans">
                 Transfer Mandiri (VA 005-9988)
               </option>
-              <option value="Dompet Digital / QRIS RT 005" className="bg-white font-sans">
-                QRIS Portal RT 005
+              <option value="Dompet Digital / QRIS RT 002" className="bg-white font-sans">
+                QRIS Portal RT 002
               </option>
               <option value="Tunai ke Bendahara (Ibu Susan)" className="bg-white font-sans">
                 Tunai Ke Bendahara
@@ -164,7 +164,7 @@ export default function PayDuesModal({
             <span className="font-bold text-slate-800 block">Informasi Transfer Rekening RT:</span>
             • BCA Virtual Account:{' '}
             <strong>8275 005 {selectedCitizen.houseNumber.replace(/\D/g, '') || '01'}</strong> <br />
-            • Atas Nama: <strong>KAS KELUARGA RT005 CIBATU</strong>
+            • Atas Nama: <strong>KAS KELUARGA RT 002 CIBATU</strong>
           </div>
 
           <div className="flex gap-2 pt-2">
