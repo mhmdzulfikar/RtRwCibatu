@@ -96,7 +96,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
 
 
   useEffect(() => {
-    const saved = localStorage.getItem('RT 002_management');
+    const saved = localStorage.getItem('rt005_management');
     if (saved) {
       try {
         setManagement(JSON.parse(saved));
@@ -106,7 +106,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
       }
     }
 
-    const savedStats = localStorage.getItem('RT 002_stats');
+    const savedStats = localStorage.getItem('rt005_stats');
     if (savedStats) {
       try {
         setDashboardStats(JSON.parse(savedStats));
@@ -116,7 +116,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
       }
     }
 
-    const savedChart = localStorage.getItem('RT 002_org_chart');
+    const savedChart = localStorage.getItem('rt005_org_chart');
     if (savedChart) setOrgChartImage(savedChart);
   }, []);
 
@@ -130,7 +130,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
       reader.onloadend = () => {
         const base64String = reader.result as string;
         setOrgChartImage(base64String);
-        localStorage.setItem('RT 002_org_chart', base64String);
+        localStorage.setItem('rt005_org_chart', base64String);
       };
       reader.readAsDataURL(file);
     }
@@ -152,13 +152,13 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
 
   const handleSaveManagement = () => {
     setManagement(editForm);
-    localStorage.setItem('RT 002_management', JSON.stringify(editForm));
+    localStorage.setItem('rt005_management', JSON.stringify(editForm));
     setIsEditingManagement(false);
   };
 
   const handleSaveStats = () => {
     setDashboardStats(editStatsForm);
-    localStorage.setItem('RT 002_stats', JSON.stringify(editStatsForm));
+    localStorage.setItem('rt005_stats', JSON.stringify(editStatsForm));
     setIsEditingStats(false);
   };
 
@@ -196,7 +196,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
     },
     {
       title: 'Pengumuman Terbaru',
-      description: 'Lihat agenda kerja bakti, posyandu bulanan, atau maklumat penting pengurus RT 002 lainnya.',
+      description: 'Lihat agenda kerja bakti, posyandu bulanan, atau maklumat penting pengurus RT 005 lainnya.',
       tab: 'pengumuman',
       icon: Megaphone,
       badge: 'Agenda Warga',
@@ -220,7 +220,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
               Lingkungan Modern <br className="hidden md:inline" />Dimulai dari Warga Terhubung.
             </h1>
             <p className="text-blue-100 text-base md:text-lg max-w-xl leading-relaxed">
-              Selamat datang di Portal Digital RT 002 RW 16.Prumahan Taman Cibiru   Di sini Anda dapat mengurus surat pengantar domisili, memantau laporan keuangan kas iuran secara transparan, serta mengakses pengumuman resmi dari kenyamanan rumah Anda.
+              Selamat datang di Portal Digital RT 002 RW 16. Prumahan Taman Cibiru   Di sini Anda dapat mengurus surat pengantar domisili, memantau laporan keuangan kas iuran secara transparan, serta mengakses pengumuman resmi dari kenyamanan rumah Anda.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-2">
               <button
@@ -566,7 +566,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
               >
                 <img
                   src={orgChartImage || '/images/struktur_organisasi.png'}
-                  alt="Bagan Struktur Organisasi RT 002"
+                  alt="Bagan Struktur Organisasi RT 005"
                   className="w-full h-40 object-cover object-top transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/20 transition-colors flex items-center justify-center">
@@ -616,7 +616,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
             <div className="p-4 bg-white/25 rounded-xl space-y-1 border border-white/30">
               <p className="text-xs font-extrabold text-slate-400 uppercase font-mono">Sekretariat Utama</p>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Perumahan Taman Cibiru Blok A/01, RT 002 / RW 16, Kelurahan Cibatu.
+                Perumahan Harper Blok A/01, RT 002 / RW 16, Kelurahan Cibatu.
               </p>
             </div>
           </div>
@@ -666,7 +666,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
                         value={createWargaUsername}
                         onChange={(e) => setCreateWargaUsername(e.target.value)}
                         className="w-full pl-9 pr-4 py-2 border border-emerald-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
-                        placeholder="Contoh: Taman Cibiru_A01"
+                        placeholder="Contoh: Harper_A01"
                       />
                     </div>
                   </div>
@@ -720,7 +720,7 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
                     </div>
                   )}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-red-900">Username Warga (Misal: Taman Cibiru_A01)</label>
+                    <label className="text-xs font-bold text-red-900">Username Warga (Misal: Harper_A01)</label>
                     <div className="relative">
                       <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-400" />
                       <input
