@@ -1,6 +1,6 @@
-# Portal Digital RT 005 / RW 02 Jatibening Baru
+# Portal Digital RT 002 / RW 16 Perumahan Taman Cibiru
 
-Portal warga terintegrasi untuk pengelolaan administrasi, transparansi keuangan, dan komunikasi pengumuman resmi di lingkungan RT 005 RW 02 Kelurahan Jatibening Baru, Pondok Gede, Kota Bekasi.
+Portal warga terintegrasi untuk pengelolaan administrasi, transparansi keuangan, dan komunikasi pengumuman resmi di lingkungan RT 002 RW 16 Perumahan Taman Cibiru, Desa Cibatu.
 
 ---
 
@@ -136,7 +136,7 @@ npm run dev
 
 Jika Anda telah menjalankan `npx prisma db seed`, Anda dapat menggunakan akun berikut untuk masuk ke aplikasi (bisa diubah di `backend/prisma/seed.ts`):
 
-- **Admin (Pengurus RT)**
+- **Admin (Pengurus RT 002)**
   - Username: Mengikuti `.env` backend atau default `4DM1NR7R3`
   - Password: Mengikuti `.env` backend atau default `c1B4T6C1K4R4Ng`
 
