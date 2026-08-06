@@ -1,0 +1,263 @@
+{
+  "info": {
+    "name": "RT RW Cibatu API",
+    "description": "Kumpulan endpoint API untuk RT RW Cibatu.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\": \"admin\", \"password\": \"admin123\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Warga",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\": \"warga1\", \"password\": \"warga123\", \"displayName\": \"Warga 1\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/admin/create-warga",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "create-warga"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Announcements",
+      "item": [
+        {
+          "name": "Get Announcements",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/announcements",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "announcements"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Announcement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Test",
+                  "type": "text"
+                },
+                {
+                  "key": "content",
+                  "value": "Isi pengumuman",
+                  "type": "text"
+                },
+                {
+                  "key": "category",
+                  "value": "Umum",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/announcements",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "announcements"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Letters",
+      "item": [
+        {
+          "name": "Get Letters",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/letters",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "letters"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Letter (Warga/Public)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"applicantName\": \"Budi\", \"nik\": \"1234567890123456\", \"kk\": \"1234567890123456\", \"birthPlace\": \"Jakarta\", \"birthDate\": \"1990-01-01\", \"gender\": \"Laki-laki\", \"phone\": \"0812345678\", \"religion\": \"Islam\", \"profession\": \"Karyawan\", \"address\": \"Jl. Test\", \"purpose\": \"Keperluan Test\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/letters",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "letters"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payment Requests (Iuran)",
+      "item": [
+        {
+          "name": "Get Payment Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/payment-requests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "payment-requests"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Submit Payment Proof (Warga/Public)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "citizenName",
+                  "value": "Budi",
+                  "type": "text"
+                },
+                {
+                  "key": "houseNumber",
+                  "value": "A1",
+                  "type": "text"
+                },
+                {
+                  "key": "month",
+                  "value": "Januari",
+                  "type": "text"
+                },
+                {
+                  "key": "year",
+                  "value": "2026",
+                  "type": "text"
+                },
+                {
+                  "key": "amount",
+                  "value": "100000",
+                  "type": "text"
+                },
+                {
+                  "key": "paymentMethod",
+                  "value": "Transfer Bank",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/payment-requests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "payment-requests"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -23,6 +23,7 @@ export default function ApplyLetterForm({
     phone: '',
     religion: 'Islam',
     profession: '',
+    address: '',
     purpose: '',
   });
 
@@ -30,7 +31,7 @@ export default function ApplyLetterForm({
 
   const {
     applicantName, nik, kk, birthPlace, birthDate,
-    gender, phone, religion, profession, purpose
+    gender, phone, religion, profession, address, purpose
   } = form;
 
   // NIK/KK helper text limiters
@@ -53,6 +54,7 @@ export default function ApplyLetterForm({
       !birthPlace.trim() ||
       !birthDate ||
       !phone.trim() ||
+      !address.trim() ||
       !purpose.trim()
     ) {
       alert('Harap lengkapi semua data dalam formulir.');
@@ -69,6 +71,7 @@ export default function ApplyLetterForm({
       phone,
       religion,
       profession,
+      address,
       purpose,
     });
 
@@ -246,6 +249,17 @@ export default function ApplyLetterForm({
         </h4>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1 col-span-1 md:col-span-2">
+            <label className="text-xs font-bold text-slate-700">Alamat Tempat Tinggal di RT 002</label>
+            <textarea
+              required
+              value={address}
+              onChange={(e) => updateForm({ address: e.target.value })}
+              placeholder="Contoh: Jl. Cibatu Raya No. 10..."
+              className="w-full px-4 py-2.5 bg-white/40 border border-white/60 focus:bg-white/65 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all min-h-[80px]"
+            />
+          </div>
+
           <div className="space-y-1 col-span-1 md:col-span-2">
             <label className="text-xs font-bold text-slate-700">Keperluan / Tujuan Pengajuan Surat</label>
             <input
