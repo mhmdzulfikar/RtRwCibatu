@@ -96,7 +96,7 @@ export default function App() {
           <div className="flex items-center gap-2">
             <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${isAdmin ? 'bg-amber-400' : 'bg-emerald-400'}`} />
             <span className="text-[11px] sm:text-xs font-mono font-bold text-slate-300">
-              PORTAL RT 002 AKTIF • Perumahan Taman Cibiru, CIBATU
+              PORTAL RT 002 • Perumahan Taman Cibiru, CIBATU
             </span>
           </div>
 
@@ -173,9 +173,8 @@ export default function App() {
                 <Building2 className="h-5 w-5" />
               </div>
               <div className="leading-tight">
-                <span className="text-[10px] text-primary uppercase font-mono tracking-wider font-extrabold">RT 002 / RW 16</span>
-                <h1 className="bg-clip-text text-transparent bg-gradient-to-r from-blue-800 to-teal-800 font-extrabold text-base md:text-lg tracking-tight flex items-center gap-1">
-                  RT 002 Digital Hub
+                <h1 className="text-slate-900 font-extrabold text-base md:text-lg tracking-tight flex items-center gap-1">
+                  PORTAL RT 002 Digital Hub
                 </h1>
               </div>
             </div>

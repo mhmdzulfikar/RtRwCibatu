@@ -207,15 +207,12 @@ export default function Dashboard({ onNavigate, announcements, totalBalance, isA
   return (
     <div className="space-y-12">
       {/* Hero Section */}
-      <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-blue-600/95 via-indigo-600/90 to-blue-700/95 text-white shadow-2xl shadow-indigo-200/50 border border-white/20">
-        <div className="absolute top-0 right-0 -m-10 h-72 w-72 rounded-full bg-blue-400/20 blur-2xl" />
-        <div className="absolute bottom-0 left-0 -m-10 h-72 w-72 rounded-full bg-teal-400/20 blur-2xl" />
-
+      <section className="relative overflow-hidden rounded-[2rem] bg-blue-800 text-white shadow-xl">
         <div className="relative px-6 py-12 md:p-16 lg:px-20 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-7 space-y-6">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-xs font-semibold uppercase tracking-wider text-blue-100">
+            {/* <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-xs font-semibold uppercase tracking-wider text-blue-100">
               <Star className="h-3 w-3 fill-amber-300 text-amber-300" /> RT 002 / RW 16 • Perumahan TAMAN CIBIRU Cibatu
-            </span>
+            </span> */}
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
               Lingkungan Modern <br className="hidden md:inline" />Dimulai dari Warga Terhubung.
             </h1>

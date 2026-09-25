@@ -50,7 +50,7 @@ export default function FinancesView({
       {/* Visual Title Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-800 to-teal-800">
+          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
             Laporan Keuangan & Iuran
           </h1>
           <p className="text-slate-500 mt-1">
